@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
 import Sidebar from './components/Sidebar';
@@ -125,7 +126,7 @@ const App: React.FC = () => {
   const handleSaveItem = async (item: SavedItem) => {
       // Optimistic update
       setSavedItems(prev => [item, ...prev]);
-      alert("Item saved to collection!"); // Temporary feedback
+      // alert("Item saved to collection!"); // Removed alert for smoother UX
       try {
           await db.saveItem(item);
       } catch (e) {
@@ -146,10 +147,6 @@ const App: React.FC = () => {
       // Optimistic
       setHighlights(prev => [...prev.filter(h => h.ref !== highlight.ref), highlight]);
       try {
-          // We remove existing highlight for this ref first (if any) to avoid dupes/colors
-          // But in DB we can just insert or maybe we should delete first. 
-          // For simplicity in this implementation, let's just insert. 
-          // A better way is to delete then insert.
           await db.deleteHighlight(highlight.ref);
           await db.addHighlight(highlight);
       } catch (e) {
@@ -184,9 +181,9 @@ const App: React.FC = () => {
   };
 
   const updateCloudPreference = async (key: string, value: string) => {
-      if (!session) return;
+      if (!session || !supabase) return;
       try {
-          await supabase?.auth.updateUser({
+          await supabase.auth.updateUser({
               data: { [key]: value }
           });
       } catch (e) {
@@ -336,7 +333,7 @@ const App: React.FC = () => {
   };
 
   const handleLogout = async () => {
-     await supabase?.auth.signOut();
+     if (supabase) await supabase.auth.signOut();
   };
 
   const handleSendMessage = async (text: string, hiddenContext?: string) => {

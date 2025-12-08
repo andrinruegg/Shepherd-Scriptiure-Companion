@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { Heart, CloudRain, Sun, Smile, Shield, HandHeart, Anchor, Sparkles } from 'lucide-react';
+import { Heart, CloudRain, Sun, Smile, Shield, HeartHandshake, Anchor, Sparkles } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { translations } from '../utils/translations';
 
@@ -85,7 +86,7 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onSelectTopic, language }
     { id: 'love', label: t.love.label, icon: Heart, color: 'bg-rose-100 text-rose-600 dark:bg-rose-900/50 dark:text-rose-300' },
     { id: 'hope', label: t.hope.label, icon: Sun, color: 'bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-300' },
     { id: 'sadness', label: t.sadness.label, icon: Anchor, color: 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300' },
-    { id: 'gratitude', label: t.gratitude.label, icon: HandHeart, color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-300' },
+    { id: 'gratitude', label: t.gratitude.label, icon: HeartHandshake, color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-300' },
     { id: 'strength', label: t.strength.label, icon: Shield, color: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-300' },
     { id: 'joy', label: t.joy.label, icon: Smile, color: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/50 dark:text-yellow-300' },
     { id: 'forgiveness', label: t.forgiveness.label, icon: Sparkles, color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/50 dark:text-purple-300' },
