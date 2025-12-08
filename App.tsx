@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
 import Sidebar from './components/Sidebar';
@@ -9,7 +8,7 @@ import SettingsModal from './components/SettingsModal';
 import DailyVerseModal from './components/DailyVerseModal';
 import BibleReader from './components/BibleReader';
 import SavedCollection from './components/SavedCollection';
-import { Message, ChatSession, UserPreferences, AppView, SavedItem } from './types';
+import { Message, ChatSession, UserPreferences, AppView, SavedItem, BibleHighlight } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import { sendMessageStream, generateChatTitle } from './services/geminiService';
 import { supabase } from './services/supabase';
@@ -33,7 +32,7 @@ const App: React.FC = () => {
   const [isDailyVerseOpen, setIsDailyVerseOpen] = useState(false);
   const [dailyStreak, setDailyStreak] = useState(0);
   
-  // Preferences State (Lazy Initialization to prevent flash of default)
+  // Preferences State
   const [bibleTranslation, setBibleTranslation] = useState<string>(() => {
     if (typeof window !== 'undefined') return localStorage.getItem('bibleTranslation') || 'NIV';
     return 'NIV';
@@ -53,28 +52,9 @@ const App: React.FC = () => {
     return false;
   });
 
-  // Saved Collection State
-  const [savedItems, setSavedItems] = useState<SavedItem[]>(() => {
-    if (typeof window !== 'undefined') {
-        const saved = localStorage.getItem('savedItems');
-        return saved ? JSON.parse(saved) : [];
-    }
-    return [];
-  });
-
-  useEffect(() => {
-      localStorage.setItem('savedItems', JSON.stringify(savedItems));
-      // Cloud sync logic would go here if backend schema supported it
-  }, [savedItems]);
-
-  const handleSaveItem = (item: SavedItem) => {
-      setSavedItems(prev => [item, ...prev]);
-      alert("Item saved to collection!");
-  };
-
-  const handleRemoveSavedItem = (id: string) => {
-      setSavedItems(prev => prev.filter(i => i.id !== id));
-  };
+  // Saved Items & Highlights State (Loaded from DB)
+  const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
+  const [highlights, setHighlights] = useState<BibleHighlight[]>([]);
 
   // Splash Screen Timer
   useEffect(() => {
@@ -90,7 +70,7 @@ const App: React.FC = () => {
     setDailyStreak(streak);
   }, []);
 
-  // Sync session metadata (Cloud Persistence)
+  // Sync session metadata & Load Cloud Data
   useEffect(() => {
     if (session?.user?.user_metadata) {
         const meta = session.user.user_metadata;
@@ -100,7 +80,6 @@ const App: React.FC = () => {
             localStorage.setItem('displayName', meta.full_name);
         }
         
-        // Ensure language is loaded correctly or defaults to English
         if (meta.language) {
             setLanguage(meta.language);
             localStorage.setItem('language', meta.language);
@@ -117,7 +96,75 @@ const App: React.FC = () => {
             localStorage.setItem('theme', meta.theme);
         }
     }
+
+    // Load Cloud Data when session is active
+    if (session) {
+        loadCloudData();
+        loadChats();
+    } else {
+        setChats([]);
+        setActiveChatId(null);
+        setSavedItems([]);
+        setHighlights([]);
+    }
   }, [session]);
+
+  const loadCloudData = async () => {
+      try {
+          const [cloudSaved, cloudHighlights] = await Promise.all([
+              db.getSavedItems(),
+              db.getHighlights()
+          ]);
+          setSavedItems(cloudSaved);
+          setHighlights(cloudHighlights);
+      } catch (e) {
+          console.error("Failed to load cloud data", e);
+      }
+  };
+
+  const handleSaveItem = async (item: SavedItem) => {
+      // Optimistic update
+      setSavedItems(prev => [item, ...prev]);
+      alert("Item saved to collection!"); // Temporary feedback
+      try {
+          await db.saveItem(item);
+      } catch (e) {
+          console.error("Failed to save item to cloud", e);
+      }
+  };
+
+  const handleRemoveSavedItem = async (id: string) => {
+      setSavedItems(prev => prev.filter(i => i.id !== id));
+      try {
+          await db.deleteSavedItem(id);
+      } catch (e) {
+          console.error("Failed to delete item from cloud", e);
+      }
+  };
+
+  const handleAddHighlight = async (highlight: BibleHighlight) => {
+      // Optimistic
+      setHighlights(prev => [...prev.filter(h => h.ref !== highlight.ref), highlight]);
+      try {
+          // We remove existing highlight for this ref first (if any) to avoid dupes/colors
+          // But in DB we can just insert or maybe we should delete first. 
+          // For simplicity in this implementation, let's just insert. 
+          // A better way is to delete then insert.
+          await db.deleteHighlight(highlight.ref);
+          await db.addHighlight(highlight);
+      } catch (e) {
+          console.error("Failed to save highlight", e);
+      }
+  };
+
+  const handleRemoveHighlight = async (ref: string) => {
+      setHighlights(prev => prev.filter(h => h.ref !== ref));
+      try {
+          await db.deleteHighlight(ref);
+      } catch (e) {
+          console.error("Failed to remove highlight", e);
+      }
+  };
 
   // Apply Dark Mode Class
   useEffect(() => {
@@ -191,15 +238,6 @@ const App: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (session) {
-      loadChats();
-    } else {
-      setChats([]);
-      setActiveChatId(null);
-    }
-  }, [session]);
-
   const loadChats = async () => {
     try {
       const userChats = await db.getUserChats();
@@ -215,12 +253,9 @@ const App: React.FC = () => {
   };
 
   const createNewChat = async () => {
-    // VARIETY: Pick a random welcome message from translations based on language
     const langData = translations[language] || translations['English'];
     const messages = langData.welcomeMessages || translations['English'].welcomeMessages;
     const randomTemplate = messages[Math.floor(Math.random() * messages.length)];
-    
-    // Replace {name} placeholder
     const finalWelcomeText = randomTemplate.replace('{name}', displayName || (language === 'Romanian' ? 'Prieten' : 'Friend'));
 
     const tempId = uuidv4();
@@ -240,8 +275,6 @@ const App: React.FC = () => {
     
     setChats(prev => [newChat, ...prev]);
     setActiveChatId(tempId);
-    
-    // Ensure we are in Chat view when creating a new chat
     setCurrentView('chat');
 
     try {
@@ -538,6 +571,9 @@ const App: React.FC = () => {
                     language={language}
                     onSaveItem={handleSaveItem}
                     onMenuClick={() => setIsSidebarOpen(true)}
+                    highlights={highlights}
+                    onAddHighlight={handleAddHighlight}
+                    onRemoveHighlight={handleRemoveHighlight}
                 />
             )}
             

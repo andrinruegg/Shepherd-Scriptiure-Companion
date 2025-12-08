@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { ChatSession, Message } from '../types';
+import { ChatSession, Message, SavedItem, BibleHighlight } from '../types';
 
 const ensureSupabase = () => {
     if (!supabase) throw new Error("Database not connected.");
@@ -11,7 +11,7 @@ export const db = {
    */
   async getUserChats(): Promise<ChatSession[]> {
     ensureSupabase();
-    // @ts-ignore - we checked ensureSupabase
+    // @ts-ignore
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
@@ -85,7 +85,6 @@ export const db = {
 
   /**
    * Delete a chat and its messages.
-   * Performs manual cascade delete to be safe.
    */
   async deleteChat(chatId: string) {
     ensureSupabase();
@@ -150,5 +149,114 @@ export const db = {
         isError: data.is_error,
         timestamp: data.created_at
     }];
+  },
+
+  // --- SAVED ITEMS CRUD ---
+
+  async getSavedItems(): Promise<SavedItem[]> {
+      ensureSupabase();
+      // @ts-ignore
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
+      // @ts-ignore
+      const { data, error } = await supabase
+          .from('saved_items')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+
+      return (data || []).map((item: any) => ({
+          id: item.id,
+          type: item.type as 'verse' | 'chat',
+          content: item.content,
+          reference: item.reference,
+          date: new Date(item.created_at).getTime()
+      }));
+  },
+
+  async saveItem(item: SavedItem) {
+      ensureSupabase();
+      // @ts-ignore
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // @ts-ignore
+      const { error } = await supabase
+          .from('saved_items')
+          .insert({
+              user_id: user.id,
+              type: item.type,
+              content: item.content,
+              reference: item.reference,
+              created_at: new Date(item.date).toISOString()
+          });
+      
+      if (error) throw error;
+  },
+
+  async deleteSavedItem(id: string) {
+      ensureSupabase();
+      // @ts-ignore
+      const { error } = await supabase
+          .from('saved_items')
+          .delete()
+          .eq('id', id);
+      
+      if (error) throw error;
+  },
+
+  // --- HIGHLIGHTS CRUD ---
+
+  async getHighlights(): Promise<BibleHighlight[]> {
+      ensureSupabase();
+      // @ts-ignore
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
+      // @ts-ignore
+      const { data, error } = await supabase
+          .from('highlights')
+          .select('*')
+          .eq('user_id', user.id);
+      
+      if (error) throw error;
+
+      return (data || []).map((h: any) => ({
+          id: h.id,
+          ref: h.ref,
+          color: h.color as 'yellow'|'green'|'blue'|'pink'
+      }));
+  },
+
+  async addHighlight(highlight: BibleHighlight) {
+      ensureSupabase();
+      // @ts-ignore
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // @ts-ignore
+      const { error } = await supabase
+          .from('highlights')
+          .insert({
+              user_id: user.id,
+              ref: highlight.ref,
+              color: highlight.color
+          });
+      
+      if (error) throw error;
+  },
+
+  async deleteHighlight(ref: string) {
+      ensureSupabase();
+      // @ts-ignore
+      const { error } = await supabase
+          .from('highlights')
+          .delete()
+          .eq('ref', ref);
+      
+      if (error) throw error;
   }
 };

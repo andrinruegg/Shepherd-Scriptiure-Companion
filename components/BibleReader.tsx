@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Book, ChevronLeft, ChevronRight, Heart, X, Menu } from 'lucide-react';
 import { BIBLE_BOOKS, fetchChapter } from '../services/bibleService';
@@ -10,33 +9,25 @@ interface BibleReaderProps {
   language: string;
   onSaveItem: (item: SavedItem) => void;
   onMenuClick: () => void;
+  highlights: BibleHighlight[];
+  onAddHighlight: (highlight: BibleHighlight) => void;
+  onRemoveHighlight: (ref: string) => void;
 }
 
-const BibleReader: React.FC<BibleReaderProps> = ({ language, onSaveItem, onMenuClick }) => {
+const BibleReader: React.FC<BibleReaderProps> = ({ 
+    language, 
+    onSaveItem, 
+    onMenuClick, 
+    highlights, 
+    onAddHighlight, 
+    onRemoveHighlight 
+}) => {
   const [selectedBookId, setSelectedBookId] = useState('JHN');
   const [chapter, setChapter] = useState(1);
   const [data, setData] = useState<BibleChapter | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeVerse, setActiveVerse] = useState<number | null>(null);
   
-  // Highlight State (Persisted in LocalStorage)
-  const [highlights, setHighlights] = useState<BibleHighlight[]>(() => {
-      if (typeof window !== 'undefined') {
-          try {
-              const saved = localStorage.getItem('bible_highlights');
-              return saved ? JSON.parse(saved) : [];
-          } catch (e) {
-              return [];
-          }
-      }
-      return [];
-  });
-
-  // Sync highlights to localStorage whenever they change
-  useEffect(() => {
-      localStorage.setItem('bible_highlights', JSON.stringify(highlights));
-  }, [highlights]);
-
   const t = translations[language]?.bible || translations['English'].bible;
   
   const selectedBook = BIBLE_BOOKS.find(b => b.id === selectedBookId) || BIBLE_BOOKS[0];
@@ -78,16 +69,13 @@ const BibleReader: React.FC<BibleReaderProps> = ({ language, onSaveItem, onMenuC
 
   const highlightVerse = (verseNum: number, color: 'yellow' | 'green' | 'blue' | 'pink') => {
       const ref = `${selectedBookId} ${chapter}:${verseNum}`;
-      setHighlights(prev => {
-          const filtered = prev.filter(h => h.ref !== ref);
-          return [...filtered, { id: uuidv4(), ref, color }];
-      });
+      onAddHighlight({ id: uuidv4(), ref, color });
       setActiveVerse(null);
   };
 
   const removeHighlight = (verseNum: number) => {
       const ref = `${selectedBookId} ${chapter}:${verseNum}`;
-      setHighlights(prev => prev.filter(h => h.ref !== ref));
+      onRemoveHighlight(ref);
       setActiveVerse(null);
   }
 
