@@ -413,6 +413,8 @@ const App: React.FC = () => {
       if (!currentChat) return;
       const messages = currentChat.messages;
       if (messages.length < 2) return;
+      
+      // Ensure we have a previous user message
       const lastUserMessage = messages[messages.length - 2];
       if (!lastUserMessage || lastUserMessage.role !== 'user') return;
 
@@ -452,13 +454,16 @@ const App: React.FC = () => {
       (error) => {
         const rawMsg = error?.message || "Unknown Error";
         let friendlyMessage = rawMsg;
+        
         if (rawMsg.includes('429') || rawMsg.includes('Quota')) {
             friendlyMessage = "⚠️ **High Traffic / Daily Limit Reached**\n\nPlease wait a moment or add your own free API Key in Settings.";
         } else if (rawMsg.includes('Failed to fetch')) {
             friendlyMessage = "⚠️ **Connection Error**\n\nPlease check your internet connection.";
         } else {
-             friendlyMessage = "⚠️ **I encountered a problem.**\n\nPlease try again.";
+             // SHOW RAW ERROR FOR DEBUGGING AS REQUESTED
+             friendlyMessage = `⚠️ **Error Details:**\n\n\`${rawMsg}\`\n\n(Please verify your API Key or Network)`;
         }
+        
         setChats(prevChats => prevChats.map(chat => {
           if (chat.id === chatId) {
             return { ...chat, messages: chat.messages.map(msg => msg.id === messageId ? { ...msg, isError: true, text: friendlyMessage } : msg) };
