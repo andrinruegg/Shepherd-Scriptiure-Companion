@@ -1,5 +1,6 @@
+
 import { supabase } from './supabase';
-import { ChatSession, Message, SavedItem, BibleHighlight } from '../types';
+import { ChatSession, Message, SavedItem, BibleHighlight, UserProfile, FriendRequest, DirectMessage } from '../types';
 
 const ensureSupabase = () => {
     if (!supabase) throw new Error("Database not connected.");
@@ -262,5 +263,229 @@ export const db = {
           .eq('ref', ref);
       
       if (error) throw error;
+  },
+
+  // --- SOCIAL / FRIENDS SYSTEM ---
+
+  social: {
+      /**
+       * Syncs the current user's profile to the public table so they can be found.
+       */
+      async upsertProfile(shareId: string, displayName: string, avatar?: string) {
+          ensureSupabase();
+          // @ts-ignore
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+
+          // @ts-ignore
+          const { error } = await supabase
+              .from('profiles')
+              .upsert({
+                  id: user.id,
+                  share_id: shareId,
+                  display_name: displayName,
+                  avatar: avatar || null
+              }, { onConflict: 'id' });
+          
+          if (error) console.error("Profile sync failed", error);
+      },
+
+      /**
+       * Find a user by their unique Share ID.
+       */
+      async searchUserByShareId(shareId: string): Promise<UserProfile | null> {
+          ensureSupabase();
+          // @ts-ignore
+          const { data, error } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('share_id', shareId)
+              .single();
+
+          if (error || !data) return null;
+          return data as UserProfile;
+      },
+
+      /**
+       * Send a friend request to a user.
+       */
+      async sendFriendRequest(targetUserId: string) {
+          ensureSupabase();
+          // @ts-ignore
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) throw new Error('Not authenticated');
+          if (user.id === targetUserId) throw new Error("You cannot add yourself.");
+
+          // Check if already friends or requested
+          // @ts-ignore
+          const { data: existing } = await supabase
+             .from('friendships')
+             .select('*')
+             .or(`and(requester_id.eq.${user.id},receiver_id.eq.${targetUserId}),and(requester_id.eq.${targetUserId},receiver_id.eq.${user.id})`)
+             .single();
+          
+          if (existing) throw new Error("Request already sent or you are already friends.");
+
+          // @ts-ignore
+          const { error } = await supabase
+              .from('friendships')
+              .insert({
+                  requester_id: user.id,
+                  receiver_id: targetUserId,
+                  status: 'pending'
+              });
+
+          if (error) throw error;
+      },
+
+      /**
+       * Get pending friend requests addressed to the current user.
+       */
+      async getIncomingRequests(): Promise<FriendRequest[]> {
+          ensureSupabase();
+          // @ts-ignore
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return [];
+
+          // @ts-ignore
+          const { data, error } = await supabase
+              .from('friendships')
+              .select(`
+                  id,
+                  created_at,
+                  status,
+                  requester:profiles!requester_id (
+                      id,
+                      share_id,
+                      display_name,
+                      avatar
+                  )
+              `)
+              .eq('receiver_id', user.id)
+              .eq('status', 'pending');
+          
+          if (error) throw error;
+          
+          return (data || []).map((r: any) => ({
+              id: r.id,
+              status: r.status,
+              created_at: r.created_at,
+              requester: r.requester
+          }));
+      },
+
+      /**
+       * Accept or Reject a request.
+       */
+      async respondToRequest(requestId: string, accept: boolean) {
+          ensureSupabase();
+          if (accept) {
+              // @ts-ignore
+              const { error } = await supabase
+                  .from('friendships')
+                  .update({ status: 'accepted' })
+                  .eq('id', requestId);
+              if (error) throw error;
+          } else {
+              // @ts-ignore
+              const { error } = await supabase
+                  .from('friendships')
+                  .delete()
+                  .eq('id', requestId);
+              if (error) throw error;
+          }
+      },
+
+      /**
+       * Get list of accepted friends.
+       */
+      async getFriends(): Promise<UserProfile[]> {
+          ensureSupabase();
+          // @ts-ignore
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return [];
+
+          // Complex query: get rows where I am requester OR receiver, and status is accepted
+          // @ts-ignore
+          const { data, error } = await supabase
+              .from('friendships')
+              .select(`
+                  requester:profiles!requester_id(*),
+                  receiver:profiles!receiver_id(*)
+              `)
+              .eq('status', 'accepted')
+              .or(`requester_id.eq.${user.id},receiver_id.eq.${user.id}`);
+          
+          if (error) throw error;
+
+          const friends: UserProfile[] = [];
+          (data || []).forEach((row: any) => {
+              if (row.requester.id !== user.id) friends.push(row.requester);
+              if (row.receiver.id !== user.id) friends.push(row.receiver);
+          });
+          
+          return friends;
+      },
+
+      /**
+       * Chat System Methods
+       */
+      
+      async getMessages(friendId: string): Promise<DirectMessage[]> {
+          ensureSupabase();
+          // @ts-ignore
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return [];
+
+          // @ts-ignore
+          const { data, error } = await supabase
+              .from('direct_messages')
+              .select('*')
+              .or(`and(sender_id.eq.${user.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${user.id})`)
+              .order('created_at', { ascending: true });
+          
+          if (error) throw error;
+
+          return data || [];
+      },
+
+      async sendMessage(friendId: string, content: string, type: 'text'|'image'|'audio' = 'text'): Promise<DirectMessage> {
+          ensureSupabase();
+          // @ts-ignore
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) throw new Error("Not authenticated");
+
+          // @ts-ignore
+          const { data, error } = await supabase
+              .from('direct_messages')
+              .insert({
+                  sender_id: user.id,
+                  receiver_id: friendId,
+                  content: content,
+                  message_type: type
+              })
+              .select()
+              .single();
+          
+          if (error) throw error;
+          return data;
+      },
+
+      async uploadMedia(file: Blob, path: string): Promise<string> {
+          ensureSupabase();
+          // @ts-ignore
+          const { data, error } = await supabase.storage
+              .from('chat-media')
+              .upload(path, file);
+          
+          if (error) throw error;
+          
+          // @ts-ignore
+          const { data: urlData } = supabase.storage
+              .from('chat-media')
+              .getPublicUrl(path);
+          
+          return urlData.publicUrl;
+      }
   }
 };

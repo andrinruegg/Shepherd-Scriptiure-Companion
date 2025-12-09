@@ -10,6 +10,7 @@ import DailyVerseModal from './components/DailyVerseModal';
 import BibleReader from './components/BibleReader';
 import SavedCollection from './components/SavedCollection';
 import WinterOverlay from './components/WinterOverlay';
+import SocialModal from './components/SocialModal';
 import { Message, ChatSession, UserPreferences, AppView, SavedItem, BibleHighlight } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import { sendMessageStream, generateChatTitle } from './services/geminiService';
@@ -32,8 +33,13 @@ const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDailyVerseOpen, setIsDailyVerseOpen] = useState(false);
+  const [isSocialOpen, setIsSocialOpen] = useState(false); // NEW Social Modal State
   const [dailyStreak, setDailyStreak] = useState(0);
   
+  // Social State
+  const [shareId, setShareId] = useState<string>('');
+  const [pendingRequests, setPendingRequests] = useState(0);
+
   // Preferences State
   const [bibleTranslation, setBibleTranslation] = useState<string>(() => {
     if (typeof window !== 'undefined') return localStorage.getItem('bibleTranslation') || 'NIV';
@@ -88,6 +94,24 @@ const App: React.FC = () => {
     if (session?.user?.user_metadata) {
         const meta = session.user.user_metadata;
         
+        let currentShareId = meta.share_id;
+        let currentDisplayName = displayName || meta.full_name || '';
+
+        // 1. GENERATE SHARE ID IF MISSING
+        if (!currentShareId && currentDisplayName) {
+            const cleanName = currentDisplayName.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 8) || 'USER';
+            const randomCode = Math.floor(1000 + Math.random() * 9000);
+            currentShareId = `${cleanName}-${randomCode}`;
+            
+            // Save to Auth Metadata
+            supabase?.auth.updateUser({
+                data: { share_id: currentShareId }
+            });
+        }
+
+        if (currentShareId) setShareId(currentShareId);
+
+        // 2. LOAD PREFERENCES
         if (meta.full_name) {
             setDisplayName(meta.full_name);
             localStorage.setItem('displayName', meta.full_name);
@@ -119,12 +143,19 @@ const App: React.FC = () => {
             setAvatar(meta.avatar);
             localStorage.setItem('userAvatar', meta.avatar);
         }
+
+        // 3. SYNC TO PUBLIC PROFILES TABLE
+        // This ensures the user is searchable by others
+        if (currentShareId && currentDisplayName) {
+            db.social.upsertProfile(currentShareId, currentDisplayName, meta.avatar);
+        }
     }
 
     // Load Cloud Data when session is active
     if (session) {
         loadCloudData();
         loadChats();
+        loadSocialNotifications();
     } else {
         setChats([]);
         setActiveChatId(null);
@@ -143,6 +174,15 @@ const App: React.FC = () => {
           setHighlights(cloudHighlights);
       } catch (e) {
           console.error("Failed to load cloud data", e);
+      }
+  };
+  
+  const loadSocialNotifications = async () => {
+      try {
+          const requests = await db.social.getIncomingRequests();
+          setPendingRequests(requests.length);
+      } catch (e) {
+          console.error("Failed to load requests", e);
       }
   };
 
@@ -235,6 +275,8 @@ const App: React.FC = () => {
        setDisplayName(value as string);
        localStorage.setItem('displayName', value as string);
        updateCloudPreference('full_name', value as string);
+       // Also update public profile
+       if (shareId) db.social.upsertProfile(shareId, value as string, avatar);
     } else if (key === 'avatar') {
        setAvatar(value as string);
        if (value) {
@@ -242,9 +284,9 @@ const App: React.FC = () => {
        } else {
            localStorage.removeItem('userAvatar');
        }
-       // We typically don't sync huge base64 strings to Supabase metadata heavily, 
-       // but for small optimized avatars it's okay for now.
        updateCloudPreference('avatar', value as string);
+       // Also update public profile
+       if (shareId) db.social.upsertProfile(shareId, displayName, value as string);
     }
   };
 
@@ -735,6 +777,8 @@ const App: React.FC = () => {
             onRenameChat={handleRenameChat}
             onOpenSettings={() => setIsSettingsOpen(true)}
             onOpenDailyVerse={() => setIsDailyVerseOpen(true)}
+            onOpenSocial={() => setIsSocialOpen(true)} // Handle opening modal
+            pendingRequestsCount={pendingRequests} // Badge count
             isDarkMode={isDarkMode}
             toggleDarkMode={toggleDarkMode}
             language={language}
@@ -799,6 +843,13 @@ const App: React.FC = () => {
              onClose={() => setIsDailyVerseOpen(false)}
              isDarkMode={isDarkMode}
              language={language}
+          />
+
+          <SocialModal 
+            isOpen={isSocialOpen}
+            onClose={() => setIsSocialOpen(false)}
+            currentUserShareId={shareId}
+            isDarkMode={isDarkMode}
           />
         </div>
       )}

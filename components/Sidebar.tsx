@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Plus, MessageSquare, Trash2, X, Edit2, Check, Settings, Calendar, Flame, Book, Heart, MessageCircle } from 'lucide-react';
+import { Plus, MessageSquare, Trash2, X, Edit2, Check, Settings, Calendar, Flame, Book, Heart, MessageCircle, Bell } from 'lucide-react';
 import { ChatSession, AppView } from '../types';
 import ShepherdLogo from './ShepherdLogo';
 import { translations } from '../utils/translations';
@@ -16,6 +16,8 @@ interface SidebarProps {
   onRenameChat: (id: string, newTitle: string) => void;
   onOpenSettings: () => void;
   onOpenDailyVerse: () => void;
+  onOpenSocial: () => void; // New Prop
+  pendingRequestsCount: number; // New Prop
   isDarkMode: boolean;
   toggleDarkMode: () => void;
   language: string;
@@ -35,6 +37,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   onRenameChat,
   onOpenSettings,
   onOpenDailyVerse,
+  onOpenSocial,
+  pendingRequestsCount,
   language,
   dailyStreak = 0,
   currentView,
@@ -113,9 +117,22 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <ShepherdLogo className="text-emerald-500" size={28} />
                 <span className="font-semibold text-lg">Shepherd</span>
             </div>
-            <button onClick={onClose} className="md:hidden text-slate-400 hover:text-white">
-                <X size={20} />
-            </button>
+            
+            <div className="flex items-center gap-2">
+                <button 
+                    onClick={() => { onOpenSocial(); if(window.innerWidth < 768) onClose(); }} 
+                    className="relative p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+                    title="Inbox & Friends"
+                >
+                    <Bell size={20} />
+                    {pendingRequestsCount > 0 && (
+                        <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-slate-900"></span>
+                    )}
+                </button>
+                <button onClick={onClose} className="md:hidden text-slate-400 hover:text-white">
+                    <X size={20} />
+                </button>
+            </div>
           </div>
 
           {/* MAIN TABS */}

@@ -32,6 +32,38 @@ export interface UserPreferences {
   savedVerses?: SavedItem[];
 }
 
+// --- NEW TYPES FOR SOCIAL FEATURES ---
+
+export interface UserProfile {
+  id: string;
+  share_id: string;
+  display_name: string;
+  avatar?: string;
+}
+
+export interface FriendRequest {
+  id: string;
+  requester: UserProfile;
+  status: 'pending' | 'accepted';
+  created_at: string;
+}
+
+export interface AppUpdate {
+  version: string;
+  date: string;
+  title: string;
+  changes: string[];
+}
+
+export interface DirectMessage {
+  id: string;
+  sender_id: string;
+  receiver_id: string;
+  content: string; // Text or URL
+  message_type: 'text' | 'image' | 'audio';
+  created_at: string;
+}
+
 // --- NEW TYPES FOR BIBLE READER & SAVED ITEMS ---
 
 export type AppView = 'chat' | 'bible' | 'saved';
@@ -55,6 +87,7 @@ export interface BibleChapter {
   reference: string;
   verses: BibleVerse[];
   translation_id: string;
+  verses_count?: number; 
 }
 
 export interface BibleHighlight {
