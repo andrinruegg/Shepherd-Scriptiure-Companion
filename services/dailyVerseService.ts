@@ -7,7 +7,12 @@ interface Verse {
       de: string;
       [key: string]: string; // Fallback
   };
-  reference: string;
+  reference: {
+      en: string;
+      ro: string;
+      de: string;
+      [key: string]: string;
+  };
 }
 
 // Multilingual Verses
@@ -19,7 +24,11 @@ const VERSES: Verse[] = [
           ro: "Căci Eu știu gândurile pe care le am cu privire la voi, zice Domnul, gânduri de pace, și nu de nenorocire, ca să vă dau un viitor și o nădejde.",
           de: "Denn ich weiß wohl, was ich für Gedanken über euch habe, spricht der HERR: Gedanken des Friedens und nicht des Leides, dass ich euch gebe Zukunft und Hoffnung."
       },
-      reference: "Jeremiah 29:11" 
+      reference: {
+          en: "Jeremiah 29:11",
+          ro: "Ieremia 29:11",
+          de: "Jeremia 29,11"
+      }
   },
   { 
       text: {
@@ -27,7 +36,11 @@ const VERSES: Verse[] = [
           ro: "Dar cei ce se încred în Domnul își înnoiesc puterea, ei zboară ca vulturii; aleargă, și nu obosesc, umblă, și nu ostenesc.",
           de: "Aber die auf den HERRN harren, kriegen neue Kraft, dass sie auffahren mit Flügeln wie Adler, dass sie laufen und nicht matt werden, dass sie wandeln und nicht müde werden."
       },
-      reference: "Isaiah 40:31" 
+      reference: {
+          en: "Isaiah 40:31",
+          ro: "Isaia 40:31",
+          de: "Jesaja 40,31"
+      } 
   },
   // Peace
   { 
@@ -36,7 +49,11 @@ const VERSES: Verse[] = [
           ro: "Vă las pacea, vă dau pacea Mea. Nu v-o dau cum o dă lumea. Să nu vi se tulbure inima, nici să nu se înspăimânte.",
           de: "Frieden lasse ich euch, meinen Frieden gebe ich euch. Nicht gebe ich euch, wie die Welt gibt. Euer Herz erschrecke nicht und fürchte sich nicht."
       },
-      reference: "John 14:27" 
+      reference: {
+          en: "John 14:27",
+          ro: "Ioan 14:27",
+          de: "Johannes 14,27"
+      } 
   },
   // Strength
   { 
@@ -45,7 +62,11 @@ const VERSES: Verse[] = [
           ro: "Pot totul în Hristos care mă întărește.",
           de: "Ich vermag alles durch den, der mich mächtig macht."
       },
-      reference: "Philippians 4:13" 
+      reference: {
+          en: "Philippians 4:13",
+          ro: "Filipeni 4:13",
+          de: "Philipper 4,13"
+      } 
   },
   // Love
   { 
@@ -54,10 +75,12 @@ const VERSES: Verse[] = [
           ro: "Dragostea este îndelung răbdătoare, este plină de bunătate; dragostea nu pizmuiește; dragostea nu se laudă, nu se umflă de mândrie.",
           de: "Die Liebe ist langmütig und freundlich, die Liebe eifert nicht, die Liebe treibt nicht Mutwillen, sie bläht sich nicht auf."
       },
-      reference: "1 Corinthians 13:4" 
+      reference: {
+          en: "1 Corinthians 13:4",
+          ro: "1 Corinteni 13:4",
+          de: "1. Korinther 13,4"
+      } 
   }
-  // ... (In a real production app, all 100+ verses would be translated here. 
-  // For this version, we will duplicate these entries to simulate a larger DB or use English fallback for the others if we kept the old list)
 ];
 
 /**
@@ -94,7 +117,7 @@ export const getDailyVerse = (language: string): { text: string; reference: stri
 
   return {
       text: rawVerse.text[langKey] || rawVerse.text['en'],
-      reference: rawVerse.reference
+      reference: rawVerse.reference[langKey] || rawVerse.reference['en']
   };
 };
 
