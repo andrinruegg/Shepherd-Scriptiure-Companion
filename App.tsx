@@ -510,7 +510,10 @@ const App: React.FC = () => {
         }
       },
       (error) => {
-        const errorMsg = "I apologize, but I encountered a connection error. Please try again.";
+        // Show specific error for debugging
+        const errorMessage = error?.message || "Unknown Connection Error";
+        const errorMsg = `I apologize, but I encountered a connection error. \n\n**Error Details:** ${errorMessage}`;
+        
         setChats(prevChats => prevChats.map(chat => {
           if (chat.id === chatId) {
             return {

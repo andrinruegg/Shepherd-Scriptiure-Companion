@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, Book, Moon, Sun, LogOut, User, Globe, Info, Edit2, Check } from 'lucide-react';
+import { X, Book, Moon, Sun, LogOut, User, Globe, Info, Edit2, Check, Activity, AlertTriangle, CheckCircle } from 'lucide-react';
 import { UserPreferences } from '../types';
 import { translations } from '../utils/translations';
+import { diagnoseConnection } from '../services/geminiService';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -44,6 +45,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 }) => {
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(preferences.displayName || '');
+  
+  // Diagnostics State
+  const [diagStatus, setDiagStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [diagMessage, setDiagMessage] = useState('');
 
   if (!isOpen) return null;
 
@@ -52,6 +57,19 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const handleSaveName = () => {
     onUpdatePreference('displayName', tempName);
     setIsEditingName(false);
+  };
+
+  const runDiagnostics = async () => {
+      setDiagStatus('loading');
+      setDiagMessage('Testing connection to Google Gemini...');
+      const result = await diagnoseConnection();
+      if (result.status === 'ok') {
+          setDiagStatus('success');
+          setDiagMessage(result.message);
+      } else {
+          setDiagStatus('error');
+          setDiagMessage(`Error: ${result.message}`);
+      }
   };
 
   return (
@@ -211,6 +229,37 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               <LogOut size={16} />
               {t.signOut}
             </button>
+          </section>
+
+          <hr className="border-slate-100 dark:border-slate-800" />
+
+          {/* Diagnostics Section */}
+          <section>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1">
+                 <Activity size={12} />
+                 System Diagnostics
+              </h3>
+              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-100 dark:border-slate-800">
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                      If you are experiencing connection errors, run a test below.
+                  </div>
+                  
+                  {diagStatus !== 'idle' && (
+                      <div className={`mb-3 p-2 rounded text-xs break-all font-mono ${diagStatus === 'error' ? 'bg-red-50 text-red-600 dark:bg-red-900/20' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20'}`}>
+                          {diagStatus === 'loading' && "Running..."}
+                          {diagStatus === 'error' && <div className="flex gap-2"><AlertTriangle size={14} className="flex-shrink-0" /> {diagMessage}</div>}
+                          {diagStatus === 'success' && <div className="flex gap-2"><CheckCircle size={14} className="flex-shrink-0" /> {diagMessage}</div>}
+                      </div>
+                  )}
+
+                  <button 
+                     onClick={runDiagnostics}
+                     disabled={diagStatus === 'loading'}
+                     className="w-full py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded transition-colors"
+                  >
+                      {diagStatus === 'loading' ? 'Testing...' : 'Test Connection'}
+                  </button>
+              </div>
           </section>
 
           <hr className="border-slate-100 dark:border-slate-800" />

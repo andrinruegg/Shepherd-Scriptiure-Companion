@@ -3,7 +3,8 @@ import { Message } from "../types";
 
 // Initialize the API client
 // @ts-ignore - process.env.API_KEY is replaced by Vite at build time
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const apiKey = process.env.API_KEY; 
+const ai = new GoogleGenAI({ apiKey: apiKey });
 
 // We now treat this as a base template, not a const
 const BASE_SYSTEM_INSTRUCTION = `
@@ -38,6 +39,36 @@ const mapHistoryToContent = (messages: Message[]): Content[] => {
       role: m.role,
       parts: [{ text: m.text }], // We only put the visible text in history to keep context clean
     }));
+};
+
+/**
+ * Diagnostic tool to check connection health
+ */
+export const diagnoseConnection = async (): Promise<{ status: 'ok' | 'error', message: string, details?: any }> => {
+    try {
+        // 1. Check API Key presence (masked)
+        if (!apiKey || apiKey.length === 0) {
+            return { status: 'error', message: "API Key is missing or empty in the build." };
+        }
+        
+        // 2. Test Network Call
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: 'Ping',
+        });
+        
+        if (response && response.text) {
+            return { status: 'ok', message: "Connection Successful. API returned: " + response.text.substring(0, 10) + "..." };
+        } else {
+            return { status: 'error', message: "API Key present, but received empty response." };
+        }
+    } catch (e: any) {
+        return { 
+            status: 'error', 
+            message: e.message || "Unknown error occurred", 
+            details: e 
+        };
+    }
 };
 
 /**
