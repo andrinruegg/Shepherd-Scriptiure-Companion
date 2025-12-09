@@ -278,6 +278,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   "As a Christian, he built this tool to help himself and his girlfriend, <strong className="text-emerald-700 dark:text-emerald-400 not-italic">Alexia</strong>, grow closer to God through Scripture. It stands as a testament to his love for her and the eternal truth that Jesus loves her."
                 </p>
              </div>
+             
+             {/* DEBUG VERSION LABEL */}
+             <div className="mt-4 text-center text-[10px] text-slate-400 font-mono">
+                 App Version: Debug-1.0
+             </div>
           </section>
 
         </div>

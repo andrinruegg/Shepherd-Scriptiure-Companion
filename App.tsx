@@ -510,16 +510,21 @@ const App: React.FC = () => {
         }
       },
       (error) => {
-        // Show specific error for debugging
-        const errorMessage = error?.message || "Unknown Connection Error";
-        const errorMsg = `I apologize, but I encountered a connection error. \n\n**Error Details:** ${errorMessage}`;
+        // DISPLAY RAW ERROR FOR DEBUGGING
+        const errorMessage = error?.message || JSON.stringify(error) || "Unknown Error";
         
+        const debugMessage = `[DEBUG MODE ERROR]
+        
+${errorMessage}
+
+(Please refresh the app or check Settings > Diagnostics)`;
+
         setChats(prevChats => prevChats.map(chat => {
           if (chat.id === chatId) {
             return {
               ...chat,
               messages: chat.messages.map(msg => 
-                msg.id === messageId ? { ...msg, isError: true, text: errorMsg } : msg
+                msg.id === messageId ? { ...msg, isError: true, text: debugMessage } : msg
               )
             };
           }

@@ -40,18 +40,14 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLast, onRegenerate
               : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-100 dark:border-slate-700 rounded-2xl rounded-tl-none font-serif-text'}
             ${message.isError ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300 border-red-200 dark:border-red-800' : ''}
           `}>
-            {message.isError ? (
-              <div className="flex flex-col gap-2">
-                <p>I apologize, but I encountered a connection error.</p>
-              </div>
-            ) : isThinking ? (
+            {isThinking ? (
               <div className="flex items-center space-x-1.5 h-6 px-2">
                  <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                  <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                  <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce"></div>
               </div>
             ) : (
-              <div className={`markdown-content ${isUser ? 'text-white' : 'text-slate-800 dark:text-slate-100'}`}>
+              <div className={`markdown-content ${isUser ? 'text-white' : 'text-slate-800 dark:text-slate-100'} ${message.isError ? 'font-mono text-xs' : ''}`}>
                 <ReactMarkdown
                    components={{
                       blockquote: ({node, ...props}) => (
