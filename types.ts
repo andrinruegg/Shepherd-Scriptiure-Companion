@@ -13,6 +13,7 @@ export interface ChatSession {
   title: string;
   messages: Message[];
   createdAt: number;
+  isTemp?: boolean; // New flag: If true, this chat hasn't been saved to DB yet
 }
 
 export interface ChatState {

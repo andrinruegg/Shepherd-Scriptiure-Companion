@@ -124,9 +124,7 @@ const App: React.FC = () => {
   };
 
   const handleSaveItem = async (item: SavedItem) => {
-      // Optimistic update
       setSavedItems(prev => [item, ...prev]);
-      // alert("Item saved to collection!"); // Removed alert for smoother UX
       try {
           await db.saveItem(item);
       } catch (e) {
@@ -144,7 +142,6 @@ const App: React.FC = () => {
   };
 
   const handleAddHighlight = async (highlight: BibleHighlight) => {
-      // Optimistic
       setHighlights(prev => [...prev.filter(h => h.ref !== highlight.ref), highlight]);
       try {
           await db.deleteHighlight(highlight.ref);
@@ -211,7 +208,7 @@ const App: React.FC = () => {
     }
   };
 
-  // Auth Listener
+  // Auth Listener - MOVED UP to avoid Rules of Hooks violation
   useEffect(() => {
     if (!supabase) return;
     
@@ -241,14 +238,14 @@ const App: React.FC = () => {
     try {
       const userChats = await db.getUserChats();
       setChats(userChats);
-      // ALWAYS start a new chat on load, so the user lands in an empty, fresh state
-      // instead of seeing old history immediately.
+      // ALWAYS start a new chat on load, but make it temporary
       createNewChat();
     } catch (error) {
       console.error("Failed to load chats:", error);
     }
   };
 
+  // Modified to create a TEMPORARY chat that is NOT saved to DB yet
   const createNewChat = async () => {
     const langData = translations[language] || translations['English'];
     const messages = langData.welcomeMessages || translations['English'].welcomeMessages;
@@ -267,22 +264,14 @@ const App: React.FC = () => {
         id: tempId,
         title: translations[language]?.sidebar?.newChat || 'New Conversation',
         createdAt: Date.now(),
-        messages: [welcomeMsg]
+        messages: [welcomeMsg],
+        isTemp: true // MARK AS TEMP
     };
     
+    // Add to state, but DO NOT save to DB yet
     setChats(prev => [newChat, ...prev]);
     setActiveChatId(tempId);
     setCurrentView('chat');
-
-    try {
-        const savedChat = await db.createChat(newChat.title, welcomeMsg);
-        setChats(prev => prev.map(c => c.id === tempId ? savedChat : c));
-        setActiveChatId(savedChat.id);
-        return savedChat.id;
-    } catch (e) {
-        console.error("Error creating chat in DB", e);
-        return null;
-    }
   };
 
   const handleDeleteChat = async (chatId: string, e?: React.MouseEvent) => {
@@ -291,6 +280,7 @@ const App: React.FC = () => {
       e.preventDefault();
     }
     
+    // Optimistic UI Update
     let nextActiveId = activeChatId;
     if (activeChatId === chatId) {
         const remainingChats = chats.filter(c => c.id !== chatId);
@@ -305,28 +295,38 @@ const App: React.FC = () => {
     setChats(prev => prev.filter(c => c.id !== chatId));
     setActiveChatId(nextActiveId);
 
+    // If we deleted the last chat, create a new temp one immediately
     if (chats.length <= 1) { 
          setTimeout(() => {
+             // Check if we still have no active ID (double check state)
              if (nextActiveId === null) createNewChat();
          }, 50);
     }
 
-    try {
-        await db.deleteChat(chatId);
-    } catch (err: any) {
-        console.error("Failed to delete chat", err);
-        alert("Could not delete chat from server. Restoring.");
-        setChats(chatsBackup);
-        setActiveChatId(chatId);
+    // Only attempt DB delete if it's not a temp chat
+    const chatToDelete = chatsBackup.find(c => c.id === chatId);
+    if (chatToDelete && !chatToDelete.isTemp) {
+        try {
+            await db.deleteChat(chatId);
+        } catch (err: any) {
+            console.error("Failed to delete chat", err);
+            // Revert on failure
+            setChats(chatsBackup);
+            setActiveChatId(chatId);
+        }
     }
   };
 
   const handleRenameChat = async (chatId: string, newTitle: string) => {
      setChats(prev => prev.map(c => c.id === chatId ? { ...c, title: newTitle } : c));
-     try {
-         await db.updateChatTitle(chatId, newTitle);
-     } catch (e) {
-         console.error("Failed to rename", e);
+     
+     const chat = chats.find(c => c.id === chatId);
+     if (chat && !chat.isTemp) {
+         try {
+             await db.updateChatTitle(chatId, newTitle);
+         } catch (e) {
+             console.error("Failed to rename", e);
+         }
      }
   };
 
@@ -337,6 +337,28 @@ const App: React.FC = () => {
   const handleSendMessage = async (text: string, hiddenContext?: string) => {
     if (!activeChatId) return;
 
+    let currentChatId = activeChatId;
+    let currentChat = chats.find(c => c.id === currentChatId);
+
+    if (!currentChat) return;
+
+    // IF CHAT IS TEMP, CREATE IT IN DB FIRST
+    if (currentChat.isTemp) {
+        try {
+            // Create in DB
+            const savedChat = await db.createChat(currentChat.title, currentChat.messages[0]);
+            
+            // Update State with Real ID and remove isTemp
+            setChats(prev => prev.map(c => c.id === currentChatId ? { ...savedChat, isTemp: false } : c));
+            setActiveChatId(savedChat.id);
+            currentChatId = savedChat.id;
+            currentChat = { ...savedChat, isTemp: false };
+        } catch (e) {
+            console.error("Failed to create real chat from temp", e);
+            return; // Stop if we can't create the chat
+        }
+    }
+
     const userMessage: Message = {
       id: uuidv4(),
       role: 'user',
@@ -346,7 +368,7 @@ const App: React.FC = () => {
     };
 
     setChats(prevChats => prevChats.map(chat => {
-      if (chat.id === activeChatId) {
+      if (chat.id === currentChatId) {
         return {
           ...chat,
           messages: [...chat.messages, userMessage]
@@ -356,17 +378,16 @@ const App: React.FC = () => {
     }));
 
     setIsLoading(true);
-
-    const currentChat = chats.find(c => c.id === activeChatId);
     
+    // Smart Title Generation logic
     if (currentChat && currentChat.messages.length <= 1) {
         generateChatTitle(text).then(smartTitle => {
-            handleRenameChat(activeChatId, smartTitle);
+            handleRenameChat(currentChatId, smartTitle);
         });
     }
 
     try {
-        await db.addMessage(activeChatId, userMessage);
+        await db.addMessage(currentChatId, userMessage);
     } catch (e) {
         console.error("Failed to save user message", e);
     }
@@ -380,7 +401,7 @@ const App: React.FC = () => {
     };
 
     setChats(prevChats => prevChats.map(chat => 
-      chat.id === activeChatId 
+      chat.id === currentChatId 
         ? { ...chat, messages: [...chat.messages, initialAiMessage] } 
         : chat
     ));
@@ -389,7 +410,7 @@ const App: React.FC = () => {
         ? [...currentChat.messages, userMessage] 
         : [userMessage]; 
 
-    await streamAIResponse(activeChatId, aiMessageId, historyPayload, text, hiddenContext, initialAiMessage);
+    await streamAIResponse(currentChatId, aiMessageId, historyPayload, text, hiddenContext, initialAiMessage);
   };
 
   const handleRegenerate = async () => {
