@@ -154,72 +154,77 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
       
       return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={onClose} />
-             <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden animate-scale-in border border-slate-200 dark:border-slate-800 flex flex-col">
+             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={() => setViewingProfile(null)} />
+             
+             {/* Profile Card Container */}
+             <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden animate-scale-in border border-slate-200 dark:border-slate-800 flex flex-col max-h-[85vh]">
                  
-                 {/* Profile Header Image */}
-                 <div className="h-24 bg-gradient-to-r from-indigo-500 to-purple-600 relative">
-                     <button onClick={() => setViewingProfile(null)} className="absolute top-4 left-4 p-2 bg-black/20 text-white rounded-full hover:bg-black/30 backdrop-blur-sm">
+                 {/* Profile Header Image (Fixed Height) */}
+                 <div className="h-28 bg-gradient-to-r from-indigo-500 to-purple-600 relative flex-shrink-0">
+                     <button onClick={() => setViewingProfile(null)} className="absolute top-4 left-4 p-2 bg-black/20 text-white rounded-full hover:bg-black/30 backdrop-blur-sm z-10">
                          <ArrowLeft size={20} />
                      </button>
                  </div>
 
-                 {/* Avatar & Info */}
-                 <div className="px-6 pb-6 -mt-12 flex flex-col items-center text-center">
-                     <div className="w-24 h-24 rounded-full border-4 border-white dark:border-slate-900 bg-white dark:bg-slate-800 overflow-hidden shadow-md mb-3">
-                         {viewingProfile.avatar ? (
-                             <img src={viewingProfile.avatar} className="w-full h-full object-cover" />
-                         ) : (
-                             <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-400">
-                                 <User size={40} />
-                             </div>
-                         )}
-                     </div>
+                 {/* Scrollable Content Area */}
+                 <div className="flex-1 overflow-y-auto">
+                     <div className="px-6 pb-6 flex flex-col items-center text-center">
+                         {/* Avatar - Negative Margin to pull it up */}
+                         <div className="-mt-12 w-24 h-24 rounded-full border-4 border-white dark:border-slate-900 bg-white dark:bg-slate-800 overflow-hidden shadow-md mb-3 relative z-10">
+                             {viewingProfile.avatar ? (
+                                 <img src={viewingProfile.avatar} className="w-full h-full object-cover" />
+                             ) : (
+                                 <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-400">
+                                     <User size={40} />
+                                 </div>
+                             )}
+                         </div>
 
-                     <h2 className="text-xl font-bold text-slate-800 dark:text-white font-serif-text">
-                         {viewingProfile.display_name}
-                     </h2>
-                     <p className="text-sm text-indigo-500 font-mono mb-4 tracking-wide font-medium bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded">
-                         {viewingProfile.share_id}
-                     </p>
+                         <h2 className="text-xl font-bold text-slate-800 dark:text-white font-serif-text">
+                             {viewingProfile.display_name}
+                         </h2>
+                         <p className="text-sm text-indigo-500 font-mono mb-4 tracking-wide font-medium bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded">
+                             {viewingProfile.share_id}
+                         </p>
 
-                     {/* BIO SECTION */}
-                     <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-100 dark:border-slate-800">
-                         {viewingProfile.bio ? (
-                             <p className="text-sm text-slate-600 dark:text-slate-300 italic leading-relaxed">
-                                 "{viewingProfile.bio}"
-                             </p>
-                         ) : (
-                             <p className="text-xs text-slate-400 italic">No bio available.</p>
-                         )}
-                     </div>
+                         {/* BIO SECTION */}
+                         <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-100 dark:border-slate-800 text-left">
+                             {viewingProfile.bio ? (
+                                 <p className="text-sm text-slate-600 dark:text-slate-300 italic leading-relaxed whitespace-pre-wrap">
+                                     "{viewingProfile.bio}"
+                                 </p>
+                             ) : (
+                                 <p className="text-xs text-slate-400 italic text-center">No bio available.</p>
+                             )}
+                         </div>
 
-                     {/* Actions */}
-                     <div className="flex gap-3 w-full">
-                         {isFriend ? (
-                             <>
+                         {/* Actions */}
+                         <div className="flex gap-3 w-full mt-auto">
+                             {isFriend ? (
+                                 <>
+                                     <button 
+                                        onClick={() => { setActiveChatFriend(viewingProfile); setViewingProfile(null); }}
+                                        className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center gap-2 shadow-sm"
+                                     >
+                                         <MessageCircle size={18} /> Message
+                                     </button>
+                                     <button 
+                                        onClick={() => handleUnfriend(viewingProfile.id)}
+                                        className="px-4 py-3 bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 rounded-xl font-medium hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-100 dark:border-red-900/30"
+                                        title="Unfriend"
+                                     >
+                                         <Trash2 size={20} />
+                                     </button>
+                                 </>
+                             ) : (
                                  <button 
-                                    onClick={() => { setActiveChatFriend(viewingProfile); setViewingProfile(null); }}
-                                    className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center gap-2"
+                                    onClick={() => sendRequest(viewingProfile.id)}
+                                    className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center gap-2 shadow-sm"
                                  >
-                                     <MessageCircle size={18} /> Message
+                                     <UserPlus size={18} /> Add Friend
                                  </button>
-                                 <button 
-                                    onClick={() => handleUnfriend(viewingProfile.id)}
-                                    className="px-4 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 rounded-xl font-medium hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-100 dark:border-red-900/30"
-                                    title="Unfriend"
-                                 >
-                                     <Trash2 size={18} />
-                                 </button>
-                             </>
-                         ) : (
-                             <button 
-                                onClick={() => sendRequest(viewingProfile.id)}
-                                className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center gap-2"
-                             >
-                                 <UserPlus size={18} /> Add Friend
-                             </button>
-                         )}
+                             )}
+                         </div>
                      </div>
                  </div>
              </div>

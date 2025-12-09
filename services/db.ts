@@ -270,7 +270,23 @@ export const db = {
 
   social: {
       /**
-       * Syncs the current user's profile to the public table so they can be found.
+       * Check if a share ID is already taken.
+       */
+      async checkShareIdExists(shareId: string): Promise<boolean> {
+          ensureSupabase();
+          // @ts-ignore
+          const { data, error } = await supabase
+              .from('profiles')
+              .select('id')
+              .eq('share_id', shareId)
+              .maybeSingle();
+          
+          return !!data;
+      },
+
+      /**
+       * Syncs the current user's profile.
+       * IMPORTANT: Only updates share_id if it's currently null.
        */
       async upsertProfile(shareId: string, displayName: string, avatar?: string, bio?: string) {
           ensureSupabase();
@@ -278,20 +294,35 @@ export const db = {
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) return;
 
+          // First, check if profile exists to prevent overwriting existing ID with a new one
+          // @ts-ignore
+          const { data: existing } = await supabase
+              .from('profiles')
+              .select('share_id')
+              .eq('id', user.id)
+              .maybeSingle();
+
+          const updates: any = {
+              id: user.id,
+              display_name: displayName,
+              avatar: avatar || null,
+              bio: bio || null,
+              // Only set share_id if it's not already set in DB, or if we are explicitly initializing
+              ...(existing?.share_id ? { share_id: existing.share_id } : { share_id: shareId })
+          };
+
           // @ts-ignore
           const { error } = await supabase
               .from('profiles')
-              .upsert({
-                  id: user.id,
-                  share_id: shareId,
-                  display_name: displayName,
-                  avatar: avatar || null,
-                  bio: bio || null
-              }, { onConflict: 'id' });
+              .upsert(updates, { onConflict: 'id' });
           
           if (error) console.error("Profile sync failed", error);
       },
 
+      /**
+       * Get current user profile from DB.
+       * Returns null if not found.
+       */
       async getUserProfile(userId: string): Promise<UserProfile | null> {
           ensureSupabase();
           // @ts-ignore
@@ -299,7 +330,7 @@ export const db = {
               .from('profiles')
               .select('*')
               .eq('id', userId)
-              .single();
+              .maybeSingle(); // Safe version of single()
           
           if (error || !data) return null;
           return data as UserProfile;

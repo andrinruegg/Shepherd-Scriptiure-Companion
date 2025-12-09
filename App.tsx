@@ -98,47 +98,64 @@ const App: React.FC = () => {
   // Sync session metadata & Load Cloud Data
   useEffect(() => {
     const initSession = async () => {
-        if (!session?.user?.user_metadata) return;
-
+        if (!session?.user) return;
         const meta = session.user.user_metadata;
-        let currentShareId = meta.share_id;
         
-        // --- 1. ID CONSISTENCY CHECK ---
-        // Instead of blindly trusting local metadata or generating a new one immediately,
-        // we check the DB first to see if this user already has an ID.
+        // --- 1. STRICT ID CONSISTENCY ---
+        // We query the DB profile directly. This is the source of truth.
+        let finalShareId = '';
+
         try {
             const existingProfile = await db.social.getUserProfile(session.user.id);
+            
             if (existingProfile && existingProfile.share_id) {
-                // If DB has ID, force use it
-                currentShareId = existingProfile.share_id;
+                // If ID exists in DB, use it immediately. Never overwrite it.
+                finalShareId = existingProfile.share_id;
                 
-                // If local metadata was missing/different, update it now
-                if (meta.share_id !== currentShareId) {
-                     supabase?.auth.updateUser({ data: { share_id: currentShareId } });
-                }
-
-                // Also load Bio from DB if available
+                // Load other DB fields if available
                 if (existingProfile.bio) {
                     setBio(existingProfile.bio);
                     localStorage.setItem('userBio', existingProfile.bio);
                 }
             } else {
-                // No profile in DB? Generate one now.
-                if (!currentShareId && (displayName || meta.full_name)) {
-                     const nameToUse = displayName || meta.full_name || 'USER';
-                     const cleanName = nameToUse.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 8);
-                     const randomCode = Math.floor(1000 + Math.random() * 9000);
-                     currentShareId = `${cleanName}-${randomCode}`;
-                     
-                     // Save to Auth Metadata
-                     supabase?.auth.updateUser({ data: { share_id: currentShareId } });
+                // If no ID in DB, we must generate a new UNIQUE one.
+                // We fallback to metadata or generating fresh.
+                let candidateId = meta.share_id;
+                
+                if (!candidateId) {
+                    // Generate loop: Try until we find a free ID
+                    let isUnique = false;
+                    const nameToUse = displayName || meta.full_name || 'USER';
+                    const cleanName = nameToUse.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 8);
+                    
+                    while (!isUnique) {
+                        const randomCode = Math.floor(1000 + Math.random() * 9000);
+                        candidateId = `${cleanName}-${randomCode}`;
+                        // Check if this specific candidate is taken
+                        const taken = await db.social.checkShareIdExists(candidateId);
+                        if (!taken) isUnique = true;
+                    }
                 }
+                finalShareId = candidateId;
             }
-        } catch (e) {
-            console.error("ID Check failed", e);
-        }
 
-        if (currentShareId) setShareId(currentShareId);
+            // Set state
+            setShareId(finalShareId);
+
+            // Force Metadata Sync (just in case Auth is stale)
+            if (meta.share_id !== finalShareId) {
+                supabase?.auth.updateUser({ data: { share_id: finalShareId } });
+            }
+
+            // IMPORTANT: Sync Profile to DB immediately to lock this ID in
+            // This ensures subsequent logins on other devices find this row.
+            const name = displayName || meta.full_name;
+            const pic = avatar || meta.avatar;
+            await db.social.upsertProfile(finalShareId, name, pic, bio || meta.bio);
+
+        } catch (e) {
+            console.error("ID Initialization failed", e);
+        }
 
         // --- 2. LOAD PREFERENCES ---
         if (meta.full_name) {
@@ -176,12 +193,6 @@ const App: React.FC = () => {
         if (meta.bio) {
             setBio(meta.bio);
             localStorage.setItem('userBio', meta.bio);
-        }
-
-        // --- 3. SYNC TO PUBLIC PROFILES TABLE ---
-        if (currentShareId) {
-            // We use the current state values (or fallbacks)
-            db.social.upsertProfile(currentShareId, displayName || meta.full_name, avatar || meta.avatar, bio || meta.bio);
         }
     };
 
