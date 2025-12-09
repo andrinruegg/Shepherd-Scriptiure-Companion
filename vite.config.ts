@@ -22,7 +22,13 @@ export default defineConfig({
         icons: [
           {
             src: 'icon.svg',
-            sizes: 'any',
+            sizes: '192x192',
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
+          },
+          {
+            src: 'icon.svg',
+            sizes: '512x512',
             type: 'image/svg+xml',
             purpose: 'any maskable'
           }
@@ -31,7 +37,6 @@ export default defineConfig({
     })
   ],
   define: {
-    // This ensures process.env.API_KEY works in the browser for this project
     'process.env': process.env
   }
 })
