@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
 import Sidebar from './components/Sidebar';
@@ -37,11 +38,9 @@ const App: React.FC = () => {
   const [shareId, setShareId] = useState<string>('');
   const [totalNotifications, setTotalNotifications] = useState(0);
 
-  // Preferences State
-  const [bibleTranslation, setBibleTranslation] = useState<string>(() => {
-    if (typeof window !== 'undefined') return localStorage.getItem('bibleTranslation') || 'NIV';
-    return 'NIV';
-  });
+  // Hardcoded to NIV for AI as requested
+  const bibleTranslation = 'NIV';
+
   const [language, setLanguage] = useState<string>(() => {
     if (typeof window !== 'undefined') return localStorage.getItem('language') || 'English';
     return 'English';
@@ -103,36 +102,16 @@ const App: React.FC = () => {
         try {
             // 1. Fetch Existing Profile
             let existingProfile = await db.social.getUserProfile(session.user.id);
-            const meta = session.user.user_metadata;
-            let finalShareId = '';
-
+            
             if (existingProfile && existingProfile.share_id) {
-                finalShareId = existingProfile.share_id;
-                
+                setShareId(existingProfile.share_id);
                 // Sync local state from DB
                 if (existingProfile.display_name) setDisplayName(existingProfile.display_name);
                 if (existingProfile.avatar) setAvatar(existingProfile.avatar);
                 if (existingProfile.bio) setBio(existingProfile.bio);
-            } else {
-                // FALLBACK: If trigger failed, create profile here (Standard initialization)
-                console.log("Profile missing on init, creating standard profile...");
-                const name = displayName || meta.full_name || 'User';
-                const cleanName = name.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 4) || 'USER';
-                const randomId = Math.floor(Math.random() * 90000 + 10000);
-                finalShareId = `${cleanName}-${randomId}`;
             }
 
-            setShareId(finalShareId);
-            
-            // 2. Ensure Profile Exists in DB
-            await db.social.upsertProfile(
-                finalShareId, 
-                displayName || meta.full_name || 'User', 
-                avatar || meta.avatar, 
-                bio || meta.bio
-            );
-
-            // 3. Heartbeat
+            // 2. Heartbeat
             db.social.heartbeat();
 
         } catch (e) {
@@ -145,7 +124,6 @@ const App: React.FC = () => {
             setDisplayName(meta.full_name);
         }
         if (meta.language) setLanguage(meta.language);
-        if (meta.bibleTranslation) setBibleTranslation(meta.bibleTranslation);
         if (meta.theme) setIsDarkMode(meta.theme === 'dark');
         if (meta.winterMode !== undefined) setIsWinterMode(meta.winterMode === 'true' || meta.winterMode === true);
         
@@ -277,10 +255,6 @@ const App: React.FC = () => {
         setIsWinterIcicles(val);
         localStorage.setItem('winterIcicles', String(val));
         updateCloudPreference('winterIcicles', val);
-    } else if (key === 'bibleTranslation') {
-       setBibleTranslation(value as string);
-       localStorage.setItem('bibleTranslation', value as string);
-       updateCloudPreference('bibleTranslation', value as string);
     } else if (key === 'language') {
        setLanguage(value as string);
        localStorage.setItem('language', value as string);

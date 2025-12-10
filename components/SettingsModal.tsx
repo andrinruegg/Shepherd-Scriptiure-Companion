@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Book, Moon, Sun, LogOut, User, Globe, Info, Edit2, Check, Key, ExternalLink, ChevronDown, ChevronUp, Snowflake, Camera, Trash2, AlignLeft, CloudSnow, Sparkles, Droplets } from 'lucide-react';
 import { UserPreferences } from '../types';
@@ -12,17 +13,6 @@ interface SettingsModalProps {
   userEmail?: string;
   onLogout: () => void;
 }
-
-const TRANSLATIONS = [
-  { id: 'NIV', name: 'New International Version (NIV)' },
-  { id: 'ESV', name: 'English Standard Version (ESV)' },
-  { id: 'KJV', name: 'King James Version (KJV)' },
-  { id: 'NKJV', name: 'New King James Version (NKJV)' },
-  { id: 'NLT', name: 'New Living Translation (NLT)' },
-  { id: 'CSB', name: 'Christian Standard Bible (CSB)' },
-  { id: 'NASB', name: 'New American Standard Bible (NASB)' },
-  { id: 'WEB', name: 'World English Bible (WEB)' },
-];
 
 const LANGUAGES = [
   { id: 'English', name: 'English' },
@@ -192,28 +182,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   </option>
                 ))}
               </select>
-            </div>
-
-            {/* Bible Translation */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
-                <Book size={16} className="text-indigo-500" />
-                {t.translation}
-              </label>
-              <select
-                value={preferences.bibleTranslation}
-                onChange={(e) => onUpdatePreference('bibleTranslation', e.target.value)}
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all cursor-pointer"
-              >
-                {TRANSLATIONS.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-slate-500 dark:text-slate-500 mt-1.5 ml-1">
-                {t.translationHelp}
-              </p>
             </div>
 
             {/* Appearance */}

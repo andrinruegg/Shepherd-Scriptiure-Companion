@@ -331,10 +331,11 @@ export const db = {
 
           const friends: UserProfile[] = [];
           (data || []).forEach((row: any) => {
-              if (row.requester && row.requester.id !== user.id) {
-                  friends.push(row.requester);
-              } else if (row.receiver && row.receiver.id !== user.id) {
-                  friends.push(row.receiver);
+              if (row.requester && row.requester.id) {
+                 if(row.requester.id !== user.id) friends.push(row.requester);
+              } 
+              if (row.receiver && row.receiver.id) {
+                 if(row.receiver.id !== user.id) friends.push(row.receiver);
               }
           });
 

@@ -1,4 +1,5 @@
 
+
 import { BibleBook, BibleChapter } from '../types';
 
 // Static list of all 66 Bible books with metadata
@@ -73,43 +74,63 @@ export const BIBLE_BOOKS: BibleBook[] = [
   { id: 'REV', name: 'Revelation', chapters: 22, testament: 'NT' },
 ];
 
-/**
- * Maps the user's system language to a suitable public domain Bible API translation.
- */
-const getTranslationId = (language: string): string => {
-    switch (language) {
-        case 'Romanian': return 'ro-cornilescu';
-        case 'Spanish': return 'rvr'; // Reina Valera
-        case 'French': return 'ls1910'; // Louis Segond
-        case 'German': return 'luther'; // Luther 1912
-        case 'Italian': return 'it-diodati'; // Giovanni Diodati
-        case 'Dutch': return 'htb'; // Het Boek (or fallback)
-        default: return 'web'; // World English Bible (Public Domain)
-    }
-};
-
 export const fetchChapter = async (
     bookName: string, 
     chapter: number, 
     language: string
 ): Promise<BibleChapter | null> => {
-    const translation = getTranslationId(language);
-    
-    // IMPORTANT: We must encode the book name (e.g. "1 John" -> "1%20John")
-    // otherwise the API might truncate it or fail.
-    const encodedBook = encodeURIComponent(bookName);
-    
-    // Using bible-api.com (Free, Open Source, CORS enabled)
-    const url = `https://bible-api.com/${encodedBook}+${chapter}?translation=${translation}`;
+    // 1. Identify Book ID for Bolls Life API (Index + 1)
+    // The BIBLE_BOOKS array is in standard Protestant order (Genesis=1, Revelation=66)
+    // which matches Bolls Life IDs perfectly.
+    const bookIndex = BIBLE_BOOKS.findIndex(b => b.name === bookName);
+    if (bookIndex === -1) {
+        console.error("Book not found:", bookName);
+        return null;
+    }
+    const bookId = bookIndex + 1; // 1-based ID
 
+    // 2. Primary Strategy: Bolls Life API (Supports NIV)
     try {
+        const response = await fetch(`https://bolls.life/get-chapter/NIV/${bookId}/${chapter}/`);
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            // Validate response is an array of verses
+            if (Array.isArray(data) && data.length > 0) {
+                return {
+                    reference: `${bookName} ${chapter}`,
+                    translation_id: 'NIV',
+                    verses: data.map((v: any) => ({
+                        book_id: BIBLE_BOOKS[bookIndex].id,
+                        book_name: bookName,
+                        chapter: chapter,
+                        verse: v.verse,
+                        // Bolls Life sometimes includes HTML tags (like <i> or <br>), strip them for clean reading
+                        text: v.text.replace(/<[^>]*>/g, '').trim()
+                    }))
+                };
+            }
+        }
+    } catch (e) {
+        console.warn("Bolls Life API failed, attempting fallback...", e);
+    }
+
+    // 3. Fallback Strategy: Bible-API.com (WEB Translation)
+    // Used if Bolls Life is down. WEB is a public domain modern English translation.
+    try {
+        const encodedBook = encodeURIComponent(bookName);
+        // Force standard request. For single chapter books, this might be fragile on bible-api.com
+        // but Bolls Life (Primary) fixes the main user issue.
+        const url = `https://bible-api.com/${encodedBook}+${chapter}?translation=web`;
+        
         const response = await fetch(url);
-        if (!response.ok) throw new Error("Failed to fetch scripture");
+        if (!response.ok) throw new Error("Fallback API failed");
         
         const data = await response.json();
         return {
             reference: data.reference,
-            translation_id: data.translation_id,
+            translation_id: 'WEB',
             verses: data.verses.map((v: any) => ({
                 book_id: v.book_id,
                 book_name: v.book_name,
@@ -119,7 +140,7 @@ export const fetchChapter = async (
             }))
         };
     } catch (e) {
-        console.error("Bible API Error:", e);
+        console.error("All Bible APIs failed:", e);
         return null;
     }
 }

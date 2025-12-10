@@ -15,11 +15,10 @@ const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language }) =
   const [loading, setLoading] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   
-  // Pre-filled credentials for testing convenience
-  const [email, setEmail] = useState('andrinruegg732@gmail.com');
-  const [password, setPassword] = useState('Kingbro88');
-  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState(''); 
+  
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   
@@ -46,7 +45,8 @@ const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language }) =
 
     try {
         if (authMode === 'signup') {
-            const { error } = await supabase!.auth.signUp({
+            console.log("Attempting Signup:", { email, name: displayName });
+            const { data, error } = await supabase!.auth.signUp({
                 email,
                 password,
                 options: {
@@ -55,8 +55,14 @@ const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language }) =
                     }
                 }
             });
-            if (error) throw error;
-            setSuccessMsg(t.successCreated);
+            
+            if (error) {
+                console.error("Signup API Error:", error);
+                throw error;
+            }
+            
+            console.log("Signup Success:", data);
+            setSuccessMsg("Account created! You can now Sign In.");
             setAuthMode('signin');
         } else {
             const { error } = await supabase!.auth.signInWithPassword({
@@ -66,7 +72,16 @@ const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language }) =
             if (error) throw error;
         }
     } catch (error: any) {
-        setErrorMsg(error.message || "Authentication failed.");
+        console.error("Auth Exception:", error);
+        
+        // Friendly error mapping
+        if (error.message?.includes('Database error')) {
+            setErrorMsg("System Error: Please ask the developer to run the 'Total Reset' SQL script.");
+        } else if (error.message?.includes('Invalid login')) {
+             setErrorMsg("Incorrect email or password.");
+        } else {
+             setErrorMsg(error.message || "Authentication failed.");
+        }
     } finally {
         setLoading(false);
     }
@@ -206,7 +221,11 @@ const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language }) =
           </form>
           
           <div className="mt-4 text-center">
-             <button onClick={() => setAuthMode(authMode === 'signin' ? 'signup' : 'signin')} className="text-xs text-indigo-600 hover:underline font-medium">
+             <button onClick={() => {
+                 setAuthMode(authMode === 'signin' ? 'signup' : 'signin');
+                 setErrorMsg(null);
+                 setSuccessMsg(null);
+             }} className="text-xs text-indigo-600 hover:underline font-medium">
                 {authMode === 'signin' ? t.noAccount : t.hasAccount}
              </button>
           </div>
