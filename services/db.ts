@@ -224,75 +224,45 @@ export const db = {
   // --- SOCIAL / FRIENDS SYSTEM ---
 
   social: {
-      /**
-       * Checks if a Share ID is already taken by ANY user.
-       */
+      async heartbeat() {
+          ensureSupabase();
+          // @ts-ignore
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+          // @ts-ignore
+          await supabase.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', user.id);
+      },
+
       async checkShareIdExists(shareId: string): Promise<boolean> {
           ensureSupabase();
           // @ts-ignore
-          const { data, error } = await supabase
-              .from('profiles')
-              .select('id')
-              .eq('share_id', shareId)
-              .maybeSingle();
-          
+          const { data, error } = await supabase.from('profiles').select('id').eq('share_id', shareId).maybeSingle();
           return !!data;
       },
 
-      /**
-       * Syncs profile.
-       * CRITICAL: Before saving, it checks if the DB already has a share_id.
-       * If yes, it KEEPS the DB version to ensure persistence across devices.
-       */
       async upsertProfile(shareId: string, displayName: string, avatar?: string, bio?: string) {
           ensureSupabase();
           // @ts-ignore
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) return;
 
-          // 1. Fetch current DB profile to see if ID exists
           // @ts-ignore
-          const { data: existing } = await supabase
-              .from('profiles')
-              .select('share_id')
-              .eq('id', user.id)
-              .maybeSingle();
-
-          // 2. Determine which ID to save
+          const { data: existing } = await supabase.from('profiles').select('share_id').eq('id', user.id).maybeSingle();
           let finalIdToSave = shareId;
-          
-          if (existing && existing.share_id) {
-              // DATABASE IS TRUTH: If DB has an ID, use it. Ignore local.
-              finalIdToSave = existing.share_id;
-          }
+          if (existing && existing.share_id) { finalIdToSave = existing.share_id; }
 
-          const updates: any = {
-              id: user.id,
-              display_name: displayName,
-              avatar: avatar || null,
-              bio: bio || null,
-              share_id: finalIdToSave
-          };
+          const updates: any = { id: user.id, display_name: displayName, avatar: avatar || null, bio: bio || null, share_id: finalIdToSave, last_seen: new Date().toISOString() };
 
           // @ts-ignore
-          const { error } = await supabase
-              .from('profiles')
-              .upsert(updates, { onConflict: 'id' });
-          
+          const { error } = await supabase.from('profiles').upsert(updates, { onConflict: 'id' });
           if (error) console.error("Profile sync failed", error);
-          
           return finalIdToSave;
       },
 
       async getUserProfile(userId: string): Promise<UserProfile | null> {
           ensureSupabase();
           // @ts-ignore
-          const { data, error } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', userId)
-              .maybeSingle(); 
-          
+          const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle(); 
           if (error || !data) return null;
           return data as UserProfile;
       },
@@ -300,12 +270,7 @@ export const db = {
       async searchUserByShareId(shareId: string): Promise<UserProfile | null> {
           ensureSupabase();
           // @ts-ignore
-          const { data, error } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('share_id', shareId)
-              .maybeSingle();
-
+          const { data, error } = await supabase.from('profiles').select('*').eq('share_id', shareId).maybeSingle();
           if (error || !data) return null;
           return data as UserProfile;
       },
@@ -318,19 +283,11 @@ export const db = {
           if (user.id === targetUserId) throw new Error("You cannot add yourself.");
 
           // @ts-ignore
-          const { data: existing } = await supabase
-             .from('friendships')
-             .select('*')
-             .or(`and(requester_id.eq.${user.id},receiver_id.eq.${targetUserId}),and(requester_id.eq.${targetUserId},receiver_id.eq.${user.id})`)
-             .maybeSingle();
-          
+          const { data: existing } = await supabase.from('friendships').select('*').or(`and(requester_id.eq.${user.id},receiver_id.eq.${targetUserId}),and(requester_id.eq.${targetUserId},receiver_id.eq.${user.id})`).maybeSingle();
           if (existing) throw new Error("Request already sent or you are already friends.");
 
           // @ts-ignore
-          const { error } = await supabase
-              .from('friendships')
-              .insert({ requester_id: user.id, receiver_id: targetUserId, status: 'pending' });
-
+          const { error } = await supabase.from('friendships').insert({ requester_id: user.id, receiver_id: targetUserId, status: 'pending' });
           if (error) throw error;
       },
 
@@ -341,20 +298,9 @@ export const db = {
           if (!user) return [];
 
           // @ts-ignore
-          const { data, error } = await supabase
-              .from('friendships')
-              .select(`
-                  id, created_at, status,
-                  requester:profiles!requester_id ( id, share_id, display_name, avatar, bio )
-              `)
-              .eq('receiver_id', user.id)
-              .eq('status', 'pending');
-          
+          const { data, error } = await supabase.from('friendships').select(`id, created_at, status, requester:profiles!requester_id ( id, share_id, display_name, avatar, bio )`).eq('receiver_id', user.id).eq('status', 'pending');
           if (error) throw error;
-          
-          return (data || []).map((r: any) => ({
-              id: r.id, status: r.status, created_at: r.created_at, requester: r.requester
-          }));
+          return (data || []).map((r: any) => ({ id: r.id, status: r.status, created_at: r.created_at, requester: r.requester }));
       },
 
       async respondToRequest(requestId: string, accept: boolean) {
@@ -377,12 +323,9 @@ export const db = {
           if (!user) throw new Error("Not authenticated");
 
           // @ts-ignore
-          const { error } = await supabase
-              .from('friendships')
-              .delete()
-              .or(`and(requester_id.eq.${user.id},receiver_id.eq.${friendId}),and(requester_id.eq.${friendId},receiver_id.eq.${user.id})`);
-
-          if (error) throw error;
+          await supabase.from('friendships').delete().eq('requester_id', user.id).eq('receiver_id', friendId);
+          // @ts-ignore
+          await supabase.from('friendships').delete().eq('requester_id', friendId).eq('receiver_id', user.id);
       },
 
       async getFriends(): Promise<UserProfile[]> {
@@ -392,12 +335,7 @@ export const db = {
           if (!user) return [];
 
           // @ts-ignore
-          const { data, error } = await supabase
-              .from('friendships')
-              .select(`requester:profiles!requester_id(*), receiver:profiles!receiver_id(*)`)
-              .eq('status', 'accepted')
-              .or(`requester_id.eq.${user.id},receiver_id.eq.${user.id}`);
-          
+          const { data, error } = await supabase.from('friendships').select(`requester:profiles!requester_id(*), receiver:profiles!receiver_id(*)`).eq('status', 'accepted').or(`requester_id.eq.${user.id},receiver_id.eq.${user.id}`);
           if (error) throw error;
 
           const friends: UserProfile[] = [];
@@ -405,7 +343,21 @@ export const db = {
               if (row.requester.id !== user.id) friends.push(row.requester);
               if (row.receiver.id !== user.id) friends.push(row.receiver);
           });
-          return friends;
+
+          // @ts-ignore
+          const { data: unreadData } = await supabase.from('direct_messages').select('sender_id').eq('receiver_id', user.id).is('read_at', null);
+          const unreadMap = new Map();
+          unreadData?.forEach((m: any) => { unreadMap.set(m.sender_id, (unreadMap.get(m.sender_id) || 0) + 1); });
+
+          // @ts-ignore
+          const { data: latestMsgs } = await supabase.from('direct_messages').select('sender_id, receiver_id, created_at').or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`).order('created_at', { ascending: false });
+          const latestMap = new Map();
+          latestMsgs?.forEach((m: any) => {
+              const otherId = m.sender_id === user.id ? m.receiver_id : m.sender_id;
+              if (!latestMap.has(otherId)) latestMap.set(otherId, m.created_at);
+          });
+
+          return friends.map(f => ({ ...f, unread_count: unreadMap.get(f.id) || 0, last_message_at: latestMap.get(f.id) || '' }));
       },
       
       async getMessages(friendId: string): Promise<DirectMessage[]> {
@@ -415,12 +367,7 @@ export const db = {
           if (!user) return [];
 
           // @ts-ignore
-          const { data, error } = await supabase
-              .from('direct_messages')
-              .select('*')
-              .or(`and(sender_id.eq.${user.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${user.id})`)
-              .order('created_at', { ascending: true });
-          
+          const { data, error } = await supabase.from('direct_messages').select('*').or(`and(sender_id.eq.${user.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${user.id})`).order('created_at', { ascending: true });
           if (error) throw error;
           return data || [];
       },
@@ -432,25 +379,93 @@ export const db = {
           if (!user) throw new Error("Not authenticated");
 
           // @ts-ignore
-          const { data, error } = await supabase
-              .from('direct_messages')
-              .insert({ sender_id: user.id, receiver_id: friendId, content: content, message_type: type })
-              .select()
-              .single();
-          
+          const { data, error } = await supabase.from('direct_messages').insert({ sender_id: user.id, receiver_id: friendId, content: content, message_type: type }).select().single();
           if (error) throw error;
           return data;
+      },
+
+      async deleteDirectMessage(messageId: string) {
+          ensureSupabase();
+          // @ts-ignore
+          const { error } = await supabase.from('direct_messages').delete().eq('id', messageId);
+          if (error) throw error;
+      },
+
+      async markMessagesRead(friendId: string) {
+          ensureSupabase();
+          // @ts-ignore
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+
+          // @ts-ignore
+          await supabase.from('direct_messages').update({ read_at: new Date().toISOString() }).eq('sender_id', friendId).eq('receiver_id', user.id).is('read_at', null).select('id');
       },
 
       async uploadMedia(file: Blob, path: string): Promise<string> {
           ensureSupabase();
           // @ts-ignore
-          const { data, error } = await supabase.storage.from('chat-media').upload(path, file);
+          const { data, error } = await supabase.storage.from('chat-media').upload(path, file, { upsert: true });
           if (error) throw error;
-          
           // @ts-ignore
           const { data: urlData } = supabase.storage.from('chat-media').getPublicUrl(path);
-          return urlData.publicUrl;
+          return `${urlData.publicUrl}?t=${Date.now()}`; // Bust cache for regular media
+      },
+
+      async getTotalUnreadCount(): Promise<number> {
+          ensureSupabase();
+          // @ts-ignore
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return 0;
+          // @ts-ignore
+          const { count } = await supabase.from('direct_messages').select('*', { count: 'exact', head: true }).eq('receiver_id', user.id).is('read_at', null);
+          return count || 0;
+      },
+
+      // --- GRAFFITI SHARED LAYER ---
+      async uploadGraffiti(friendId: string, blob: Blob): Promise<string> {
+          ensureSupabase();
+          // @ts-ignore
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) throw new Error("Not authenticated");
+
+          const ids = [user.id, friendId].sort();
+          const friendshipFileId = `${ids[0]}_${ids[1]}`;
+          const path = `graffiti/${friendshipFileId}.png`;
+
+          // Standard upload
+          return this.uploadMedia(blob, path);
+      },
+
+      async getGraffitiUrl(friendId: string): Promise<string | null> {
+          ensureSupabase();
+          // @ts-ignore
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return null;
+
+          const ids = [user.id, friendId].sort();
+          const friendshipFileId = `${ids[0]}_${ids[1]}`;
+          const path = `graffiti/${friendshipFileId}.png`;
+          const fileName = `${friendshipFileId}.png`;
+
+          // 1. Check Metadata first to see if file exists and get last modified time
+          // @ts-ignore
+          const { data: list, error } = await supabase.storage.from('chat-media').list('graffiti', {
+              limit: 1,
+              search: fileName
+          });
+          
+          if (error || !list || list.length === 0) return null;
+          
+          // 2. Construct URL with the actual Last-Modified timestamp versioning
+          // This prevents "fading" caused by constantly changing the URL query param
+          const fileMetadata = list[0];
+          // @ts-ignore
+          const { data: urlData } = supabase.storage.from('chat-media').getPublicUrl(path);
+          
+          // Use updated_at or created_at as version
+          const version = fileMetadata.updated_at || fileMetadata.created_at || '1';
+          
+          return `${urlData.publicUrl}?v=${version}`;
       }
   }
 };

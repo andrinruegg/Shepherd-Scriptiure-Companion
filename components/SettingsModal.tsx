@@ -1,7 +1,6 @@
 
-
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Book, Moon, Sun, LogOut, User, Globe, Info, Edit2, Check, Key, ExternalLink, ChevronDown, ChevronUp, Snowflake, Camera, Trash2, AlignLeft } from 'lucide-react';
+import { X, Book, Moon, Sun, LogOut, User, Globe, Info, Edit2, Check, Key, ExternalLink, ChevronDown, ChevronUp, Snowflake, Camera, Trash2, AlignLeft, CloudSnow, Sparkles, Droplets } from 'lucide-react';
 import { UserPreferences } from '../types';
 import { translations } from '../utils/translations';
 
@@ -240,27 +239,68 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
 
             {/* Winter Mode Toggle */}
-            <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-full ${preferences.winterTheme ? 'bg-blue-100 text-blue-500 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-slate-200 text-slate-400 dark:bg-slate-700'}`}>
-                        <Snowflake size={18} />
+            <div className="mb-4 space-y-2">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-full ${preferences.winterTheme ? 'bg-blue-100 text-blue-500 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-slate-200 text-slate-400 dark:bg-slate-700'}`}>
+                            <Snowflake size={18} />
+                        </div>
+                        <div>
+                            <span className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+                                {winterText}
+                            </span>
+                            <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                                Festive animations
+                            </span>
+                        </div>
                     </div>
-                    <div>
-                        <span className="block text-sm font-medium text-slate-700 dark:text-slate-200">
-                            {winterText}
-                        </span>
-                        <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                            Falling snow animation
-                        </span>
-                    </div>
+                    
+                    <button 
+                        onClick={() => onUpdatePreference('winterTheme', !preferences.winterTheme)}
+                        className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${preferences.winterTheme ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-600'}`}
+                    >
+                        <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${preferences.winterTheme ? 'translate-x-6' : 'translate-x-0'}`}></div>
+                    </button>
                 </div>
-                
-                <button 
-                    onClick={() => onUpdatePreference('winterTheme', !preferences.winterTheme)}
-                    className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${preferences.winterTheme ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-600'}`}
-                >
-                    <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${preferences.winterTheme ? 'translate-x-6' : 'translate-x-0'}`}></div>
-                </button>
+
+                {/* Sub-toggles for Winter Mode */}
+                {preferences.winterTheme && (
+                    <div className="pl-14 space-y-2 animate-slide-up">
+                        <div className="flex items-center justify-between">
+                            <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                                <CloudSnow size={12} className="text-slate-400"/> Falling Snow
+                            </label>
+                            <input 
+                                type="checkbox" 
+                                checked={preferences.winterSnow ?? true} 
+                                onChange={(e) => onUpdatePreference('winterSnow', e.target.checked)}
+                                className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+                            />
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                                <Sparkles size={12} className="text-amber-400"/> Christmas Lights
+                            </label>
+                            <input 
+                                type="checkbox" 
+                                checked={preferences.winterLights ?? true} 
+                                onChange={(e) => onUpdatePreference('winterLights', e.target.checked)}
+                                className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+                            />
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                                <Droplets size={12} className="text-blue-400"/> Icicles
+                            </label>
+                            <input 
+                                type="checkbox" 
+                                checked={preferences.winterIcicles ?? true} 
+                                onChange={(e) => onUpdatePreference('winterIcicles', e.target.checked)}
+                                className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
 
           </section>

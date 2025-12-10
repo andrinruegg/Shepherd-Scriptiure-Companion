@@ -1,81 +1,238 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Send, Image as ImageIcon, Mic, X, Loader2, Play, Pause } from 'lucide-react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import { ArrowLeft, Send, Image as ImageIcon, Mic, Loader2, Trash2, Check, CheckCheck, Palette } from 'lucide-react';
 import { UserProfile, DirectMessage } from '../types';
 import { db } from '../services/db';
-import { supabase } from '../services/supabase';
-import { v4 as uuidv4 } from 'uuid';
+import DrawingCanvas from './DrawingCanvas';
 
 interface FriendChatProps {
   friend: UserProfile;
   onBack: () => void;
   currentUserShareId: string;
+  onMessagesRead?: () => void; 
 }
 
-const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShareId }) => {
+const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShareId, onMessagesRead }) => {
   const [messages, setMessages] = useState<DirectMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Audio Recording State
+  // Graffiti State
+  const [showGraffitiCanvas, setShowGraffitiCanvas] = useState(false);
+  const [graffitiUrl, setGraffitiUrl] = useState<string | null>(null);
+  const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 });
+  
+  // Refs for logic
+  const isDrawingRef = useRef(false);
+  const lastUploadTimeRef = useRef(0); // Prevents stale reads after upload
+
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
+  const hasScrolledRef = useRef(false);
+  
+  const [friendStatus, setFriendStatus] = useState<UserProfile | null>(null);
+  const deletedIdsRef = useRef<Set<string>>(new Set());
+  
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [recordingTime, setRecordingTime] = useState(0);
   const timerRef = useRef<any>(null);
 
+  const markAsRead = async () => {
+      try {
+        await db.social.markMessagesRead(friend.id);
+        if (onMessagesRead) onMessagesRead();
+      } catch (e) { console.error("Failed to mark read", e); }
+  };
+
   useEffect(() => {
-    fetchMessages();
-    // Poll for new messages every 3 seconds (simple real-time)
-    const interval = setInterval(fetchMessages, 3000);
+    setInitialLoadDone(false);
+    hasScrolledRef.current = false;
+    setMessages([]); 
+    deletedIdsRef.current.clear();
+    setFriendStatus(friend); 
+    setGraffitiUrl(null); 
+    lastUploadTimeRef.current = 0;
+    
+    fetchMessages(true); 
+    fetchFriendStatus(); 
+    loadGraffiti(); 
+    
+    markAsRead();
+    db.social.heartbeat();
+
+    const interval = setInterval(() => {
+        fetchMessages(false);
+        fetchFriendStatus();
+        
+        // Only load graffiti if not drawing AND we haven't just uploaded (grace period)
+        if (!isDrawingRef.current && (Date.now() - lastUploadTimeRef.current > 10000)) {
+            loadGraffiti(); 
+        }
+        
+        markAsRead();
+        db.social.heartbeat();
+    }, 3000);
     return () => clearInterval(interval);
   }, [friend.id]);
 
+  useLayoutEffect(() => {
+      if (!initialLoadDone || messages.length === 0 || hasScrolledRef.current) return;
+      const container = messagesContainerRef.current;
+      if (!container) return;
+
+      const performScroll = () => {
+          const firstUnread = messages.find(m => m.sender_id === friend.id && !m.read_at);
+          if (firstUnread) {
+              const el = document.getElementById(`msg-${firstUnread.id}`);
+              if (el) {
+                  el.scrollIntoView({ behavior: 'auto', block: 'center' });
+                  hasScrolledRef.current = true;
+                  return;
+              }
+          }
+          container.scrollTop = container.scrollHeight;
+      };
+      performScroll();
+      requestAnimationFrame(() => { performScroll(); hasScrolledRef.current = true; });
+  }, [initialLoadDone, messages, friend.id]); 
+
   useEffect(() => {
-      scrollToBottom();
-  }, [messages]);
+      if (initialLoadDone && hasScrolledRef.current && messages.length > 0) {
+          const lastMsg = messages[messages.length - 1];
+          const isMe = lastMsg.sender_id !== friend.id;
+          if (isMe) {
+              messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+          } else {
+              const container = messagesContainerRef.current;
+              if (container) {
+                  const dist = container.scrollHeight - container.scrollTop - container.clientHeight;
+                  if (dist < 300) {
+                      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                  }
+              }
+          }
+      }
+  }, [messages.length, initialLoadDone]);
 
-  const scrollToBottom = () => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const fetchFriendStatus = async () => {
+      try {
+          const profile = await db.social.getUserProfile(friend.id);
+          if (profile) setFriendStatus(profile);
+      } catch (e) { console.error(e); }
+  }
 
-  const fetchMessages = async () => {
+  const loadGraffiti = async () => {
+      try {
+          const url = await db.social.getGraffitiUrl(friend.id);
+          if (url) setGraffitiUrl(url);
+      } catch (e) { console.error("Error loading graffiti", e); }
+  }
+
+  const fetchMessages = async (isInitial: boolean = false) => {
       try {
           const msgs = await db.social.getMessages(friend.id);
-          setMessages(msgs);
-      } catch (e) {
-          console.error("Failed to fetch messages", e);
-      }
+          const filteredMsgs = msgs.filter(m => !deletedIdsRef.current.has(m.id));
+          
+          setMessages(prev => {
+              const isDifferent = 
+                  prev.length !== filteredMsgs.length || 
+                  prev.some((m, i) => m.id !== filteredMsgs[i].id || m.read_at !== filteredMsgs[i].read_at);
+              return isDifferent ? filteredMsgs : prev;
+          });
+
+          if (isInitial) setTimeout(() => setInitialLoadDone(true), 0);
+      } catch (e) { console.error("Failed to fetch messages", e); }
   };
 
   const handleSendText = async () => {
       if (!inputText.trim()) return;
       setLoading(true);
+      db.social.heartbeat(); 
       try {
           await db.social.sendMessage(friend.id, inputText, 'text');
           setInputText('');
-          fetchMessages();
-      } catch (e) {
-          console.error("Failed to send", e);
-      } finally {
-          setLoading(false);
-      }
+          fetchMessages(false);
+          setTimeout(() => {
+               messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+          }, 100);
+      } catch (e) { console.error("Failed to send", e); } finally { setLoading(false); }
   };
+
+  const handleDeleteMessage = async (id: string, e: React.MouseEvent) => {
+      e.stopPropagation(); e.preventDefault();
+      setMessages(prev => prev.filter(m => m.id !== id));
+      deletedIdsRef.current.add(id);
+      try { await db.social.deleteDirectMessage(id); } catch (error: any) { console.error("[UI] Background delete failed:", error); }
+  }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
-      
       setUploading(true);
       try {
           const fileName = `${currentUserShareId}-${Date.now()}.jpg`;
           const url = await db.social.uploadMedia(file, fileName);
           await db.social.sendMessage(friend.id, url, 'image');
-          fetchMessages();
-      } catch (e) {
-          alert("Failed to upload image");
+          fetchMessages(false);
+          setTimeout(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 500);
+      } catch (e) { alert("Failed to upload image"); } finally { setUploading(false); }
+  };
+
+  // --- GRAFFITI HANDLERS ---
+  const startGraffiti = () => {
+      if (messagesContainerRef.current) {
+          // Calculate safe dimensions
+          const w = messagesContainerRef.current.scrollWidth || window.innerWidth;
+          const h = Math.max(messagesContainerRef.current.scrollHeight, window.innerHeight);
+          
+          setCanvasDimensions({ width: w, height: h });
+          setShowGraffitiCanvas(true);
+          isDrawingRef.current = true; 
+      }
+  };
+
+  const closeGraffiti = () => {
+      setShowGraffitiCanvas(false);
+      isDrawingRef.current = false; 
+  }
+
+  const handleSaveGraffiti = async (blob: Blob) => {
+      console.log("[FriendChat] handleSaveGraffiti called. Blob size:", blob.size);
+      if (uploading) {
+          console.warn("[FriendChat] Upload already in progress. Ignoring.");
+          return; 
+      }
+      setUploading(true);
+      
+      const timeoutDuration = 10000; // 10 seconds timeout
+      const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Upload timed out (10s). check your connection.")), timeoutDuration)
+      );
+
+      try {
+          console.log("[FriendChat] Starting upload...");
+          // Race the upload against the timeout
+          const url = await Promise.race([
+              db.social.uploadGraffiti(friend.id, blob),
+              timeoutPromise
+          ]) as string;
+          
+          console.log("[FriendChat] Upload success! URL:", url);
+
+          // SUCCESS PATH
+          lastUploadTimeRef.current = Date.now();
+          setGraffitiUrl(url); 
+          closeGraffiti(); // Force close UI on success
+      } catch (e: any) {
+          // ERROR PATH
+          console.error("[FriendChat] Save failed:", e);
+          alert(`Could not save drawing: ${e.message || "Unknown error"}`);
       } finally {
+          // ALWAYS UNLOCK UI
           setUploading(false);
       }
   };
@@ -85,7 +242,6 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
           const recorder = new MediaRecorder(stream);
           const chunks: BlobPart[] = [];
-
           recorder.ondataavailable = (e) => chunks.push(e.data);
           recorder.onstop = async () => {
               const blob = new Blob(chunks, { type: 'audio/webm' });
@@ -94,24 +250,17 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
                   const fileName = `voice-${currentUserShareId}-${Date.now()}.webm`;
                   const url = await db.social.uploadMedia(blob, fileName);
                   await db.social.sendMessage(friend.id, url, 'audio');
-                  fetchMessages();
-              } catch (e) {
-                  alert("Failed to send voice message");
-              } finally {
-                  setUploading(false);
-              }
-              // Stop all tracks
+                  fetchMessages(false);
+                  setTimeout(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 200);
+              } catch (e) { alert("Failed to send voice message"); } finally { setUploading(false); }
               stream.getTracks().forEach(track => track.stop());
           };
-
           recorder.start();
           setMediaRecorder(recorder);
           setIsRecording(true);
           setRecordingTime(0);
           timerRef.current = setInterval(() => setRecordingTime(p => p + 1), 1000);
-      } catch (e) {
-          alert("Microphone access denied");
-      }
+      } catch (e) { alert("Microphone access denied"); }
   };
 
   const stopRecording = () => {
@@ -122,55 +271,125 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
       }
   };
 
+  const handleBack = async () => { await markAsRead(); onBack(); };
+
+  const getStatusText = () => {
+      if (!friendStatus || !friendStatus.last_seen) return 'Offline';
+      const last = new Date(friendStatus.last_seen).getTime();
+      const diff = Date.now() - last;
+      if (diff < 5 * 60 * 1000) return 'Online';
+      if (diff < 60 * 60 * 1000) return `Last seen ${Math.floor(diff / 60000)}m ago`;
+      return 'Offline';
+  };
+  const isOnline = getStatusText() === 'Online';
+
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900">
+    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-3 p-4 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 shadow-sm">
-         <button onClick={onBack} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
+      <div className="flex items-center gap-3 p-4 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 shadow-sm z-30 relative shrink-0">
+         <button onClick={handleBack} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
              <ArrowLeft size={20} />
          </button>
-         <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+         <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden relative">
              {friend.avatar ? <img src={friend.avatar} className="w-full h-full object-cover" /> : null}
+             {isOnline && <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full"></div>}
          </div>
-         <div>
-             <h3 className="font-bold text-slate-800 dark:text-white">{friend.display_name}</h3>
-             <p className="text-xs text-slate-500">{friend.share_id}</p>
+         <div className="flex-1">
+             <h3 className="font-bold text-slate-800 dark:text-white leading-tight">{friend.display_name}</h3>
+             <div className="flex items-center gap-1.5">
+                <p className={`text-xs ${isOnline ? 'text-emerald-600 font-medium' : 'text-slate-500'}`}>
+                    {isOnline ? 'Active now' : getStatusText()}
+                </p>
+             </div>
          </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.map(msg => {
-              const isMe = msg.sender_id !== friend.id;
-              return (
-                  <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[75%] rounded-2xl p-3 ${
-                          isMe 
-                          ? 'bg-indigo-600 text-white rounded-tr-none' 
-                          : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-tl-none'
-                      }`}>
-                          {msg.message_type === 'text' && <p>{msg.content}</p>}
-                          
-                          {msg.message_type === 'image' && (
-                              <img src={msg.content} alt="Sent image" className="rounded-lg max-h-48 object-cover cursor-pointer" onClick={() => window.open(msg.content, '_blank')} />
-                          )}
+      {/* Messages Container */}
+      <div 
+        ref={messagesContainerRef}
+        className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900 relative p-4 space-y-4 pb-20 scroll-smooth"
+      >
+        {/* SHARED GRAFFITI LAYER - Visible when NOT drawing. Z-Index 20 places it ON TOP of messages (z-10) */}
+        {graffitiUrl && !showGraffitiCanvas && (
+            <img 
+                src={graffitiUrl} 
+                className="absolute top-0 left-0 w-full pointer-events-none z-20 opacity-80 mix-blend-multiply dark:mix-blend-screen" 
+                style={{ height: 'auto', minHeight: '100%', objectFit: 'cover' }}
+                alt="Graffiti"
+                crossOrigin="anonymous"
+            />
+        )}
 
-                          {msg.message_type === 'audio' && (
-                              <audio controls src={msg.content} className="h-8 max-w-[200px]" />
-                          )}
-                          
-                          <div className={`text-[10px] mt-1 text-right ${isMe ? 'text-indigo-200' : 'text-slate-400'}`}>
-                              {new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                          </div>
-                      </div>
-                  </div>
-              )
-          })}
-          <div ref={messagesEndRef} />
+        {messages.map(msg => {
+            const isMe = msg.sender_id !== friend.id;
+            return (
+                <div 
+                    key={msg.id} 
+                    id={`msg-${msg.id}`}
+                    className={`flex ${isMe ? 'justify-end' : 'justify-start'} group relative z-10`} 
+                >
+                    <div className={`max-w-[75%] rounded-2xl p-3 relative shadow-sm animate-pop-in ${
+                        isMe 
+                        ? 'bg-indigo-600 text-white rounded-tr-none' 
+                        : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-tl-none'
+                    }`}>
+                        {msg.message_type === 'text' && <p>{msg.content}</p>}
+                        
+                        {msg.message_type === 'image' && (
+                            <img 
+                                src={msg.content} 
+                                alt="Sent image" 
+                                className="rounded-lg max-h-48 object-cover cursor-pointer bg-slate-950" 
+                                onClick={() => window.open(msg.content, '_blank')}
+                                crossOrigin="anonymous"
+                            />
+                        )}
+
+                        {msg.message_type === 'audio' && (
+                            <audio controls src={msg.content} className="h-8 max-w-[200px]" />
+                        )}
+                        
+                        <div className={`text-[10px] mt-1 flex items-center gap-2 ${isMe ? 'justify-end text-indigo-200' : 'justify-start text-slate-400'}`}>
+                            <span>{new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                            {isMe && (
+                                <div className="flex items-center gap-1">
+                                    {msg.read_at ? (
+                                        <span title="Seen"><CheckCheck size={14} className="text-blue-300" /></span>
+                                    ) : (
+                                        <span title="Delivered"><Check size={14} className="opacity-70" /></span>
+                                    )}
+                                    <button 
+                                        onClick={(e) => handleDeleteMessage(msg.id, e)}
+                                        className="ml-2 p-1.5 bg-red-600/20 hover:bg-red-600 text-white rounded-full transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100"
+                                        title="Delete Message"
+                                        type="button"
+                                    >
+                                        <Trash2 size={12} />
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )
+        })}
+        <div ref={messagesEndRef} />
+
+        {/* GRAFFITI EDITING MODE (Overlay) */}
+        {showGraffitiCanvas && (
+            <DrawingCanvas 
+               initialImage={graffitiUrl}
+               onClose={closeGraffiti}
+               onSend={handleSaveGraffiti}
+               width={canvasDimensions.width}
+               height={canvasDimensions.height}
+               isSaving={uploading}
+            />
+        )}
       </div>
 
       {/* Input Area */}
-      <div className="p-3 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2">
+      <div className="p-3 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2 z-30 relative shrink-0">
          {isRecording ? (
              <div className="flex-1 flex items-center justify-between bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-full border border-red-200 dark:border-red-900">
                  <div className="flex items-center gap-2 text-red-600 animate-pulse">
@@ -183,9 +402,17 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
              </div>
          ) : (
              <>
-                 <label className="p-2 text-slate-400 hover:text-indigo-500 cursor-pointer">
+                 <button 
+                    onClick={startGraffiti}
+                    className="p-2.5 bg-pink-100 dark:bg-pink-900/30 text-pink-500 hover:bg-pink-200 dark:hover:bg-pink-900/50 rounded-full transition-colors"
+                    title="Paint Mode"
+                 >
+                     <Palette size={20} />
+                 </button>
+
+                 <label className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer transition-colors">
                      <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
-                     <ImageIcon size={22} />
+                     <ImageIcon size={20} />
                  </label>
                  
                  <div className="flex-1 relative">
@@ -211,11 +438,12 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
              </>
          )}
       </div>
+
       {uploading && (
           <div className="absolute inset-0 bg-black/20 flex items-center justify-center z-50">
               <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-xl flex items-center gap-3">
                   <Loader2 className="animate-spin text-indigo-600" />
-                  <span className="text-sm font-medium">Sending media...</span>
+                  <span className="text-sm font-medium dark:text-white">Processing...</span>
               </div>
           </div>
       )}

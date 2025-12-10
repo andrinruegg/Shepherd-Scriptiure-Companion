@@ -13,8 +13,11 @@ interface LoginProps {
 const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language }) => {
   const [loading, setLoading] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  
+  // Pre-filled credentials for testing convenience
+  const [email, setEmail] = useState('andrinruegg732@gmail.com');
+  const [password, setPassword] = useState('Kingbro88');
+  
   const [displayName, setDisplayName] = useState(''); // New State for Name
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);

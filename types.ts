@@ -26,7 +26,10 @@ export interface ChatState {
 export interface UserPreferences {
   bibleTranslation: string; // e.g., 'NIV', 'ESV', 'KJV'
   theme: 'light' | 'dark';
-  winterTheme?: boolean; // NEW: Winter Mode Toggle
+  winterTheme?: boolean; // Master Toggle
+  winterSnow?: boolean;    // Sub Toggle: Falling Snow
+  winterLights?: boolean;  // Sub Toggle: Christmas Lights
+  winterIcicles?: boolean; // Sub Toggle: Corner Icicles
   language: string;
   displayName?: string;
   avatar?: string; // NEW: Base64 string for profile picture
@@ -42,6 +45,9 @@ export interface UserProfile {
   display_name: string;
   avatar?: string;
   bio?: string; // NEW: User description
+  last_seen?: string; // ISO Date string for online status
+  unread_count?: number; // Number of unread messages from this user
+  last_message_at?: string; // Timestamp of last message for sorting
 }
 
 export interface FriendRequest {
@@ -65,6 +71,7 @@ export interface DirectMessage {
   content: string; // Text or URL
   message_type: 'text' | 'image' | 'audio';
   created_at: string;
+  read_at?: string | null; // Null if unread
 }
 
 // --- NEW TYPES FOR BIBLE READER & SAVED ITEMS ---

@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { memo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Message } from '../types';
 import { User, RotateCw } from 'lucide-react';
@@ -20,14 +19,14 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLast, onRegenerate
   const isThinking = !isUser && isLast && (!message.text || message.text.trim() === '') && !message.isError;
 
   return (
-    <div className={`flex w-full mb-6 ${isUser ? 'justify-end' : 'justify-start'}`}>
+    <div className={`flex w-full mb-6 ${isUser ? 'justify-end' : 'justify-start'} animate-pop-in`}>
       <div className={`flex gap-3 max-w-[85%] md:max-w-[75%] items-end`}>
         
         {/* Shepherd Avatar - Only show if not user */}
         {!isUser && (
           <div className={`
             flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm mb-1
-            bg-emerald-600 text-white
+            bg-emerald-600 text-white transform transition-transform hover:scale-110
           `}>
             <ShepherdLogo size={16} className="text-white" />
           </div>
@@ -38,9 +37,10 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLast, onRegenerate
           <div className={`
             px-4 py-3 shadow-sm text-sm md:text-base leading-relaxed break-words w-full
             ${isUser 
-              ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-none' 
-              : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-100 dark:border-slate-700 rounded-2xl rounded-tl-none font-serif-text'}
+              ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-none origin-bottom-right' 
+              : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-100 dark:border-slate-700 rounded-2xl rounded-tl-none font-serif-text origin-bottom-left'}
             ${message.isError ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300 border-red-200 dark:border-red-800' : ''}
+            transition-all duration-300 hover:shadow-md
           `}>
             {isThinking ? (
               <div className="flex items-center space-x-1.5 h-6 px-2">
@@ -86,7 +86,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLast, onRegenerate
               <button 
                  onClick={onRegenerate}
                  disabled={isRegenerating}
-                 className="mt-1 mr-1 self-end text-xs text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-1 transition-opacity"
+                 className="mt-1 mr-1 self-end text-xs text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-1 transition-opacity animate-fade-in"
               >
                  <RotateCw size={12} className={isRegenerating ? 'animate-spin' : ''} />
                  <span>{message.isError ? 'Retry' : 'Regenerate'}</span>
@@ -101,12 +101,12 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLast, onRegenerate
                   <img 
                     src={userAvatar} 
                     alt="User" 
-                    className="flex-shrink-0 w-8 h-8 rounded-full mb-1 shadow-sm object-cover border-2 border-indigo-600 bg-slate-200"
+                    className="flex-shrink-0 w-8 h-8 rounded-full mb-1 shadow-sm object-cover border-2 border-indigo-600 bg-slate-200 transform transition-transform hover:scale-110"
                   />
               ) : (
                 <div className={`
                     flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mb-1 shadow-sm
-                    bg-indigo-600 text-white
+                    bg-indigo-600 text-white transform transition-transform hover:scale-110
                 `}>
                     <User size={16} />
                 </div>
@@ -118,4 +118,4 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLast, onRegenerate
   );
 };
 
-export default ChatMessage;
+export default memo(ChatMessage);

@@ -1,6 +1,5 @@
-
 import React, { useRef, useEffect, useState } from 'react';
-import { Send, Menu, Trash2 } from 'lucide-react';
+import { Send, Menu, Trash2, Plus } from 'lucide-react';
 import { Message } from '../types';
 import ChatMessage from './ChatMessage';
 import TopicSelector from './TopicSelector';
@@ -13,7 +12,8 @@ interface ChatInterfaceProps {
   onSendMessage: (text: string, hiddenContext?: string) => void;
   onMenuClick: () => void;
   onRegenerate: () => void;
-  onDeleteCurrentChat?: () => void; 
+  onDeleteCurrentChat?: (e: React.MouseEvent) => void;
+  onNewChat: () => void; // New Prop
   language: string;
   userAvatar?: string;
 }
@@ -25,6 +25,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   onMenuClick,
   onRegenerate,
   onDeleteCurrentChat,
+  onNewChat,
   language,
   userAvatar
 }) => {
@@ -57,7 +58,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         // Otherwise, scroll to BOTTOM to see latest
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, isLoading]);
+  }, [messages.length, isLoading]); // Changed dependency to messages.length to avoid scroll on every re-render
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -103,24 +104,38 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           >
             <Menu size={24} />
           </button>
-          <div className="bg-emerald-600 p-2 rounded-lg text-white">
+          <div className="bg-emerald-600 p-2 rounded-lg text-white hidden md:block">
             <ShepherdLogo size={24} className="text-white" />
           </div>
-          <div>
+          <div className="md:hidden">
+             <h1 className="text-lg font-semibold text-slate-800 dark:text-slate-100 tracking-tight font-serif-text">Shepherd</h1>
+          </div>
+          <div className="hidden md:block">
             <h1 className="text-xl font-semibold text-slate-800 dark:text-slate-100 tracking-tight font-serif-text">Shepherd</h1>
             <p className="hidden md:block text-xs text-slate-500 dark:text-slate-400 font-medium">{t.subtitle}</p>
           </div>
         </div>
         
-        {onDeleteCurrentChat && (
+        <div className="flex items-center gap-2">
             <button 
-                onClick={onDeleteCurrentChat}
-                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                title="Delete Conversation"
+                onClick={onNewChat}
+                className="p-2 text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 rounded-lg transition-colors flex items-center gap-2"
+                title="New Chat"
             >
-                <Trash2 size={20} />
+                <Plus size={20} />
+                <span className="text-sm font-medium hidden md:inline">New Chat</span>
             </button>
-        )}
+            
+            {onDeleteCurrentChat && (
+                <button 
+                    onClick={onDeleteCurrentChat}
+                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                    title="Delete Conversation"
+                >
+                    <Trash2 size={20} />
+                </button>
+            )}
+        </div>
       </header>
 
       {/* Messages Area */}

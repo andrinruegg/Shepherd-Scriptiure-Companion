@@ -35,7 +35,7 @@ const App: React.FC = () => {
   const [dailyStreak, setDailyStreak] = useState(0);
   
   const [shareId, setShareId] = useState<string>('');
-  const [pendingRequests, setPendingRequests] = useState(0);
+  const [totalNotifications, setTotalNotifications] = useState(0);
 
   // Preferences State
   const [bibleTranslation, setBibleTranslation] = useState<string>(() => {
@@ -66,6 +66,20 @@ const App: React.FC = () => {
   const [isWinterMode, setIsWinterMode] = useState(() => {
     if (typeof window !== 'undefined') return localStorage.getItem('winterMode') === 'true';
     return false;
+  });
+  
+  // Granular Winter Settings (Default true if not set)
+  const [isWinterSnow, setIsWinterSnow] = useState(() => {
+      const val = localStorage.getItem('winterSnow');
+      return val === null ? true : val === 'true';
+  });
+  const [isWinterLights, setIsWinterLights] = useState(() => {
+      const val = localStorage.getItem('winterLights');
+      return val === null ? true : val === 'true';
+  });
+  const [isWinterIcicles, setIsWinterIcicles] = useState(() => {
+      const val = localStorage.getItem('winterIcicles');
+      return val === null ? true : val === 'true';
   });
 
   const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
@@ -137,6 +151,9 @@ const App: React.FC = () => {
             const name = displayName || meta.full_name || 'Guest';
             await db.social.upsertProfile(finalShareId, name, avatar || meta.avatar, bio || meta.bio);
 
+            // Initial Heartbeat
+            db.social.heartbeat();
+
         } catch (e) {
             console.error("ID Initialization failed", e);
         }
@@ -150,13 +167,40 @@ const App: React.FC = () => {
         if (meta.bibleTranslation) setBibleTranslation(meta.bibleTranslation);
         if (meta.theme) setIsDarkMode(meta.theme === 'dark');
         if (meta.winterMode !== undefined) setIsWinterMode(meta.winterMode === 'true' || meta.winterMode === true);
+        
+        // Load Winter Sub-settings from cloud if available
+        if (meta.winterSnow !== undefined) {
+             const val = meta.winterSnow === 'true' || meta.winterSnow === true;
+             setIsWinterSnow(val);
+             localStorage.setItem('winterSnow', String(val));
+        }
+        if (meta.winterLights !== undefined) {
+             const val = meta.winterLights === 'true' || meta.winterLights === true;
+             setIsWinterLights(val);
+             localStorage.setItem('winterLights', String(val));
+        }
+        if (meta.winterIcicles !== undefined) {
+             const val = meta.winterIcicles === 'true' || meta.winterIcicles === true;
+             setIsWinterIcicles(val);
+             localStorage.setItem('winterIcicles', String(val));
+        }
     };
 
     if (session) {
         initSession();
         loadCloudData();
         loadChats();
+        // Initial load
         loadSocialNotifications();
+        
+        // Poll for notifications every 10 seconds
+        const pollInterval = setInterval(() => {
+            loadSocialNotifications();
+            // Also update our online status
+            db.social.heartbeat();
+        }, 10000);
+        
+        return () => clearInterval(pollInterval);
     } else {
         setChats([]);
         setActiveChatId(null);
@@ -180,8 +224,13 @@ const App: React.FC = () => {
   
   const loadSocialNotifications = async () => {
       try {
-          const requests = await db.social.getIncomingRequests();
-          setPendingRequests(requests.length);
+          // Parallel fetch: Pending Requests & Total Unread Messages
+          const [requests, unreadCount] = await Promise.all([
+              db.social.getIncomingRequests(),
+              db.social.getTotalUnreadCount()
+          ]);
+          
+          setTotalNotifications(requests.length + unreadCount);
       } catch (e) {
           console.error("Failed to load requests", e);
       }
@@ -244,6 +293,21 @@ const App: React.FC = () => {
        setIsWinterMode(isWinter);
        localStorage.setItem('winterMode', String(isWinter));
        updateCloudPreference('winterMode', isWinter);
+    } else if (key === 'winterSnow') {
+        const val = value === true;
+        setIsWinterSnow(val);
+        localStorage.setItem('winterSnow', String(val));
+        updateCloudPreference('winterSnow', val);
+    } else if (key === 'winterLights') {
+        const val = value === true;
+        setIsWinterLights(val);
+        localStorage.setItem('winterLights', String(val));
+        updateCloudPreference('winterLights', val);
+    } else if (key === 'winterIcicles') {
+        const val = value === true;
+        setIsWinterIcicles(val);
+        localStorage.setItem('winterIcicles', String(val));
+        updateCloudPreference('winterIcicles', val);
     } else if (key === 'bibleTranslation') {
        setBibleTranslation(value as string);
        localStorage.setItem('bibleTranslation', value as string);
@@ -330,7 +394,7 @@ const App: React.FC = () => {
         isTemp: true
     };
     
-    setChats(prev => [newChat, ...prev]);
+    setChats(prevChats => [newChat, ...prevChats]);
     setActiveChatId(tempId);
     setCurrentView('chat');
   };
@@ -460,7 +524,6 @@ const App: React.FC = () => {
         } else if (rawMsg.includes('Failed to fetch')) {
             friendlyMessage = "⚠️ **Connection Error**\n\nPlease check your internet connection.";
         } else {
-             // SHOW RAW ERROR FOR DEBUGGING AS REQUESTED
              friendlyMessage = `⚠️ **Error Details:**\n\n\`${rawMsg}\`\n\n(Please verify your API Key or Network)`;
         }
         
@@ -480,9 +543,9 @@ const App: React.FC = () => {
   const activeChat = chats.find(c => c.id === activeChatId);
   const activeMessages = activeChat ? activeChat.messages.map(m => ({ ...m, timestamp: new Date(m.timestamp) })) : [];
 
-  if (showSplash || loadingAuth) {
+  if (showSplash) {
     return (
-      <div className={`fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-black transition-all duration-1000 ease-[cubic-bezier(0.76,0,0.24,1)] ${!showSplash && !loadingAuth ? 'opacity-0 scale-110 pointer-events-none blur-2xl' : 'opacity-100 scale-100 blur-0'}`}>
+      <div className={`fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-black transition-all duration-1000 ease-[cubic-bezier(0.76,0,0.24,1)] ${!showSplash ? 'opacity-0 scale-110 pointer-events-none blur-2xl' : 'opacity-100 scale-100 blur-0'}`}>
          <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 animate-aurora opacity-90"></div>
          <div className="absolute inset-0 opacity-60">
              <div className="absolute top-[20%] left-[20%] w-1 h-1 bg-white rounded-full animate-twinkle"></div>
@@ -522,8 +585,24 @@ const App: React.FC = () => {
 
   return (
     <div className={`${isDarkMode ? 'dark' : ''} animate-fade-in`}>
-      {isWinterMode && <WinterOverlay />}
-      {!session ? ( <Login isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} language={language} /> ) : (
+      {isWinterMode && (
+          <WinterOverlay 
+            showSnow={isWinterSnow}
+            showLights={isWinterLights}
+            showIcicles={isWinterIcicles}
+          />
+      )}
+      
+      {loadingAuth ? (
+          <div className="fixed inset-0 bg-slate-950 flex items-center justify-center z-50">
+               <div className="flex flex-col items-center gap-4">
+                  <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                  <p className="text-slate-400 text-sm animate-pulse">Checking access...</p>
+               </div>
+          </div>
+      ) : !session ? ( 
+          <Login isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} language={language} /> 
+      ) : (
         <div className="flex h-screen bg-slate-200 dark:bg-slate-900 overflow-hidden relative z-0">
           <Sidebar 
             isOpen={isSidebarOpen}
@@ -536,8 +615,8 @@ const App: React.FC = () => {
             onRenameChat={handleRenameChat}
             onOpenSettings={() => setIsSettingsOpen(true)}
             onOpenDailyVerse={() => setIsDailyVerseOpen(true)}
-            onOpenSocial={() => setIsSocialOpen(true)}
-            pendingRequestsCount={pendingRequests}
+            onOpenSocial={() => { setIsSocialOpen(true); loadSocialNotifications(); }}
+            pendingRequestsCount={totalNotifications}
             isDarkMode={isDarkMode}
             toggleDarkMode={toggleDarkMode}
             language={language}
@@ -547,14 +626,40 @@ const App: React.FC = () => {
           />
           <div className="flex-1 flex flex-col h-full relative w-full overflow-hidden">
             {currentView === 'chat' && (
-                <ChatInterface messages={activeMessages} isLoading={isLoading} onSendMessage={handleSendMessage} onMenuClick={() => setIsSidebarOpen(true)} onRegenerate={handleRegenerate} onDeleteCurrentChat={activeChatId ? () => handleDeleteChat(activeChatId) : undefined} language={language} userAvatar={avatar} />
+                <ChatInterface messages={activeMessages} isLoading={isLoading} onSendMessage={handleSendMessage} onMenuClick={() => setIsSidebarOpen(true)} onRegenerate={handleRegenerate} onDeleteCurrentChat={activeChatId ? () => handleDeleteChat(activeChatId) : undefined} onNewChat={createNewChat} language={language} userAvatar={avatar} />
             )}
             {currentView === 'bible' && ( <BibleReader language={language} onSaveItem={handleSaveItem} onMenuClick={() => setIsSidebarOpen(true)} highlights={highlights} onAddHighlight={handleAddHighlight} onRemoveHighlight={handleRemoveHighlight} /> )}
             {currentView === 'saved' && ( <SavedCollection savedItems={savedItems} onRemoveItem={handleRemoveSavedItem} language={language} onMenuClick={() => setIsSidebarOpen(true)} /> )}
           </div>
-          <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} preferences={{ bibleTranslation, theme: isDarkMode ? 'dark' : 'light', winterTheme: isWinterMode, language, displayName, avatar, bio }} onUpdatePreference={handleUpdatePreference} userEmail={session.user.email} onLogout={handleLogout} />
+          <SettingsModal 
+            isOpen={isSettingsOpen} 
+            onClose={() => setIsSettingsOpen(false)} 
+            preferences={{ 
+                bibleTranslation, 
+                theme: isDarkMode ? 'dark' : 'light', 
+                winterTheme: isWinterMode, 
+                winterSnow: isWinterSnow,
+                winterLights: isWinterLights,
+                winterIcicles: isWinterIcicles,
+                language, 
+                displayName, 
+                avatar, 
+                bio 
+            }} 
+            onUpdatePreference={handleUpdatePreference} 
+            userEmail={session.user.email} 
+            onLogout={handleLogout} 
+          />
           <DailyVerseModal isOpen={isDailyVerseOpen} onClose={() => setIsDailyVerseOpen(false)} isDarkMode={isDarkMode} language={language} />
-          <SocialModal isOpen={isSocialOpen} onClose={() => setIsSocialOpen(false)} currentUserShareId={shareId} isDarkMode={isDarkMode} />
+          
+          {/* Passed loadSocialNotifications so child components can trigger bell updates */}
+          <SocialModal 
+            isOpen={isSocialOpen} 
+            onClose={() => setIsSocialOpen(false)} 
+            currentUserShareId={shareId} 
+            isDarkMode={isDarkMode} 
+            onUpdateNotifications={loadSocialNotifications}
+          />
         </div>
       )}
     </div>

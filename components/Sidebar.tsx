@@ -121,12 +121,12 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div className="flex items-center gap-2">
                 <button 
                     onClick={() => { onOpenSocial(); if(window.innerWidth < 768) onClose(); }} 
-                    className="relative p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+                    className="relative p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-colors hover:scale-110 active:scale-95"
                     title="Inbox & Friends"
                 >
-                    <Bell size={20} />
+                    <Bell size={20} className={pendingRequestsCount > 0 ? "animate-swing" : ""} />
                     {pendingRequestsCount > 0 && (
-                        <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-slate-900"></span>
+                        <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-slate-900 animate-pulse"></span>
                     )}
                 </button>
                 <button onClick={onClose} className="md:hidden text-slate-400 hover:text-white">
@@ -139,19 +139,19 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex bg-slate-800 rounded-lg p-1">
              <button 
                 onClick={() => onChangeView('chat')}
-                className={`flex-1 flex items-center justify-center py-2 rounded-md transition-all text-xs font-medium gap-1 ${currentView === 'chat' ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+                className={`flex-1 flex items-center justify-center py-2 rounded-md transition-all text-xs font-medium gap-1 ${currentView === 'chat' ? 'bg-slate-700 text-white shadow-sm scale-105' : 'text-slate-400 hover:text-slate-200'}`}
              >
                 <MessageCircle size={14} /> {t.tabs.chat}
              </button>
              <button 
                 onClick={() => onChangeView('bible')}
-                className={`flex-1 flex items-center justify-center py-2 rounded-md transition-all text-xs font-medium gap-1 ${currentView === 'bible' ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+                className={`flex-1 flex items-center justify-center py-2 rounded-md transition-all text-xs font-medium gap-1 ${currentView === 'bible' ? 'bg-slate-700 text-white shadow-sm scale-105' : 'text-slate-400 hover:text-slate-200'}`}
              >
                 <Book size={14} /> {t.tabs.bible}
              </button>
              <button 
                 onClick={() => onChangeView('saved')}
-                className={`flex-1 flex items-center justify-center py-2 rounded-md transition-all text-xs font-medium gap-1 ${currentView === 'saved' ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+                className={`flex-1 flex items-center justify-center py-2 rounded-md transition-all text-xs font-medium gap-1 ${currentView === 'saved' ? 'bg-slate-700 text-white shadow-sm scale-105' : 'text-slate-400 hover:text-slate-200'}`}
              >
                 <Heart size={14} /> {t.tabs.saved}
              </button>
@@ -166,7 +166,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     onNewChat();
                     if (window.innerWidth < 768) onClose();
                 }}
-                className="w-full flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-lg transition-colors font-medium shadow-md"
+                className="w-full flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-lg transition-all font-medium shadow-md hover:translate-x-1"
             >
                 <Plus size={20} />
                 <span>{t.newChat}</span>
@@ -177,7 +177,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     onOpenDailyVerse();
                     if (window.innerWidth < 768) onClose();
                 }}
-                className="w-full flex items-center justify-between bg-emerald-700/50 hover:bg-emerald-700 text-emerald-100 p-2.5 rounded-lg transition-colors font-medium text-sm border border-emerald-800"
+                className="w-full flex items-center justify-between bg-emerald-700/50 hover:bg-emerald-700 text-emerald-100 p-2.5 rounded-lg transition-all font-medium text-sm border border-emerald-800 hover:translate-x-1"
             >
                 <div className="flex items-center gap-2">
                    <Calendar size={18} />
@@ -185,7 +185,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </div>
                 {dailyStreak > 0 && (
                   <div className="flex items-center gap-1 bg-black/20 px-2 py-0.5 rounded-full text-xs">
-                     <Flame size={12} className="text-orange-400 fill-orange-400" />
+                     <Flame size={12} className="text-orange-400 fill-orange-400 animate-pulse" />
                      <span className="text-orange-100 font-bold">{dailyStreak}</span>
                   </div>
                 )}
@@ -218,7 +218,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         group flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all relative
                         ${activeChatId === chat.id 
                         ? 'bg-slate-800 dark:bg-slate-900 text-white shadow-sm ring-1 ring-slate-700' 
-                        : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}
+                        : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 hover:translate-x-1'}
                     `}
                     >
                     {deleteConfirmId === chat.id ? (
@@ -310,7 +310,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="p-4 border-t border-slate-800 space-y-3">
            <button 
              onClick={onOpenSettings}
-             className="w-full flex items-center justify-between p-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors text-sm font-medium shadow-sm"
+             className="w-full flex items-center justify-between p-3 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors text-sm font-medium shadow-sm hover:translate-x-1"
            >
              <span className="flex items-center gap-2">
                  <Settings size={18} />

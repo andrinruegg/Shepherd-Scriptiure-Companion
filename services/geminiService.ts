@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, GenerateContentResponse, Content } from "@google/genai";
 import { Message } from "../types";
 
@@ -36,7 +37,7 @@ const getActiveApiKey = (): string | null => {
  */
 const getClient = (): GoogleGenAI => {
     const key = getActiveApiKey();
-    if (!key) throw new Error("No API Key configured. Please add a Custom Key in Settings.");
+    if (!key) throw new Error("NO_API_KEY");
     return new GoogleGenAI({ apiKey: key });
 };
 
@@ -93,9 +94,17 @@ const makeRequestWithRetry = async <T>(
         const client = getClient();
         return await operation(client);
     } catch (error: any) {
-        // Check for 429 (Resource Exhausted / Rate Limit)
         const errorMessage = error?.message || "";
-        const isRateLimit = error?.status === 429 || error?.code === 429 || errorMessage.includes('429') || errorMessage.includes('quota') || errorMessage.includes('RESOURCE_EXHAUSTED');
+        const status = error?.status;
+        const code = error?.code;
+
+        // Check for 403 Leaked / Permission Denied
+        if (status === 403 || code === 403 || errorMessage.includes('leaked') || errorMessage.includes('PERMISSION_DENIED')) {
+            throw new Error("API_KEY_LEAKED");
+        }
+
+        // Check for 429 (Resource Exhausted / Rate Limit)
+        const isRateLimit = status === 429 || code === 429 || errorMessage.includes('429') || errorMessage.includes('quota') || errorMessage.includes('RESOURCE_EXHAUSTED');
         
         if (isRateLimit && retries > 0) {
             console.warn(`Rate limit hit. Rotating key/retrying in ${initialDelay}ms... (${retries} retries left)`);

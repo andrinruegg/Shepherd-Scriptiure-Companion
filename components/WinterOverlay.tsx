@@ -1,7 +1,18 @@
+
 import React, { useMemo } from 'react';
 import { Snowflake } from 'lucide-react';
 
-const WinterOverlay: React.FC = () => {
+interface WinterOverlayProps {
+    showSnow?: boolean;
+    showLights?: boolean;
+    showIcicles?: boolean;
+}
+
+const WinterOverlay: React.FC<WinterOverlayProps> = ({ 
+    showSnow = true, 
+    showLights = true, 
+    showIcicles = true 
+}) => {
   // Generate random snowflakes
   const flakes = useMemo(() => {
     return Array.from({ length: 30 }).map((_, i) => ({
@@ -48,54 +59,60 @@ const WinterOverlay: React.FC = () => {
   return (
     <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
       
-      {/* 1. Frost Vignette (Subtle fog at edges) */}
+      {/* 1. Frost Vignette (Subtle fog at edges) - Always visible if Mode is active for atmosphere */}
       <div className="absolute inset-0 frost-vignette z-40"></div>
 
       {/* 2. Corner Icicles (Decorative, transparent) */}
-      <div className="absolute top-0 left-0 w-32 h-32 opacity-40 text-slate-200 dark:text-slate-600">
-         <svg viewBox="0 0 100 100" fill="currentColor">
-            <path d="M0,0 L20,0 L25,40 L30,0 L50,0 L55,60 L60,0 L80,0 L85,30 L100,0 L0,0 Z" />
-         </svg>
-      </div>
-      <div className="absolute top-0 right-0 w-32 h-32 opacity-40 text-slate-200 dark:text-slate-600 transform scale-x-[-1]">
-         <svg viewBox="0 0 100 100" fill="currentColor">
-            <path d="M0,0 L20,0 L25,45 L30,0 L50,0 L55,70 L60,0 L80,0 L85,35 L100,0 L0,0 Z" />
-         </svg>
-      </div>
+      {showIcicles && (
+          <>
+            <div className="absolute top-0 left-0 w-32 h-32 opacity-40 text-slate-200 dark:text-slate-600">
+                <svg viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M0,0 L20,0 L25,40 L30,0 L50,0 L55,60 L60,0 L80,0 L85,30 L100,0 L0,0 Z" />
+                </svg>
+            </div>
+            <div className="absolute top-0 right-0 w-32 h-32 opacity-40 text-slate-200 dark:text-slate-600 transform scale-x-[-1]">
+                <svg viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M0,0 L20,0 L25,45 L30,0 L50,0 L55,70 L60,0 L80,0 L85,35 L100,0 L0,0 Z" />
+                </svg>
+            </div>
+          </>
+      )}
 
       {/* 3. Curved Wire (SVG) */}
-      <div className="absolute top-0 left-0 right-0 h-20 z-10">
-          <svg width="100%" height="100%" viewBox="0 0 100 40" preserveAspectRatio="none">
-              {/* Quadratic Bezier Curve: Start(0,0) Control(50, 80) End(100,0) 
-                  The control point Y (80) is 2x the desired visual dip (40) */}
-              <path d="M0,-2 Q50,80 100,-2" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-slate-800/30 dark:text-slate-500/30" vectorEffect="non-scaling-stroke"/>
-          </svg>
-      </div>
+      {showLights && (
+          <div className="absolute top-0 left-0 right-0 h-20 z-10">
+            <svg width="100%" height="100%" viewBox="0 0 100 40" preserveAspectRatio="none">
+                <path d="M0,-2 Q50,80 100,-2" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-slate-800/30 dark:text-slate-500/30" vectorEffect="non-scaling-stroke"/>
+            </svg>
+          </div>
+      )}
 
       {/* 4. Christmas Lights */}
-      <div className="absolute top-0 left-0 right-0 h-20 z-20">
-        {lights.map((light) => (
-            <div 
-                key={light.id} 
-                className="absolute flex flex-col items-center -translate-x-1/2 origin-top"
-                style={{ 
-                    left: `${light.leftPercent}%`, 
-                    top: `${light.topOffset}px` 
-                }} 
-            >
-                {/* Socket */}
-                <div className="w-1.5 h-2 bg-slate-700 dark:bg-slate-600 rounded-sm"></div>
-                {/* Bulb */}
+      {showLights && (
+        <div className="absolute top-0 left-0 right-0 h-20 z-20">
+            {lights.map((light) => (
                 <div 
-                    className={`w-2.5 h-3.5 rounded-full animate-light-glow bg-current ${light.colorClass} transition-all duration-1000`}
-                    style={{ animationDelay: `${light.delay}s` }}
-                ></div>
-            </div>
-        ))}
-      </div>
+                    key={light.id} 
+                    className="absolute flex flex-col items-center -translate-x-1/2 origin-top"
+                    style={{ 
+                        left: `${light.leftPercent}%`, 
+                        top: `${light.topOffset}px` 
+                    }} 
+                >
+                    {/* Socket */}
+                    <div className="w-1.5 h-2 bg-slate-700 dark:bg-slate-600 rounded-sm"></div>
+                    {/* Bulb */}
+                    <div 
+                        className={`w-2.5 h-3.5 rounded-full animate-light-glow bg-current ${light.colorClass} transition-all duration-1000`}
+                        style={{ animationDelay: `${light.delay}s` }}
+                    ></div>
+                </div>
+            ))}
+        </div>
+      )}
 
       {/* 5. Falling Snowflakes */}
-      {flakes.map((flake) => (
+      {showSnow && flakes.map((flake) => (
         <div
           key={flake.id}
           className="absolute top-[-20px] animate-snow text-slate-300 dark:text-slate-400"
