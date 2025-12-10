@@ -23,9 +23,6 @@ const App: React.FC = () => {
   const [session, setSession] = useState<any>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
-  
-  // Sync Lock: Prevents user from entering app until Profile is confirmed in DB
-  const [isSyncing, setIsSyncing] = useState(false);
 
   const [currentView, setCurrentView] = useState<AppView>('chat');
   const [chats, setChats] = useState<ChatSession[]>([]);
@@ -103,118 +100,59 @@ const App: React.FC = () => {
     const initSession = async () => {
         if (!session?.user) return;
         
-        setIsSyncing(true);
-        const meta = session.user.user_metadata;
-        
         try {
-            // 0. SECURITY CHECK: Verify user actually exists in Auth (handles deleted users)
-            const { data: { user: freshUser }, error: authError } = await supabase!.auth.getUser();
-            if (authError || !freshUser) {
-                console.warn("User deleted from DB. Force logout.");
-                handleLogout();
-                return;
-            }
-
-            // 1. QUERY DATABASE FOR EXISTING ID (Source of Truth)
-            // We prioritize the DB ID over any local or metadata ID to ensure cross-device consistency.
+            // 1. Fetch Existing Profile
             let existingProfile = await db.social.getUserProfile(session.user.id);
+            const meta = session.user.user_metadata;
             let finalShareId = '';
-            
-            // --- GHOST ACCOUNT RECOVERY START ---
-            // If user is authenticated but has NO profile (deleted manually), we must create one NOW.
-            if (!existingProfile) {
-                console.log("[App] Ghost account detected. Attempting recovery...");
-                const nameToUse = displayName || meta.full_name || 'User';
-                const cleanName = nameToUse.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 8) || 'USER';
-                
-                // Generate a unique ID
-                let isUnique = false;
-                let attempt = 0;
-                while (!isUnique && attempt < 5) {
-                   const randomCode = Math.floor(1000 + Math.random() * 9000);
-                   const candidateId = `${cleanName}-${randomCode}`;
-                   const taken = await db.social.checkShareIdExists(candidateId);
-                   if (!taken) {
-                       finalShareId = candidateId;
-                       isUnique = true;
-                   }
-                   attempt++;
-                }
-                
-                if (finalShareId) {
-                   // Force create the profile
-                   await db.social.upsertProfile(finalShareId, nameToUse, avatar || meta.avatar, bio || meta.bio);
-                   // Refetch to confirm
-                   existingProfile = await db.social.getUserProfile(session.user.id);
-                }
-            }
-            // --- GHOST ACCOUNT RECOVERY END ---
 
             if (existingProfile && existingProfile.share_id) {
-                // CASE A: User has an ID in DB. We MUST use it.
                 finalShareId = existingProfile.share_id;
                 
-                // Also load persistent profile data from DB
-                if (existingProfile.bio) {
-                    setBio(existingProfile.bio);
-                    localStorage.setItem('userBio', existingProfile.bio);
-                }
-                if (existingProfile.avatar) {
-                    setAvatar(existingProfile.avatar);
-                    localStorage.setItem('userAvatar', existingProfile.avatar);
-                }
-                if (existingProfile.display_name) {
-                    setDisplayName(existingProfile.display_name);
-                    localStorage.setItem('displayName', existingProfile.display_name);
-                }
-            } else if (!finalShareId) {
-                // Fallback if everything fails
-                 console.warn("Could not generate share ID");
-                 finalShareId = 'ERROR-ID'; 
+                // Sync local state from DB
+                if (existingProfile.display_name) setDisplayName(existingProfile.display_name);
+                if (existingProfile.avatar) setAvatar(existingProfile.avatar);
+                if (existingProfile.bio) setBio(existingProfile.bio);
+            } else {
+                // FALLBACK: If trigger failed, create profile here (Standard initialization)
+                console.log("Profile missing on init, creating standard profile...");
+                const name = displayName || meta.full_name || 'User';
+                const cleanName = name.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 4) || 'USER';
+                const randomId = Math.floor(Math.random() * 90000 + 10000);
+                finalShareId = `${cleanName}-${randomId}`;
             }
 
             setShareId(finalShareId);
+            
+            // 2. Ensure Profile Exists in DB
+            await db.social.upsertProfile(
+                finalShareId, 
+                displayName || meta.full_name || 'User', 
+                avatar || meta.avatar, 
+                bio || meta.bio
+            );
 
-            // 2. SYNC PROFILE TO DB (Safe Upsert)
-            // db.social.upsertProfile now contains logic to prevent overwriting share_id
-            const name = displayName || meta.full_name || 'Guest';
-            await db.social.upsertProfile(finalShareId, name, avatar || meta.avatar, bio || meta.bio);
-
-            // Initial Heartbeat
+            // 3. Heartbeat
             db.social.heartbeat();
 
         } catch (e) {
-            console.error("ID Initialization failed", e);
-        } finally {
-            setIsSyncing(false);
+            console.error("Initialization error:", e);
         }
 
-        // Load local preferences if not already set by DB logic above
+        // Load Preferences
+        const meta = session.user.user_metadata;
         if (!displayName && meta.full_name) {
             setDisplayName(meta.full_name);
-            localStorage.setItem('displayName', meta.full_name);
         }
         if (meta.language) setLanguage(meta.language);
         if (meta.bibleTranslation) setBibleTranslation(meta.bibleTranslation);
         if (meta.theme) setIsDarkMode(meta.theme === 'dark');
         if (meta.winterMode !== undefined) setIsWinterMode(meta.winterMode === 'true' || meta.winterMode === true);
         
-        // Load Winter Sub-settings from cloud if available
-        if (meta.winterSnow !== undefined) {
-             const val = meta.winterSnow === 'true' || meta.winterSnow === true;
-             setIsWinterSnow(val);
-             localStorage.setItem('winterSnow', String(val));
-        }
-        if (meta.winterLights !== undefined) {
-             const val = meta.winterLights === 'true' || meta.winterLights === true;
-             setIsWinterLights(val);
-             localStorage.setItem('winterLights', String(val));
-        }
-        if (meta.winterIcicles !== undefined) {
-             const val = meta.winterIcicles === 'true' || meta.winterIcicles === true;
-             setIsWinterIcicles(val);
-             localStorage.setItem('winterIcicles', String(val));
-        }
+        // Winter Sub-settings
+        if (meta.winterSnow !== undefined) setIsWinterSnow(meta.winterSnow === 'true' || meta.winterSnow === true);
+        if (meta.winterLights !== undefined) setIsWinterLights(meta.winterLights === 'true' || meta.winterLights === true);
+        if (meta.winterIcicles !== undefined) setIsWinterIcicles(meta.winterIcicles === 'true' || meta.winterIcicles === true);
     };
 
     if (session) {
@@ -465,22 +403,7 @@ const App: React.FC = () => {
 
   const handleLogout = async () => { 
       if (supabase) await supabase.auth.signOut(); 
-      // Clear all user-specific items from local storage to prevent identity bleed
-      localStorage.removeItem('userAvatar');
-      localStorage.removeItem('userBio');
-      localStorage.removeItem('displayName');
-      
-      // Clear preferences that might be user-specific
-      localStorage.removeItem('bibleTranslation');
-      localStorage.removeItem('theme');
-      localStorage.removeItem('winterMode');
-      localStorage.removeItem('winterSnow');
-      localStorage.removeItem('winterLights');
-      localStorage.removeItem('winterIcicles');
-      localStorage.removeItem('language');
-      
-      // Keep SUPABASE_URL and SUPABASE_ANON_KEY for connection stability if set manually
-
+      localStorage.clear(); 
       window.location.reload(); 
   };
 
@@ -646,11 +569,11 @@ const App: React.FC = () => {
           />
       )}
       
-      {loadingAuth || isSyncing ? (
+      {loadingAuth ? (
           <div className="fixed inset-0 bg-slate-950 flex items-center justify-center z-50">
                <div className="flex flex-col items-center gap-4">
                   <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-slate-400 text-sm animate-pulse">{isSyncing ? 'Fixing Profile...' : 'Connecting...'}</p>
+                  <p className="text-slate-400 text-sm animate-pulse">Connecting...</p>
                </div>
           </div>
       ) : !session ? ( 
@@ -705,7 +628,6 @@ const App: React.FC = () => {
           />
           <DailyVerseModal isOpen={isDailyVerseOpen} onClose={() => setIsDailyVerseOpen(false)} isDarkMode={isDarkMode} language={language} />
           
-          {/* Passed loadSocialNotifications so child components can trigger bell updates */}
           <SocialModal 
             isOpen={isSocialOpen} 
             onClose={() => setIsSocialOpen(false)} 

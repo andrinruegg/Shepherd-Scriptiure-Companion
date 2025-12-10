@@ -1,5 +1,4 @@
 
-
 import { supabase } from './supabase';
 import { ChatSession, Message, SavedItem, BibleHighlight, UserProfile, FriendRequest, DirectMessage } from '../types';
 
@@ -8,9 +7,6 @@ const ensureSupabase = () => {
 }
 
 export const db = {
-  /**
-   * Fetch all chats and their messages for the current user.
-   */
   async getUserChats(): Promise<ChatSession[]> {
     ensureSupabase();
     // @ts-ignore
@@ -37,7 +33,6 @@ export const db = {
 
     if (chatsError) throw chatsError;
 
-    // Transform DB shape to App shape
     return (chatsData || []).map((chat: any) => ({
       id: chat.id,
       title: chat.title || 'New Conversation',
@@ -54,9 +49,6 @@ export const db = {
     }));
   },
 
-  /**
-   * Create a new chat session.
-   */
   async createChat(title: string = 'New Conversation', initialMessage?: Message, id?: string): Promise<ChatSession> {
     ensureSupabase();
     // @ts-ignore
@@ -132,8 +124,6 @@ export const db = {
     }];
   },
 
-  // --- SAVED ITEMS CRUD ---
-
   async getSavedItems(): Promise<SavedItem[]> {
       ensureSupabase();
       // @ts-ignore
@@ -185,8 +175,6 @@ export const db = {
       if (error) throw error;
   },
 
-  // --- HIGHLIGHTS CRUD ---
-
   async getHighlights(): Promise<BibleHighlight[]> {
       ensureSupabase();
       // @ts-ignore
@@ -221,8 +209,6 @@ export const db = {
       const { error } = await supabase.from('highlights').delete().eq('ref', ref);
       if (error) throw error;
   },
-
-  // --- SOCIAL / FRIENDS SYSTEM ---
 
   social: {
       async heartbeat() {
@@ -283,49 +269,14 @@ export const db = {
           if (!user) throw new Error('Not authenticated');
           if (user.id === targetUserId) throw new Error("You cannot add yourself.");
 
-          // --- SELF HEALING START ---
-          // Ensure sender profile exists. If missing (due to init errors), creation fails with FK violation.
-          const { data: profile } = await supabase!.from('profiles').select('id').eq('id', user.id).maybeSingle();
-          if (!profile) {
-              console.log("Profile missing for sender. Auto-creating...");
-              const metaName = user.user_metadata.full_name || 'User';
-              const cleanName = metaName.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 8) || 'USER';
-              
-              // Generate a highly random ID to avoid collision during auto-heal
-              const randomCode = Math.floor(10000 + Math.random() * 90000);
-              const autoShareId = `${cleanName}-${randomCode}`;
-              
-              // Attempt to create missing profile
-              const { error: createError } = await supabase!.from('profiles').upsert({
-                  id: user.id,
-                  display_name: metaName,
-                  share_id: autoShareId,
-                  last_seen: new Date().toISOString()
-              });
-
-              if (createError) {
-                   console.error("Auto-create profile failed", createError);
-                   // Check for duplicate key errors specifically
-                   if (createError.code === '23505') {
-                      throw new Error("Could not initialize profile: ID already exists. Please try again.");
-                   }
-                   throw new Error(`Could not initialize your social profile. Error: ${createError.message}. Please try logging out and back in.`);
-              }
-          }
-          // --- SELF HEALING END ---
-
+          // Simple Check: Are we already friends or requested?
           // @ts-ignore
           const { data: existing } = await supabase!.from('friendships').select('*').or(`and(requester_id.eq.${user.id},receiver_id.eq.${targetUserId}),and(requester_id.eq.${targetUserId},receiver_id.eq.${user.id})`).maybeSingle();
           if (existing) throw new Error("Request already sent or you are already friends.");
 
           // @ts-ignore
           const { error } = await supabase!.from('friendships').insert({ requester_id: user.id, receiver_id: targetUserId, status: 'pending' });
-          if (error) {
-              if (error.code === '23503') { // Foreign Key Violation
-                  throw new Error("Friend request failed: Your user profile is incomplete. Please log out and back in to fix it.");
-              }
-              throw error;
-          }
+          if (error) throw error;
       },
 
       async getIncomingRequests(): Promise<FriendRequest[]> {
@@ -338,7 +289,6 @@ export const db = {
           const { data, error } = await supabase.from('friendships').select(`id, created_at, status, requester:profiles!requester_id ( id, share_id, display_name, avatar, bio )`).eq('receiver_id', user.id).eq('status', 'pending');
           if (error) throw error;
           
-          // Safer mapping: Filter out requests where requester profile is missing (null)
           return (data || [])
             .filter((r: any) => r.requester !== null)
             .map((r: any) => ({ id: r.id, status: r.status, created_at: r.created_at, requester: r.requester }));
@@ -381,8 +331,6 @@ export const db = {
 
           const friends: UserProfile[] = [];
           (data || []).forEach((row: any) => {
-              // Defensive coding: Check for nulls before accessing properties
-              // This happens if a user is deleted but the friendship row remains
               if (row.requester && row.requester.id !== user.id) {
                   friends.push(row.requester);
               } else if (row.receiver && row.receiver.id !== user.id) {
@@ -395,7 +343,6 @@ export const db = {
           const unreadMap = new Map();
           unreadData?.forEach((m: any) => { unreadMap.set(m.sender_id, (unreadMap.get(m.sender_id) || 0) + 1); });
 
-          // Optimization: Limit the latest message fetch to 200 rows to prevent hanging on huge datasets
           // @ts-ignore
           const { data: latestMsgs } = await supabase.from('direct_messages')
             .select('sender_id, receiver_id, created_at')
@@ -460,7 +407,7 @@ export const db = {
           if (error) throw error;
           // @ts-ignore
           const { data: urlData } = supabase.storage.from('chat-media').getPublicUrl(path);
-          return `${urlData.publicUrl}?t=${Date.now()}`; // Bust cache for regular media
+          return `${urlData.publicUrl}?t=${Date.now()}`; 
       },
 
       async getTotalUnreadCount(): Promise<number> {
@@ -473,7 +420,6 @@ export const db = {
           return count || 0;
       },
 
-      // --- GRAFFITI SHARED LAYER ---
       async uploadGraffiti(friendId: string, blob: Blob): Promise<string> {
           ensureSupabase();
           // @ts-ignore
@@ -484,7 +430,6 @@ export const db = {
           const friendshipFileId = `${ids[0]}_${ids[1]}`;
           const path = `graffiti/${friendshipFileId}.png`;
 
-          // Standard upload
           return this.uploadMedia(blob, path);
       },
 
@@ -496,10 +441,9 @@ export const db = {
 
           const ids = [user.id, friendId].sort();
           const friendshipFileId = `${ids[0]}_${ids[1]}`;
-          const path = `graffiti/${friendshipFileId}.png`;
           const fileName = `${friendshipFileId}.png`;
+          const path = `graffiti/${fileName}`;
 
-          // 1. Check Metadata first to see if file exists and get last modified time
           // @ts-ignore
           const { data: list, error } = await supabase.storage.from('chat-media').list('graffiti', {
               limit: 1,
@@ -508,15 +452,11 @@ export const db = {
           
           if (error || !list || list.length === 0) return null;
           
-          // 2. Construct URL with the actual Last-Modified timestamp versioning
-          // This prevents "fading" caused by constantly changing the URL query param
           const fileMetadata = list[0];
           // @ts-ignore
           const { data: urlData } = supabase.storage.from('chat-media').getPublicUrl(path);
           
-          // Use updated_at or created_at as version
           const version = fileMetadata.updated_at || fileMetadata.created_at || '1';
-          
           return `${urlData.publicUrl}?v=${version}`;
       }
   }

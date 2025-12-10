@@ -19,7 +19,7 @@ const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language }) =
   const [email, setEmail] = useState('andrinruegg732@gmail.com');
   const [password, setPassword] = useState('Kingbro88');
   
-  const [displayName, setDisplayName] = useState(''); // New State for Name
+  const [displayName, setDisplayName] = useState(''); 
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   
@@ -46,17 +46,12 @@ const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language }) =
 
     try {
         if (authMode === 'signup') {
-            // Sanitize Name: Remove emojis and special chars to prevent DB trigger issues
-            const cleanName = displayName.trim().replace(/[^a-zA-Z0-9\s]/g, '');
-            const finalName = cleanName.length > 0 ? cleanName : 'User';
-
             const { error } = await supabase!.auth.signUp({
                 email,
                 password,
                 options: {
                     data: {
-                        full_name: displayName, // Save original display name
-                        clean_name: finalName   // Save cleaned name just in case
+                        full_name: displayName.trim(),
                     }
                 }
             });
@@ -71,20 +66,7 @@ const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language }) =
             if (error) throw error;
         }
     } catch (error: any) {
-        let msg = error.message || "Authentication failed.";
-        
-        // Specific handling for Database Trigger errors
-        if (msg.includes("Database error")) {
-            console.error("Signup DB Error:", error);
-            msg = "Account conflict. Please run the SQL Cleanup Script in Supabase.";
-        }
-        else if (msg.includes("already registered")) {
-            msg = "This email is already registered. Please Sign In instead.";
-            // Auto-switch to sign in to help the user
-            setTimeout(() => setAuthMode('signin'), 1500);
-        }
-
-        setErrorMsg(msg);
+        setErrorMsg(error.message || "Authentication failed.");
     } finally {
         setLoading(false);
     }
