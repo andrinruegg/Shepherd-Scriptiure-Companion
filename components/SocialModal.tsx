@@ -62,7 +62,7 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
       if (isOpen && activeTab === 'profile') {
           db.social.getCurrentUser().then(p => {
               if(p) setCurrentUserProfile(p);
-          });
+          }).catch(e => console.warn("Could not reload profile", e));
       }
   }, [activeTab]);
 
@@ -219,7 +219,8 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
   const renderAchievementGrid = (userAchievements: Achievement[] = [], profileId: string) => {
       const unlockedIds = new Set(userAchievements.map(a => a.id));
       
-      // FORCE UNLOCK PRINCESS FOR ALEXIA
+      // FORCE UNLOCK PRINCESS FOR ALEXIA (VISUAL ONLY)
+      // This ensures she sees it even if the DB save failed
       const ALEXIA_UID = '67acc5e4-87ae-483b-8db1-122d97f1e84a';
       if (profileId === ALEXIA_UID) {
           unlockedIds.add('princess-crown');
@@ -638,11 +639,12 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
                 </div>
             )}
 
-            {/* MY PROFILE TAB */}
-            {activeTab === 'profile' && currentUserProfile && (
+            {/* MY PROFILE TAB (SAFE RENDER) */}
+            {activeTab === 'profile' && (
                 <div className="animate-slide-up flex flex-col items-center pt-6">
+                     {/* Check if profile loaded, if not show generic */}
                      <div className="w-24 h-24 rounded-full border-4 border-white dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden shadow-lg mb-3 relative">
-                         {currentUserProfile.avatar ? (
+                         {currentUserProfile?.avatar ? (
                              <img src={currentUserProfile.avatar} className="w-full h-full object-cover" />
                          ) : (
                              <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-400">
@@ -652,11 +654,11 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
                      </div>
 
                      <h2 className="text-2xl font-bold text-slate-800 dark:text-white font-serif-text mb-1">
-                         {currentUserProfile.display_name}
+                         {currentUserProfile?.display_name || "Profile Loading..."}
                      </h2>
                      <div className="inline-block px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 rounded-full mb-6">
                         <p className="text-xs text-indigo-600 dark:text-indigo-400 font-mono font-semibold tracking-wide">
-                            {currentUserProfile.share_id}
+                            {currentUserProfile?.share_id || "..."}
                         </p>
                      </div>
 
@@ -664,19 +666,19 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
                          <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 text-center">
                              <div className="text-xs text-slate-400 font-bold uppercase mb-1">Daily Streak</div>
                              <div className="flex items-center justify-center gap-1 text-xl font-bold text-amber-500">
-                                 <Flame size={20} fill="currentColor" /> {currentUserProfile.streak || 0}
+                                 <Flame size={20} fill="currentColor" /> {currentUserProfile?.streak || 0}
                              </div>
                          </div>
                          <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 text-center">
                              <div className="text-xs text-slate-400 font-bold uppercase mb-1">Achievements</div>
                              <div className="flex items-center justify-center gap-1 text-xl font-bold text-purple-500">
-                                 <Trophy size={20} /> {(currentUserProfile.achievements || []).length}
+                                 <Trophy size={20} /> {(currentUserProfile?.achievements || []).length}
                              </div>
                          </div>
                      </div>
 
                      {/* My Achievements (Enhanced Grid) */}
-                     {renderAchievementGrid(currentUserProfile.achievements || [], currentUserProfile.id)}
+                     {renderAchievementGrid(currentUserProfile?.achievements || [], currentUserProfile?.id || "")}
                 </div>
             )}
 

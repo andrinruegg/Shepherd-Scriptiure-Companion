@@ -1,5 +1,4 @@
 
-
 import { supabase } from './supabase';
 import { ChatSession, Message, SavedItem, BibleHighlight, UserProfile, FriendRequest, DirectMessage, Achievement } from '../types';
 
@@ -423,10 +422,30 @@ export const db = {
 
       async getUserProfile(userId: string): Promise<UserProfile | null> {
           ensureSupabase();
-          // @ts-ignore
-          const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle(); 
-          if (error || !data) return null;
-          return data as UserProfile;
+          
+          // TRY 1: Get Everything
+          try {
+              // @ts-ignore
+              const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle(); 
+              if (!error && data) return data as UserProfile;
+          } catch (e) {}
+
+          // TRY 2: Fallback (If achievements column missing, select only base fields)
+          try {
+              // @ts-ignore
+              const { data, error } = await supabase.from('profiles')
+                  .select('id, share_id, display_name, avatar, bio, last_seen, streak')
+                  .eq('id', userId)
+                  .maybeSingle();
+                  
+              if (error || !data) return null;
+              
+              // Return mock empty achievements to satisfy type
+              return { ...data, achievements: [] } as UserProfile;
+          } catch (e) {
+              console.error("Failed to load profile", e);
+              return null;
+          }
       },
       
       async getCurrentUser(): Promise<UserProfile | null> {

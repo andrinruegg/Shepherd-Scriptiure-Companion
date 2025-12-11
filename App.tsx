@@ -128,8 +128,13 @@ const App: React.FC = () => {
         if (!session?.user) return;
         
         try {
-            // 1. Fetch Existing Profile
-            let existingProfile = await db.social.getUserProfile(session.user.id);
+            // 1. Fetch Existing Profile (Safe Fetch)
+            let existingProfile = null;
+            try {
+                existingProfile = await db.social.getUserProfile(session.user.id);
+            } catch (err) {
+                console.warn("Profile fetch warning:", err);
+            }
             
             if (existingProfile && existingProfile.share_id) {
                 setShareId(existingProfile.share_id);
@@ -139,14 +144,14 @@ const App: React.FC = () => {
                 if (existingProfile.bio) setBio(existingProfile.bio);
             }
 
-            // 2. Heartbeat
-            db.social.heartbeat();
+            // 2. Heartbeat (Fire and forget)
+            db.social.heartbeat().catch(e => console.warn("Heartbeat failed", e));
 
             // 3. SPECIAL HANDLING: PRINCESS ACHIEVEMENT
             const ALEXIA_UID = '67acc5e4-87ae-483b-8db1-122d97f1e84a';
             const ANDRIN_UID = '4f794724-48f5-454c-a374-c053324bc6c0';
 
-            // Grant to Alexia
+            // Safe Grant to Alexia (Don't await, don't crash)
             if (session.user.id === ALEXIA_UID) {
                  db.social.addAchievement({
                     id: 'princess-crown',
@@ -155,24 +160,27 @@ const App: React.FC = () => {
                     description: 'Daughter of the King',
                     date_earned: Date.now(),
                     difficulty_level: 'Hard'
-                 }).catch(e => console.error("Could not grant Princess crown:", e));
+                 }).catch(e => {
+                     // Suppress error so it doesn't break the app
+                     console.warn("Achievement grant check:", e.message);
+                 });
             }
 
-            // REMOVE from Andrin (as requested)
-            // Use local client reference to satisfy TS null check
+            // Safe Remove from Andrin
             const client = supabase;
             if (session.user.id === ANDRIN_UID && existingProfile && existingProfile.achievements && client) {
                 const hasPrincess = existingProfile.achievements.some(a => a.id === 'princess-crown');
                 if (hasPrincess) {
                     const cleanedAchievements = existingProfile.achievements.filter(a => a.id !== 'princess-crown');
-                    // Force update to remove it
-                    await client.from('profiles').update({ achievements: cleanedAchievements }).eq('id', session.user.id);
-                    console.log("Removed Princess achievement from Andrin's profile.");
+                    client.from('profiles').update({ achievements: cleanedAchievements }).eq('id', session.user.id).then(() => {
+                        console.log("Removed Princess achievement.");
+                    }).catch(e => console.warn("Removal failed", e));
                 }
             }
 
         } catch (e) {
-            console.error("Initialization error:", e);
+            // Global safety net - ensure chat can still load even if profile fails
+            console.error("Initialization critical error (bypassed):", e);
         }
 
         // Load Preferences
@@ -198,18 +206,15 @@ const App: React.FC = () => {
 
     if (session) {
         initSession();
+        // Load chats independently to ensure they load even if profile fails
         loadCloudData();
-        loadChats();
-        // Initial load
-        loadSocialNotifications();
+        loadChats(); 
         
-        // Poll for notifications every 10 seconds
+        loadSocialNotifications();
         const pollInterval = setInterval(() => {
             loadSocialNotifications();
-            // Also update our online status
-            db.social.heartbeat();
+            db.social.heartbeat().catch(() => {});
         }, 10000);
-        
         return () => clearInterval(pollInterval);
     } else {
         setChats([]);
@@ -234,29 +239,24 @@ const App: React.FC = () => {
   
   const loadSocialNotifications = async () => {
       try {
-          // Parallel fetch: Pending Requests & Total Unread Messages
           const [requests, unreadCount] = await Promise.all([
               db.social.getIncomingRequests(),
               db.social.getTotalUnreadCount()
           ]);
-          
           setTotalNotifications(requests.length + unreadCount);
       } catch (e) {
-          console.error("Failed to load requests", e);
+          console.warn("Failed to load requests (minor)", e);
       }
   };
 
   const handleSaveItem = async (item: SavedItem) => {
-      // PREVENT DUPLICATES
-      // Check if an item with the same content and type already exists
       const exists = savedItems.some(i => i.content === item.content && i.type === item.type);
-      if (exists) return; // Silent return (could show toast here)
+      if (exists) return;
 
       setSavedItems(prev => [item, ...prev]);
       try { await db.saveItem(item); } catch (e) { console.error(e); }
   };
 
-  // NEW: Save Chat Message Handler
   const handleSaveMessage = (message: Message) => {
       if (!message.text) return;
       const item: SavedItem = {
@@ -269,14 +269,9 @@ const App: React.FC = () => {
       handleSaveItem(item);
   };
 
-  // Helper to update an existing item (e.g. Prayer answered status)
   const handleUpdateItem = async (updatedItem: SavedItem) => {
       setSavedItems(prev => prev.map(i => i.id === updatedItem.id ? updatedItem : i));
-      
-      // FIXED: Use proper update query instead of delete+insert to prevent duplication/ID change issues
-      try {
-          await db.updateSavedItem(updatedItem.id, updatedItem);
-      } catch(e) { console.error(e); }
+      try { await db.updateSavedItem(updatedItem.id, updatedItem); } catch(e) { console.error(e); }
   };
 
   const handleRemoveSavedItem = async (id: string) => {
@@ -314,7 +309,7 @@ const App: React.FC = () => {
   };
 
   const updateCloudPreference = async (key: string, value: string | boolean) => {
-      const client = supabase; // Local ref for TS narrowing
+      const client = supabase; 
       if (!session || !client) return;
       try {
           const val = typeof value === 'boolean' ? String(value) : value;
@@ -393,7 +388,6 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!supabase) return;
     
-    // Check session on mount
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoadingAuth(false);
@@ -401,8 +395,6 @@ const App: React.FC = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
-      
-      // DETECT PASSWORD RECOVERY FLOW
       if (event === 'PASSWORD_RECOVERY') {
           setIsPasswordResetOpen(true);
       }
@@ -434,10 +426,15 @@ const App: React.FC = () => {
           isTemp: true 
       };
 
+      // Always ensure at least one chat exists
       setChats([tempChat, ...userChats]);
       setActiveChatId(tempId);
       setCurrentView('chat');
-    } catch (error) { console.error("Failed to load chats:", error); }
+    } catch (error) { 
+        console.error("Failed to load chats:", error);
+        // Fallback: Create a local chat so the user isn't stuck on blank screen
+        createNewChat();
+    }
   };
 
   const createNewChat = () => {
@@ -534,7 +531,10 @@ const App: React.FC = () => {
             await db.addMessage(currentChatId, userMessage);
             const historyPayload = [...currentChat.messages, userMessage];
             await streamAIResponse(currentChatId, aiMessageId, historyPayload, text, hiddenContext, initialAiMessage);
-        } catch (e) { console.error(e); }
+        } catch (e) { 
+            console.error("Message send failed:", e);
+            setIsLoading(false); // Ensure loading state is turned off on error
+        }
     })();
   };
 
