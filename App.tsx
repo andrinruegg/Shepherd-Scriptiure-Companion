@@ -159,12 +159,14 @@ const App: React.FC = () => {
             }
 
             // REMOVE from Andrin (as requested)
-            if (session.user.id === ANDRIN_UID && existingProfile && existingProfile.achievements) {
+            // Use local client reference to satisfy TS null check
+            const client = supabase;
+            if (session.user.id === ANDRIN_UID && existingProfile && existingProfile.achievements && client) {
                 const hasPrincess = existingProfile.achievements.some(a => a.id === 'princess-crown');
                 if (hasPrincess) {
                     const cleanedAchievements = existingProfile.achievements.filter(a => a.id !== 'princess-crown');
                     // Force update to remove it
-                    await supabase.from('profiles').update({ achievements: cleanedAchievements }).eq('id', session.user.id);
+                    await client.from('profiles').update({ achievements: cleanedAchievements }).eq('id', session.user.id);
                     console.log("Removed Princess achievement from Andrin's profile.");
                 }
             }
@@ -312,10 +314,11 @@ const App: React.FC = () => {
   };
 
   const updateCloudPreference = async (key: string, value: string | boolean) => {
-      if (!session || !supabase) return;
+      const client = supabase; // Local ref for TS narrowing
+      if (!session || !client) return;
       try {
           const val = typeof value === 'boolean' ? String(value) : value;
-          await supabase.auth.updateUser({ data: { [key]: val } });
+          await client.auth.updateUser({ data: { [key]: val } });
       } catch (e) { console.error(e); }
   };
 
