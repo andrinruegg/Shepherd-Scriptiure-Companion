@@ -39,6 +39,15 @@ export interface UserPreferences {
 
 // --- NEW TYPES FOR SOCIAL FEATURES ---
 
+export interface Achievement {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  date_earned: number;
+  difficulty_level?: 'Easy' | 'Medium' | 'Hard';
+}
+
 export interface UserProfile {
   id: string;
   share_id: string;
@@ -48,6 +57,10 @@ export interface UserProfile {
   last_seen?: string; // ISO Date string for online status
   unread_count?: number; // Number of unread messages from this user
   last_message_at?: string; // Timestamp of last message for sorting
+  
+  // NEW STATS
+  streak?: number;
+  achievements?: Achievement[];
 }
 
 export interface FriendRequest {
@@ -76,7 +89,7 @@ export interface DirectMessage {
 
 // --- NEW TYPES FOR BIBLE READER & SAVED ITEMS ---
 
-export type AppView = 'chat' | 'bible' | 'saved' | 'prayer';
+export type AppView = 'chat' | 'bible' | 'saved' | 'prayer' | 'quiz';
 
 export interface BibleBook {
   id: string;   // e.g. 'GEN'
@@ -106,12 +119,36 @@ export interface BibleHighlight {
   color: 'yellow' | 'green' | 'blue' | 'pink';
 }
 
+export type PrayerVisibility = 'private' | 'friends' | 'specific' | 'public';
+
+export interface PrayerInteraction {
+    type: 'amen';
+    count: number;
+    user_ids: string[]; // IDs of users who clicked Amen
+}
+
 export interface SavedItem {
   id: string;
-  type: 'verse' | 'chat' | 'prayer'; // Added 'prayer'
+  type: 'verse' | 'chat' | 'prayer'; 
   content: string;        // The text content
   reference?: string;     // e.g. "John 3:16" (Only for verses)
   date: number;           // Timestamp
   tags?: string[];
-  metadata?: any;         // Extra data (book, chapter, answered status for prayers)
+  metadata?: {
+      answered?: boolean;
+      visibility?: PrayerVisibility;
+      allowed_users?: string[]; // IDs for specific sharing
+      author_name?: string;     // Snapshot of name
+      author_avatar?: string;   // Snapshot of avatar
+      interactions?: PrayerInteraction;
+      [key: string]: any;
+  };         
+}
+
+export interface QuizQuestion {
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+  reference: string;
 }

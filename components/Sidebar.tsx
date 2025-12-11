@@ -1,7 +1,7 @@
 
 
 import React, { useState } from 'react';
-import { Plus, MessageSquare, Trash2, X, Edit2, Check, Settings, Calendar, Flame, Book, Heart, MessageCircle, Bell, Headphones, Feather } from 'lucide-react';
+import { Plus, MessageSquare, Trash2, X, Edit2, Check, Settings, Calendar, Flame, Book, Heart, MessageCircle, Bell, Headphones, Feather, Brain } from 'lucide-react';
 import { ChatSession, AppView } from '../types';
 import ShepherdLogo from './ShepherdLogo';
 import { translations } from '../utils/translations';
@@ -146,7 +146,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {/* MAIN TABS */}
-          <div className="grid grid-cols-4 bg-slate-800 rounded-lg p-1 gap-1">
+          <div className="grid grid-cols-5 bg-slate-800 rounded-lg p-1 gap-1">
              <button 
                 onClick={() => onChangeView('chat')}
                 className={`flex items-center justify-center py-2 rounded-md transition-all text-xs font-medium ${currentView === 'chat' ? 'bg-slate-700 text-white shadow-sm scale-105' : 'text-slate-400 hover:text-slate-200'}`}
@@ -167,6 +167,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                 title={t.tabs.prayer}
              >
                 <Feather size={16} />
+             </button>
+             <button 
+                onClick={() => onChangeView('quiz')}
+                className={`flex items-center justify-center py-2 rounded-md transition-all text-xs font-medium ${currentView === 'quiz' ? 'bg-slate-700 text-white shadow-sm scale-105' : 'text-slate-400 hover:text-slate-200'}`}
+                title={t.tabs.quiz}
+             >
+                <Brain size={16} />
              </button>
              <button 
                 onClick={() => onChangeView('saved')}

@@ -1,8 +1,7 @@
 
-
 import React, { useState, useEffect } from 'react';
-import { X, UserPlus, Users, Bell, Search, Check, AlertCircle, Copy, User, MessageCircle, ArrowLeft, Trash2, Shield, Info, Circle } from 'lucide-react';
-import { UserProfile, FriendRequest, AppUpdate } from '../types';
+import { X, UserPlus, Users, Bell, Search, Check, AlertCircle, Copy, User, MessageCircle, ArrowLeft, Trash2, Shield, Info, Circle, Flame, Award, Book, Scroll, Trophy } from 'lucide-react';
+import { UserProfile, FriendRequest, AppUpdate, Achievement } from '../types';
 import { db } from '../services/db';
 import FriendChat from './FriendChat';
 
@@ -15,6 +14,7 @@ interface SocialModalProps {
 }
 
 const UPDATES_LOG: AppUpdate[] = [
+    { version: "1.5.0", date: "2025-12-11", title: "Quiz & Achievements", changes: ["Added Bible Trivia mode", "Earn achievements for perfect scores", "View friend's streaks and badges", "Global progress tracking"] },
     { version: "1.4.0", date: "2025-12-10", title: "Graffiti Perfection", changes: ["Fixed Graffiti Mode saving issues", "Smoother drawing experience", "Improved upload reliability"] },
     { version: "1.3.0", date: "2025-12-09", title: "Social Chat", changes: ["Real-time messaging with friends", "Photo sharing", "Voice messages", "Online Status & Read Receipts"] },
     { version: "1.2.0", date: "2025-12-09", title: "Winter Update", changes: ["Added festive Winter Mode", "Improved splash screen visuals", "Bug fixes for API connectivity"] },
@@ -238,13 +238,13 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
                      <ArrowLeft size={20} />
                  </button>
 
-                 <div className="flex-1 overflow-y-auto w-full">
+                 <div className="flex-1 overflow-y-auto w-full no-scrollbar">
                      <div className="h-32 bg-gradient-to-r from-indigo-500 to-purple-600 relative shrink-0">
                          <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
                      </div>
 
                      <div className="px-6 pb-6 flex flex-col items-center text-center">
-                         <div className="-mt-12 w-28 h-28 rounded-full border-4 border-white dark:border-slate-900 bg-white dark:bg-slate-800 overflow-hidden shadow-lg mb-4 relative z-10 animate-pop-in">
+                         <div className="-mt-12 w-28 h-28 rounded-full border-4 border-white dark:border-slate-900 bg-white dark:bg-slate-800 overflow-hidden shadow-lg mb-2 relative z-10 animate-pop-in">
                              {viewingProfile.avatar ? (
                                  <img src={viewingProfile.avatar} className="w-full h-full object-cover" />
                              ) : (
@@ -254,16 +254,26 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
                              )}
                          </div>
 
-                         <h2 className="text-2xl font-bold text-slate-800 dark:text-white font-serif-text mb-1">
-                             {viewingProfile.display_name || "Unknown"}
-                         </h2>
+                         <div className="flex items-center gap-2 mb-1">
+                             <h2 className="text-2xl font-bold text-slate-800 dark:text-white font-serif-text">
+                                 {viewingProfile.display_name || "Unknown"}
+                             </h2>
+                             {/* Daily Streak Badge */}
+                             {(viewingProfile.streak || 0) > 0 && (
+                                 <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">
+                                     <Flame size={12} className="text-amber-500 fill-amber-500 animate-pulse" />
+                                     <span className="text-xs font-bold text-amber-700 dark:text-amber-400">{viewingProfile.streak}</span>
+                                 </div>
+                             )}
+                         </div>
+                         
                          <div className="inline-block px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 rounded-full mb-6">
                             <p className="text-sm text-indigo-600 dark:text-indigo-400 font-mono font-semibold tracking-wide">
                                 {viewingProfile.share_id || "ID-ERROR"}
                             </p>
                          </div>
 
-                         <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 mb-8 border border-slate-100 dark:border-slate-800 text-left shadow-sm">
+                         <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 mb-4 border border-slate-100 dark:border-slate-800 text-left shadow-sm">
                              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">About</h4>
                              {viewingProfile.bio ? (
                                  <p className="text-sm text-slate-600 dark:text-slate-300 italic leading-relaxed whitespace-pre-wrap">
@@ -273,6 +283,28 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
                                  <p className="text-xs text-slate-400 italic text-center py-2">No bio available.</p>
                              )}
                          </div>
+
+                         {/* Achievements Section */}
+                         {viewingProfile.achievements && viewingProfile.achievements.length > 0 && (
+                            <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-100 dark:border-slate-800 text-left shadow-sm">
+                                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1">
+                                    <Trophy size={12} /> Achievements
+                                </h4>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {viewingProfile.achievements.map((ach) => (
+                                        <div key={ach.id} className="flex flex-col items-center gap-1 text-center" title={`${ach.title}: ${ach.description}`}>
+                                            <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                                                {ach.icon === 'Book' && <Book size={18} />}
+                                                {ach.icon === 'Scroll' && <Scroll size={18} />}
+                                                {ach.icon === 'Trophy' && <Trophy size={18} />}
+                                                {ach.icon === 'Award' && <Award size={18} />}
+                                            </div>
+                                            <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400 leading-tight">{ach.title}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                         )}
 
                          <div className="flex gap-3 w-full mt-auto">
                              {isFriend ? (
@@ -460,6 +492,12 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
                                                 <div className={`font-medium transition-colors ${hasUnread ? 'text-indigo-700 dark:text-indigo-300 font-bold' : 'text-slate-800 dark:text-white group-hover:text-indigo-600'}`}>
                                                     {friend.display_name || "Friend"}
                                                 </div>
+                                                {/* Streak Icon in List */}
+                                                {(friend.streak || 0) > 0 && (
+                                                    <div className="flex items-center gap-0.5 bg-amber-50 dark:bg-amber-900/30 px-1.5 py-0.5 rounded-full text-[10px] text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                                                        <Flame size={8} className="fill-current" /> {friend.streak}
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className={`text-xs truncate max-w-[120px] ${hasUnread ? 'text-indigo-500 font-medium' : 'text-slate-500'}`}>
                                                 {hasUnread ? `${friend.unread_count} new messages` : (friend.bio || friend.share_id)}

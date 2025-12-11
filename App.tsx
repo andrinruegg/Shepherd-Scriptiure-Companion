@@ -14,6 +14,7 @@ import PrayerList from './components/PrayerList';
 import Sanctuary from './components/Sanctuary';
 import WinterOverlay from './components/WinterOverlay';
 import SocialModal from './components/SocialModal';
+import QuizMode from './components/QuizMode';
 import { Message, ChatSession, UserPreferences, AppView, SavedItem, BibleHighlight } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import { sendMessageStream, generateChatTitle } from './services/geminiService';
@@ -95,7 +96,11 @@ const App: React.FC = () => {
   useEffect(() => {
     const streak = updateStreak();
     setDailyStreak(streak);
-  }, []);
+    // Sync streak to cloud so friends can see it
+    if (session?.user) {
+        db.social.updateProfileStats(streak).catch(console.error);
+    }
+  }, [session]);
 
   // Sync session metadata & Load Cloud Data
   useEffect(() => {
@@ -598,6 +603,7 @@ const App: React.FC = () => {
             {currentView === 'bible' && ( <BibleReader language={language} onSaveItem={handleSaveItem} onMenuClick={() => setIsSidebarOpen(true)} highlights={highlights} onAddHighlight={handleAddHighlight} onRemoveHighlight={handleRemoveHighlight} /> )}
             {currentView === 'saved' && ( <SavedCollection savedItems={savedItems} onRemoveItem={handleRemoveSavedItem} language={language} onMenuClick={() => setIsSidebarOpen(true)} /> )}
             {currentView === 'prayer' && ( <PrayerList savedItems={savedItems} onSaveItem={handleSaveItem} onUpdateItem={handleUpdateItem} onRemoveItem={handleRemoveSavedItem} language={language} onMenuClick={() => setIsSidebarOpen(true)} /> )}
+            {currentView === 'quiz' && ( <QuizMode language={language} onMenuClick={() => setIsSidebarOpen(true)} /> )}
           </div>
 
           <Sanctuary isOpen={isSanctuaryOpen} onClose={() => setIsSanctuaryOpen(false)} language={language} />

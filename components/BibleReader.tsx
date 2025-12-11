@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Book, ChevronLeft, ChevronRight, Heart, X, Menu } from 'lucide-react';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { Book, ChevronLeft, ChevronRight, Heart, X, Menu, Volume2, Pause, Volume1 } from 'lucide-react';
 import { BIBLE_BOOKS, fetchChapter } from '../services/bibleService';
 import { BibleChapter, SavedItem, BibleHighlight } from '../types';
 import { translations } from '../utils/translations';
@@ -28,11 +29,19 @@ const BibleReader: React.FC<BibleReaderProps> = ({
   const [loading, setLoading] = useState(false);
   const [activeVerse, setActiveVerse] = useState<number | null>(null);
   
+  // Audio state
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+  
   const t = translations[language]?.bible || translations['English'].bible;
   
   const selectedBook = BIBLE_BOOKS.find(b => b.id === selectedBookId) || BIBLE_BOOKS[0];
 
   useEffect(() => {
+    // Stop any speech when changing chapters or unmounting
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+    
     const loadChapter = async () => {
       setLoading(true);
       const result = await fetchChapter(selectedBook.name, chapter, language);
@@ -41,7 +50,35 @@ const BibleReader: React.FC<BibleReaderProps> = ({
       setActiveVerse(null);
     };
     loadChapter();
+    
+    return () => {
+        window.speechSynthesis.cancel();
+    };
   }, [selectedBookId, chapter, language]);
+
+  const toggleAudio = () => {
+      if (isSpeaking) {
+          window.speechSynthesis.cancel();
+          setIsSpeaking(false);
+      } else {
+          if (!data || !data.verses) return;
+          
+          // Combine full text for smoother reading
+          const fullText = data.verses.map(v => `${v.verse}. ${v.text}`).join(' ');
+          
+          const utterance = new SpeechSynthesisUtterance(fullText);
+          utterance.lang = language === 'Romanian' ? 'ro-RO' : 'en-US';
+          utterance.rate = 0.9; // Slightly slower for bible reading
+          utterance.pitch = 1.0;
+          
+          utterance.onend = () => setIsSpeaking(false);
+          utterance.onerror = () => setIsSpeaking(false);
+          
+          speechRef.current = utterance;
+          window.speechSynthesis.speak(utterance);
+          setIsSpeaking(true);
+      }
+  };
 
   const handleNext = () => {
       if (chapter < selectedBook.chapters) {
@@ -111,6 +148,16 @@ const BibleReader: React.FC<BibleReaderProps> = ({
                <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100 font-serif-text">
                    {selectedBook.name} {chapter}
                </h1>
+               
+               {/* Audio Bible Button */}
+               <button
+                  onClick={toggleAudio}
+                  disabled={loading || !data}
+                  className={`ml-2 p-2 rounded-full transition-all ${isSpeaking ? 'bg-indigo-100 text-indigo-600 animate-pulse' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                  title={isSpeaking ? t.audio.pause : t.audio.play}
+               >
+                   {isSpeaking ? <Pause size={20} fill="currentColor"/> : <Volume1 size={20}/>}
+               </button>
            </div>
 
            <div className="flex items-center gap-2 w-full md:w-auto">

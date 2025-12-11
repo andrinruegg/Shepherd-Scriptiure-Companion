@@ -1,6 +1,6 @@
 
-import { GoogleGenAI, GenerateContentResponse, Content } from "@google/genai";
-import { Message } from "../types";
+import { GoogleGenAI, GenerateContentResponse, Content, Type } from "@google/genai";
+import { Message, QuizQuestion } from "../types";
 
 // --- KEY MANAGEMENT SYSTEM ---
 
@@ -118,6 +118,13 @@ const makeRequestWithRetry = async <T>(
 };
 
 /**
+ * Clean JSON string from potential Markdown code blocks
+ */
+const cleanJson = (text: string): string => {
+    return text.replace(/```json|```/g, '').trim();
+};
+
+/**
  * Generates a short, smart title for the chat based on the first user message.
  */
 export const generateChatTitle = async (userMessage: string): Promise<string> => {
@@ -193,4 +200,60 @@ export const sendMessageStream = async (
     console.error("Gemini API Error:", error);
     onError(error);
   }
+};
+
+/**
+ * Generates a Bible Quiz Question.
+ */
+export const generateQuizQuestion = async (
+    difficulty: 'Easy' | 'Medium' | 'Hard', 
+    language: string,
+    history: string[] // List of previously asked questions to avoid
+): Promise<QuizQuestion> => {
+    return await makeRequestWithRetry(async (client) => {
+        // Construct history string to inform AI what NOT to ask
+        const historyContext = history.length > 0 
+            ? `PREVIOUSLY ASKED QUESTIONS (DO NOT REPEAT TOPICS OR VERSES FROM THESE): ${JSON.stringify(history.slice(-20))}` 
+            : "";
+
+        const prompt = `Generate a single multiple-choice Bible trivia question.
+        Difficulty: ${difficulty}
+        Language: ${language}
+        Format: JSON Object { question, options: string[], correctIndex: number, explanation: string, reference: string }
+        Ensure the options array has exactly 4 items. The explanation should be encouraging.
+        
+        CRITICAL: Ensure the question is UNIQUE and DIFFERENT from previous ones.
+        ${historyContext}`;
+
+        const response = await client.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: {
+                responseMimeType: 'application/json',
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        question: { type: Type.STRING },
+                        options: { 
+                            type: Type.ARRAY, 
+                            items: { type: Type.STRING } 
+                        },
+                        correctIndex: { type: Type.INTEGER },
+                        explanation: { type: Type.STRING },
+                        reference: { type: Type.STRING }
+                    }
+                }
+            }
+        });
+
+        const text = response.text || "{}";
+        const json = JSON.parse(cleanJson(text)) as QuizQuestion;
+        
+        // Strict Validation
+        if (!json.question || !Array.isArray(json.options) || json.options.length !== 4) {
+            throw new Error("Invalid question format received from AI");
+        }
+        
+        return json;
+    });
 };

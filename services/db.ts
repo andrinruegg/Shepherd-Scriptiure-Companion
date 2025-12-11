@@ -1,6 +1,7 @@
 
+
 import { supabase } from './supabase';
-import { ChatSession, Message, SavedItem, BibleHighlight, UserProfile, FriendRequest, DirectMessage } from '../types';
+import { ChatSession, Message, SavedItem, BibleHighlight, UserProfile, FriendRequest, DirectMessage, Achievement } from '../types';
 
 const ensureSupabase = () => {
     if (!supabase) throw new Error("Database not connected.");
@@ -144,7 +145,8 @@ export const db = {
           type: item.type as 'verse' | 'chat',
           content: item.content,
           reference: item.reference,
-          date: new Date(item.created_at).getTime()
+          date: new Date(item.created_at).getTime(),
+          metadata: item.metadata || {}
       }));
   },
 
@@ -162,7 +164,8 @@ export const db = {
               type: item.type,
               content: item.content,
               reference: item.reference,
-              created_at: new Date(item.date).toISOString()
+              created_at: new Date(item.date).toISOString(),
+              metadata: item.metadata || {}
           });
       
       if (error) throw error;
@@ -209,6 +212,75 @@ export const db = {
       const { error } = await supabase.from('highlights').delete().eq('ref', ref);
       if (error) throw error;
   },
+  
+  prayers: {
+      async getCommunityPrayers(): Promise<SavedItem[]> {
+          ensureSupabase();
+          // @ts-ignore
+          const { data: { user } } = await supabase.auth.getUser();
+          
+          // @ts-ignore
+          const { data, error } = await supabase
+              .from('saved_items')
+              .select('*')
+              .eq('type', 'prayer')
+              .neq('user_id', user?.id) 
+              .limit(50)
+              .order('created_at', { ascending: false });
+
+          if (error) return []; 
+
+          const accessiblePrayers: SavedItem[] = [];
+          
+          for (const item of (data || [])) {
+              const meta = item.metadata || {};
+              const vis = meta.visibility || 'private';
+              
+              if (vis === 'public') {
+                  accessiblePrayers.push({ ...item, date: new Date(item.created_at).getTime() });
+              } else if (vis === 'friends') {
+                  accessiblePrayers.push({ ...item, date: new Date(item.created_at).getTime() });
+              } else if (vis === 'specific' && meta.allowed_users && user) {
+                   if (meta.allowed_users.includes(user.id)) {
+                       accessiblePrayers.push({ ...item, date: new Date(item.created_at).getTime() });
+                   }
+              }
+          }
+          
+          return accessiblePrayers;
+      },
+      
+      async toggleAmen(prayerId: string, currentMetadata: any): Promise<any> {
+          ensureSupabase();
+          // @ts-ignore
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return currentMetadata;
+
+          const interactions = currentMetadata.interactions || { type: 'amen', count: 0, user_ids: [] };
+          const hasAmened = interactions.user_ids.includes(user.id);
+          
+          let newInteractions;
+          if (hasAmened) {
+              newInteractions = {
+                  ...interactions,
+                  count: Math.max(0, interactions.count - 1),
+                  user_ids: interactions.user_ids.filter((id: string) => id !== user.id)
+              };
+          } else {
+              newInteractions = {
+                  ...interactions,
+                  count: interactions.count + 1,
+                  user_ids: [...interactions.user_ids, user.id]
+              };
+          }
+          
+          const newMetadata = { ...currentMetadata, interactions: newInteractions };
+          
+          // @ts-ignore
+          await supabase.from('saved_items').update({ metadata: newMetadata }).eq('id', prayerId);
+          return newMetadata;
+      }
+  },
 
   social: {
       async heartbeat() {
@@ -245,6 +317,41 @@ export const db = {
           if (error) console.error("Profile sync failed", error);
           return finalIdToSave;
       },
+      
+      async updateProfileStats(streak: number, achievements?: Achievement[]) {
+          ensureSupabase();
+           // @ts-ignore
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+          
+          const updates: any = { streak };
+          if (achievements) {
+              updates.achievements = achievements;
+          }
+          
+          // @ts-ignore
+          await supabase.from('profiles').update(updates).eq('id', user.id);
+      },
+      
+      async addAchievement(achievement: Achievement) {
+          ensureSupabase();
+          // @ts-ignore
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+          
+          // @ts-ignore
+          const { data } = await supabase.from('profiles').select('achievements').eq('id', user.id).single();
+          const current: Achievement[] = data?.achievements || [];
+          
+          // Avoid duplicates
+          if (current.some(a => a.id === achievement.id)) return;
+          
+          const newSet = [...current, achievement];
+          
+          // @ts-ignore
+          await supabase.from('profiles').update({ achievements: newSet }).eq('id', user.id);
+          return newSet;
+      },
 
       async getUserProfile(userId: string): Promise<UserProfile | null> {
           ensureSupabase();
@@ -269,7 +376,6 @@ export const db = {
           if (!user) throw new Error('Not authenticated');
           if (user.id === targetUserId) throw new Error("You cannot add yourself.");
 
-          // Simple Check: Are we already friends or requested?
           // @ts-ignore
           const { data: existing } = await supabase!.from('friendships').select('*').or(`and(requester_id.eq.${user.id},receiver_id.eq.${targetUserId}),and(requester_id.eq.${targetUserId},receiver_id.eq.${user.id})`).maybeSingle();
           if (existing) throw new Error("Request already sent or you are already friends.");

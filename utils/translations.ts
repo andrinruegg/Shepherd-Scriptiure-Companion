@@ -40,7 +40,8 @@ export const translations: Record<string, any> = {
           chat: "Chat",
           bible: "Bible",
           saved: "Saved",
-          prayer: "Prayers"
+          prayer: "Prayers",
+          quiz: "Trivia"
       },
       sanctuary: "Sanctuary"
     },
@@ -69,7 +70,11 @@ export const translations: Record<string, any> = {
         save: "Save to Collection",
         read: "Read",
         prev: "Prev",
-        next: "Next"
+        next: "Next",
+        audio: {
+            play: "Listen",
+            pause: "Pause"
+        }
     },
     saved: {
         title: "Saved Collection",
@@ -84,12 +89,25 @@ export const translations: Record<string, any> = {
     },
     prayer: {
         title: "Prayer Journal",
+        tabs: {
+            journal: "My Journal",
+            community: "Prayer Wall"
+        },
         newPrayer: "New Prayer",
         placeholder: "What's on your heart?",
         markAnswered: "Mark Answered",
         answered: "Answered",
         empty: "No prayers recorded yet.",
-        active: "Active"
+        active: "Active",
+        privacy: {
+            label: "Visibility",
+            private: "Only Me",
+            friends: "Friends Only",
+            specific: "Specific People",
+            public: "Public Wall",
+            selectFriends: "Select Friends"
+        },
+        amen: "Amen"
     },
     sanctuary: {
         title: "Sanctuary",
@@ -98,6 +116,20 @@ export const translations: Record<string, any> = {
         stream: "Stream",
         night: "Night",
         off: "Silence"
+    },
+    quiz: {
+        title: "Bible Trivia",
+        start: "Start Quiz",
+        difficulty: "Select Difficulty",
+        easy: "Easy",
+        medium: "Medium",
+        hard: "Hard",
+        score: "Score",
+        next: "Next Question",
+        correct: "Correct!",
+        incorrect: "Incorrect",
+        explanation: "Explanation",
+        loading: "Generating question..."
     },
     topics: {
       title: "Explore a Topic",
