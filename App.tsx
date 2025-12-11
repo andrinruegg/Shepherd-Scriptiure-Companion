@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
 import Sidebar from './components/Sidebar';
@@ -15,6 +14,7 @@ import Sanctuary from './components/Sanctuary';
 import WinterOverlay from './components/WinterOverlay';
 import SocialModal from './components/SocialModal';
 import QuizMode from './components/QuizMode';
+import PasswordResetModal from './components/PasswordResetModal';
 import { Message, ChatSession, UserPreferences, AppView, SavedItem, BibleHighlight } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import { sendMessageStream, generateChatTitle } from './services/geminiService';
@@ -37,6 +37,7 @@ const App: React.FC = () => {
   const [isDailyVerseOpen, setIsDailyVerseOpen] = useState(false);
   const [isSocialOpen, setIsSocialOpen] = useState(false); 
   const [isSanctuaryOpen, setIsSanctuaryOpen] = useState(false);
+  const [isPasswordResetOpen, setIsPasswordResetOpen] = useState(false);
   const [dailyStreak, setDailyStreak] = useState(0);
   
   const [shareId, setShareId] = useState<string>('');
@@ -192,20 +193,35 @@ const App: React.FC = () => {
   };
 
   const handleSaveItem = async (item: SavedItem) => {
+      // PREVENT DUPLICATES
+      // Check if an item with the same content and type already exists
+      const exists = savedItems.some(i => i.content === item.content && i.type === item.type);
+      if (exists) return; // Silent return (could show toast here)
+
       setSavedItems(prev => [item, ...prev]);
       try { await db.saveItem(item); } catch (e) { console.error(e); }
+  };
+
+  // NEW: Save Chat Message Handler
+  const handleSaveMessage = (message: Message) => {
+      if (!message.text) return;
+      const item: SavedItem = {
+          id: uuidv4(),
+          type: 'chat',
+          content: message.text,
+          date: Date.now(),
+          metadata: { role: message.role }
+      };
+      handleSaveItem(item);
   };
 
   // Helper to update an existing item (e.g. Prayer answered status)
   const handleUpdateItem = async (updatedItem: SavedItem) => {
       setSavedItems(prev => prev.map(i => i.id === updatedItem.id ? updatedItem : i));
-      // Database update - since db.saveItem does an insert, for updates we might need to delete/insert or use upsert if supported. 
-      // db.ts currently only has insert. A cleaner way for now is delete then insert to ensure data integrity without changing db.ts schema too much
-      // or check if we can add an upsert. 
-      // For now, let's just do delete + save to be safe with existing codebase constraints.
+      
+      // FIXED: Use proper update query instead of delete+insert to prevent duplication/ID change issues
       try {
-          await db.deleteSavedItem(updatedItem.id);
-          await db.saveItem(updatedItem);
+          await db.updateSavedItem(updatedItem.id, updatedItem);
       } catch(e) { console.error(e); }
   };
 
@@ -308,8 +324,13 @@ const App: React.FC = () => {
       setLoadingAuth(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
+      
+      // DETECT PASSWORD RECOVERY FLOW
+      if (event === 'PASSWORD_RECOVERY') {
+          setIsPasswordResetOpen(true);
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -449,7 +470,6 @@ const App: React.FC = () => {
       const messages = currentChat.messages;
       if (messages.length < 2) return;
       
-      // Ensure we have a previous user message
       const lastUserMessage = messages[messages.length - 2];
       if (!lastUserMessage || lastUserMessage.role !== 'user') return;
 
@@ -517,34 +537,50 @@ const App: React.FC = () => {
   if (showSplash) {
     return (
       <div className={`fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-black transition-all duration-1000 ease-[cubic-bezier(0.76,0,0.24,1)] ${!showSplash ? 'opacity-0 scale-110 pointer-events-none blur-2xl' : 'opacity-100 scale-100 blur-0'}`}>
+         
+         {/* Aurora Background */}
          <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 animate-aurora opacity-90"></div>
+         
+         {/* Stars/Twinkle */}
          <div className="absolute inset-0 opacity-60">
              <div className="absolute top-[20%] left-[20%] w-1 h-1 bg-white rounded-full animate-twinkle"></div>
              <div className="absolute top-[60%] left-[80%] w-1.5 h-1.5 bg-amber-200 rounded-full animate-twinkle [animation-delay:1.5s]"></div>
          </div>
+
+         {/* 3D Orbiting Rings & Cross */}
          <div className="relative z-10 flex flex-col items-center justify-center scale-100 md:scale-110 mb-8">
             <div className="relative flex items-center justify-center w-64 h-64 perspective-1000 preserve-3d">
                 <div className="absolute inset-0 w-full h-full border-[1.5px] border-amber-400/30 rounded-full animate-orbit-x shadow-[0_0_15px_rgba(251,191,36,0.1)]"></div>
                 <div className="absolute inset-0 w-full h-full border-[1.5px] border-white/20 rounded-full animate-orbit-y shadow-[0_0_15px_rgba(255,255,255,0.1)]"></div>
                 <div className="absolute inset-0 w-full h-full border-[1.5px] border-indigo-400/20 rounded-full animate-orbit-z"></div>
+                
                 <div className="relative z-20 animate-cross-pulse">
                     <svg width="100" height="120" viewBox="0 0 100 120" fill="none" className="drop-shadow-[0_0_30px_rgba(255,215,0,0.6)]">
-                         <path d="M50 10V110M30 40H70" stroke="url(#crossGradient)" strokeWidth="6" strokeLinecap="round" />
-                         <defs><linearGradient id="crossGradient" x1="50" y1="0" x2="50" y2="120" gradientUnits="userSpaceOnUse"><stop offset="0%" stopColor="#FFF" /><stop offset="50%" stopColor="#FDE68A" /><stop offset="100%" stopColor="#D97706" /></linearGradient></defs>
+                        <path d="M50 10V110M30 40H70" stroke="url(#crossGradient)" strokeWidth="6" strokeLinecap="round" />
+                        <defs><linearGradient id="crossGradient" x1="50" y1="0" x2="50" y2="120" gradientUnits="userSpaceOnUse"><stop offset="0%" stopColor="#FFF" /><stop offset="50%" stopColor="#FDE68A" /><stop offset="100%" stopColor="#D97706" /></linearGradient></defs>
                     </svg>
                 </div>
             </div>
          </div>
+
+         {/* Central Content */}
          <div className="relative z-20 text-center flex flex-col items-center -mt-4">
              <h1 className="text-6xl md:text-8xl font-bold text-white font-serif-text tracking-tight drop-shadow-[0_0_20px_rgba(255,215,0,0.4)] flex gap-1 justify-center mb-2">
-                {['S','h','e','p','h','e','r','d'].map((char, i) => <span key={i} className="animate-letter-reveal inline-block" style={{ animationDelay: `${0.3 + i * 0.08}s` }}>{char}</span>)}
+                {['S','h','e','p','h','e','r','d'].map((char, i) => (
+                    <span key={i} className="animate-letter-reveal inline-block" style={{ animationDelay: `${0.3 + i * 0.08}s` }}>{char}</span>
+                ))}
              </h1>
+             
              <div className="flex items-center justify-center gap-4 animate-tracking-expand opacity-0" style={{ animationDelay: '1.2s', animationFillMode: 'forwards' }}>
                 <div className="h-[2px] w-12 md:w-24 bg-gradient-to-r from-transparent via-amber-200 to-transparent shadow-[0_0_8px_rgba(253,230,138,0.6)]"></div>
-                <p className="text-amber-100 text-lg md:text-2xl font-semibold uppercase tracking-[0.25em] font-sans drop-shadow-md whitespace-nowrap">Scripture Companion</p>
+                <p className="text-amber-100 text-lg md:text-2xl font-semibold uppercase tracking-[0.25em] font-sans drop-shadow-md whitespace-nowrap">
+                    Scripture Companion
+                </p>
                 <div className="h-[2px] w-12 md:w-24 bg-gradient-to-r from-transparent via-amber-200 to-transparent shadow-[0_0_8px_rgba(253,230,138,0.6)]"></div>
              </div>
          </div>
+
+         {/* Running Sheep Animation at bottom */}
          <div className="absolute bottom-0 left-0 right-0 h-56 overflow-hidden z-30 pointer-events-none">
              <div className="absolute bottom-[-20px] left-[-10%] right-[-10%] h-28 bg-gradient-to-t from-black via-slate-900 to-transparent opacity-60 blur-sm rounded-[100%] scale-110"></div>
              <div className="absolute bottom-10 animate-sheep-run" style={{ animationDuration: '4.5s' }}><div className="animate-sheep-bounce"><svg width="100" height="75" viewBox="0 0 40 30" fill="white" className="drop-shadow-lg opacity-90"><rect x="5" y="8" width="25" height="15" rx="8" /><circle cx="32" cy="12" r="6" /><path d="M36 10 L40 12 L36 14 Z" /><rect x="8" y="20" width="3" height="8" rx="1.5" /><rect x="22" y="20" width="3" height="8" rx="1.5" /></svg></div></div>
@@ -598,11 +634,35 @@ const App: React.FC = () => {
           />
           <div className="flex-1 flex flex-col h-full relative w-full overflow-hidden">
             {currentView === 'chat' && (
-                <ChatInterface messages={activeMessages} isLoading={isLoading} onSendMessage={handleSendMessage} onMenuClick={() => setIsSidebarOpen(true)} onRegenerate={handleRegenerate} onDeleteCurrentChat={activeChatId ? () => handleDeleteChat(activeChatId) : undefined} onNewChat={createNewChat} language={language} userAvatar={avatar} />
+                <ChatInterface 
+                    messages={activeMessages} 
+                    isLoading={isLoading} 
+                    onSendMessage={handleSendMessage} 
+                    onMenuClick={() => setIsSidebarOpen(true)} 
+                    onRegenerate={handleRegenerate} 
+                    onDeleteCurrentChat={activeChatId ? () => handleDeleteChat(activeChatId) : undefined} 
+                    onNewChat={createNewChat} 
+                    language={language} 
+                    userAvatar={avatar}
+                    onSaveMessage={handleSaveMessage}
+                />
             )}
             {currentView === 'bible' && ( <BibleReader language={language} onSaveItem={handleSaveItem} onMenuClick={() => setIsSidebarOpen(true)} highlights={highlights} onAddHighlight={handleAddHighlight} onRemoveHighlight={handleRemoveHighlight} /> )}
             {currentView === 'saved' && ( <SavedCollection savedItems={savedItems} onRemoveItem={handleRemoveSavedItem} language={language} onMenuClick={() => setIsSidebarOpen(true)} /> )}
-            {currentView === 'prayer' && ( <PrayerList savedItems={savedItems} onSaveItem={handleSaveItem} onUpdateItem={handleUpdateItem} onRemoveItem={handleRemoveSavedItem} language={language} onMenuClick={() => setIsSidebarOpen(true)} /> )}
+            {/* Pass displayName and userAvatar prop here to fix Anonymous bug */}
+            {currentView === 'prayer' && ( 
+                <PrayerList 
+                    savedItems={savedItems} 
+                    onSaveItem={handleSaveItem} 
+                    onUpdateItem={handleUpdateItem} 
+                    onRemoveItem={handleRemoveSavedItem} 
+                    language={language} 
+                    onMenuClick={() => setIsSidebarOpen(true)} 
+                    currentUserId={session.user.id} 
+                    userName={displayName}
+                    userAvatar={avatar}
+                /> 
+            )}
             {currentView === 'quiz' && ( <QuizMode language={language} onMenuClick={() => setIsSidebarOpen(true)} /> )}
           </div>
 
@@ -635,6 +695,12 @@ const App: React.FC = () => {
             currentUserShareId={shareId} 
             isDarkMode={isDarkMode} 
             onUpdateNotifications={loadSocialNotifications}
+          />
+          
+          {/* PASSWORD RESET MODAL */}
+          <PasswordResetModal 
+            isOpen={isPasswordResetOpen}
+            onClose={() => setIsPasswordResetOpen(false)}
           />
         </div>
       )}

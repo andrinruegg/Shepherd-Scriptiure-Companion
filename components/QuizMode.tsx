@@ -1,12 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { Brain, Sparkles, CheckCircle, XCircle, ArrowRight, Trophy, Menu, Flame, RotateCw, Database, Clock, Award } from 'lucide-react';
+import { Brain, Sparkles, CheckCircle, XCircle, ArrowRight, Trophy, Menu, Flame, RotateCw, Award, CheckCircle2, Timer } from 'lucide-react';
 import { STATIC_QUIZ_DATA } from '../data/staticQuizData';
 import { QuizQuestion, Achievement } from '../types';
 import { translations } from '../utils/translations';
 import { db } from '../services/db';
 import ShepherdLogo from './ShepherdLogo';
-import { v4 as uuidv4 } from 'uuid';
 
 interface QuizModeProps {
     language: string;
@@ -16,39 +15,77 @@ interface QuizModeProps {
 const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
     const [gameState, setGameState] = useState<'menu' | 'playing' | 'result' | 'complete'>('menu');
     const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard'>('Easy');
+    
+    // Quiz State
+    const [sessionQuestions, setSessionQuestions] = useState<QuizQuestion[]>([]);
     const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(null);
+    const [currentIndex, setCurrentIndex] = useState(0);
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
     const [showResult, setShowResult] = useState(false);
-    const [score, setScore] = useState(0);
-    const [streak, setStreak] = useState(0);
     
-    // Session Tracking
-    const [sessionQuestions, setSessionQuestions] = useState<QuizQuestion[]>([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
+    // Stats
     const [correctCount, setCorrectCount] = useState(0);
-    const [startTime, setStartTime] = useState(0);
-    const [endTime, setEndTime] = useState(0);
+    const [streak, setStreak] = useState(0);
+    const [startTime, setStartTime] = useState<number>(0);
+    const [endTime, setEndTime] = useState<number>(0);
+    
     const [earnedAchievement, setEarnedAchievement] = useState<Achievement | null>(null);
+    const [myAchievements, setMyAchievements] = useState<Set<string>>(new Set());
 
     const t = translations[language]?.quiz || translations['English'].quiz;
+
+    // Load achievements on mount
+    useEffect(() => {
+        const fetchAchievements = async () => {
+            try {
+                const profile = await db.social.getCurrentUser();
+                if (profile && profile.achievements) {
+                    const ids = new Set(profile.achievements.map(a => a.id));
+                    setMyAchievements(ids);
+                }
+            } catch (e) {
+                console.error("Failed to load achievements", e);
+            }
+        };
+        fetchAchievements();
+    }, []);
+
+    // Helper to shuffle answers so users can't memorize positions
+    const randomizeQuestion = (q: QuizQuestion): QuizQuestion => {
+        const correctString = q.options[q.correctIndex];
+        // Shuffle options
+        const newOptions = [...q.options].sort(() => 0.5 - Math.random());
+        // Find new index of the correct string
+        const newCorrectIndex = newOptions.indexOf(correctString);
+        
+        return {
+            ...q,
+            options: newOptions,
+            correctIndex: newCorrectIndex
+        };
+    };
 
     const startQuiz = (diff: 'Easy' | 'Medium' | 'Hard') => {
         setDifficulty(diff);
         const allQuestions = [...STATIC_QUIZ_DATA[diff]];
         
-        // Shuffle questions
-        const shuffled = allQuestions.sort(() => 0.5 - Math.random());
-        setSessionQuestions(shuffled);
+        // 1. Shuffle the order of questions
+        const shuffledQuestions = allQuestions.sort(() => 0.5 - Math.random());
         
+        // 2. Randomize the answer positions for each question
+        const randomizedQuestions = shuffledQuestions.map(randomizeQuestion);
+
+        setSessionQuestions(randomizedQuestions);
+        
+        // Reset State
         setCurrentIndex(0);
         setCorrectCount(0);
-        setScore(0);
         setStreak(0);
-        setStartTime(Date.now());
         setEarnedAchievement(null);
+        setStartTime(Date.now());
         
         // Load first
-        setCurrentQuestion(shuffled[0]);
+        setCurrentQuestion(randomizedQuestions[0]);
         setGameState('playing');
         setShowResult(false);
         setSelectedOption(null);
@@ -60,7 +97,6 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
         setShowResult(true);
 
         if (index === currentQuestion.correctIndex) {
-            setScore(s => s + 10 + (streak * 2));
             setStreak(s => s + 1);
             setCorrectCount(c => c + 1);
         } else {
@@ -81,11 +117,10 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
     };
 
     const finishQuiz = async () => {
-        const end = Date.now();
-        setEndTime(end);
+        setEndTime(Date.now());
         setGameState('complete');
 
-        // Check for Achievement (100%)
+        // Check for Achievement (100% Correct)
         const percentage = Math.round((correctCount / sessionQuestions.length) * 100);
         
         if (percentage === 100) {
@@ -97,20 +132,30 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
             if (difficulty === 'Medium') { title = "Disciple"; desc = "Perfect score on Medium mode!"; icon = "Scroll"; }
             if (difficulty === 'Hard') { title = "Theologian"; desc = "Perfect score on Hard mode!"; icon = "Trophy"; }
 
-            const achievement: Achievement = {
-                id: `perfect-${difficulty.toLowerCase()}`,
-                icon,
-                title,
-                description: desc,
-                date_earned: Date.now(),
-                difficulty_level: difficulty
-            };
+            const achievementId = `perfect-${difficulty.toLowerCase()}`;
             
-            setEarnedAchievement(achievement);
-            try {
-                await db.social.addAchievement(achievement);
-            } catch (e) {
-                console.error("Failed to save achievement", e);
+            // Only award if not already earned
+            if (!myAchievements.has(achievementId)) {
+                const achievement: Achievement = {
+                    id: achievementId,
+                    icon,
+                    title,
+                    description: desc,
+                    date_earned: Date.now(),
+                    difficulty_level: difficulty
+                };
+                
+                setEarnedAchievement(achievement);
+                // Update local state immediately so menu checkmark appears
+                setMyAchievements(prev => new Set(prev).add(achievementId));
+                
+                // Save to DB
+                try {
+                    await db.social.addAchievement(achievement);
+                    await db.social.updateProfileStats(streak); 
+                } catch (e) {
+                    console.error("Failed to save achievement", e);
+                }
             }
         }
     };
@@ -119,7 +164,7 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
         const seconds = Math.floor(ms / 1000);
         const m = Math.floor(seconds / 60);
         const s = seconds % 60;
-        return `${m}:${s.toString().padStart(2, '0')}`;
+        return `${m}m ${s}s`;
     };
 
     // Smoother progress bar logic: Base progress + 1 step if answered
@@ -143,12 +188,6 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
                         {gameState === 'playing' && <span className="text-xs text-slate-400 font-medium tracking-wider uppercase">{difficulty} Mode</span>}
                     </div>
                 </div>
-                {gameState === 'playing' && (
-                    <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700">
-                        <Trophy size={14} className="text-amber-500" />
-                        <span className="font-bold text-slate-700 dark:text-slate-200">{score}</span>
-                    </div>
-                )}
             </header>
 
             {/* Main Content */}
@@ -168,18 +207,50 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
                             </div>
 
                             <div className="grid gap-3">
-                                <button onClick={() => startQuiz('Easy')} className="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:border-purple-500 hover:shadow-md transition-all font-medium text-slate-700 dark:text-slate-200 flex items-center justify-between group">
-                                    <span>🌱 {t.easy}</span>
+                                <button onClick={() => startQuiz('Easy')} className="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:border-purple-500 hover:shadow-md transition-all font-medium text-slate-700 dark:text-slate-200 flex items-center justify-between group relative overflow-hidden">
+                                    <div className="flex items-center gap-3">
+                                        <div className="text-left">
+                                            <div className="flex items-center gap-2">
+                                                <span className="block font-bold">🌱 {t.easy}</span>
+                                                {myAchievements.has('perfect-easy') && (
+                                                    <CheckCircle2 size={18} className="text-emerald-500 fill-emerald-100 dark:fill-emerald-900/30" />
+                                                )}
+                                            </div>
+                                            <span className="text-xs text-slate-400">Perfect for beginners</span>
+                                        </div>
+                                    </div>
                                     <span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full text-slate-500">{STATIC_QUIZ_DATA.Easy.length} Qs</span>
                                     <ArrowRight className="opacity-0 group-hover:opacity-100 transition-opacity text-purple-500" size={18} />
                                 </button>
-                                <button onClick={() => startQuiz('Medium')} className="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:border-purple-500 hover:shadow-md transition-all font-medium text-slate-700 dark:text-slate-200 flex items-center justify-between group">
-                                    <span>📖 {t.medium}</span>
+                                
+                                <button onClick={() => startQuiz('Medium')} className="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:border-purple-500 hover:shadow-md transition-all font-medium text-slate-700 dark:text-slate-200 flex items-center justify-between group relative overflow-hidden">
+                                    <div className="flex items-center gap-3">
+                                        <div className="text-left">
+                                            <div className="flex items-center gap-2">
+                                                <span className="block font-bold">📖 {t.medium}</span>
+                                                {myAchievements.has('perfect-medium') && (
+                                                    <CheckCircle2 size={18} className="text-emerald-500 fill-emerald-100 dark:fill-emerald-900/30" />
+                                                )}
+                                            </div>
+                                            <span className="text-xs text-slate-400">Test your knowledge</span>
+                                        </div>
+                                    </div>
                                     <span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full text-slate-500">{STATIC_QUIZ_DATA.Medium.length} Qs</span>
                                     <ArrowRight className="opacity-0 group-hover:opacity-100 transition-opacity text-purple-500" size={18} />
                                 </button>
-                                <button onClick={() => startQuiz('Hard')} className="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:border-purple-500 hover:shadow-md transition-all font-medium text-slate-700 dark:text-slate-200 flex items-center justify-between group">
-                                    <span>🔥 {t.hard}</span>
+                                
+                                <button onClick={() => startQuiz('Hard')} className="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:border-purple-500 hover:shadow-md transition-all font-medium text-slate-700 dark:text-slate-200 flex items-center justify-between group relative overflow-hidden">
+                                    <div className="flex items-center gap-3">
+                                        <div className="text-left">
+                                            <div className="flex items-center gap-2">
+                                                <span className="block font-bold">🔥 {t.hard}</span>
+                                                {myAchievements.has('perfect-hard') && (
+                                                    <CheckCircle2 size={18} className="text-emerald-500 fill-emerald-100 dark:fill-emerald-900/30" />
+                                                )}
+                                            </div>
+                                            <span className="text-xs text-slate-400">For true scholars</span>
+                                        </div>
+                                    </div>
                                     <span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full text-slate-500">{STATIC_QUIZ_DATA.Hard.length} Qs</span>
                                     <ArrowRight className="opacity-0 group-hover:opacity-100 transition-opacity text-purple-500" size={18} />
                                 </button>
@@ -277,13 +348,18 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
 
                              <div className="grid grid-cols-2 gap-4">
                                  <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center">
-                                     <span className="text-xs font-bold text-slate-400 uppercase mb-1">Score</span>
-                                     <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">{correctCount} / {sessionQuestions.length}</span>
-                                     <span className="text-xs text-slate-500 mt-1">{Math.round((correctCount / sessionQuestions.length) * 100)}%</span>
+                                     <span className="text-xs font-bold text-slate-400 uppercase mb-1">Time Taken</span>
+                                     <div className="flex items-center gap-2">
+                                        <Timer size={18} className="text-purple-500"/>
+                                        <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">{formatTime(endTime - startTime)}</span>
+                                     </div>
                                  </div>
                                  <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center">
-                                     <span className="text-xs font-bold text-slate-400 uppercase mb-1">Time</span>
-                                     <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{formatTime(endTime - startTime)}</span>
+                                     <span className="text-xs font-bold text-slate-400 uppercase mb-1">Accuracy</span>
+                                     <div className="flex items-center gap-2">
+                                        <CheckCircle2 size={18} className="text-emerald-500"/>
+                                        <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{correctCount}/{sessionQuestions.length}</span>
+                                     </div>
                                  </div>
                              </div>
                              

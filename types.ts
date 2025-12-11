@@ -129,6 +129,7 @@ export interface PrayerInteraction {
 
 export interface SavedItem {
   id: string;
+  user_id?: string; // Added to track ownership
   type: 'verse' | 'chat' | 'prayer'; 
   content: string;        // The text content
   reference?: string;     // e.g. "John 3:16" (Only for verses)
@@ -138,6 +139,7 @@ export interface SavedItem {
       answered?: boolean;
       visibility?: PrayerVisibility;
       allowed_users?: string[]; // IDs for specific sharing
+      is_anonymous?: boolean;   // NEW: Anonymous toggle
       author_name?: string;     // Snapshot of name
       author_avatar?: string;   // Snapshot of avatar
       interactions?: PrayerInteraction;

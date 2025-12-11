@@ -1,7 +1,8 @@
-import React, { memo } from 'react';
+
+import React, { memo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Message } from '../types';
-import { User, RotateCw } from 'lucide-react';
+import { User, RotateCw, Heart } from 'lucide-react';
 import ShepherdLogo from './ShepherdLogo';
 
 interface ChatMessageProps {
@@ -10,16 +11,27 @@ interface ChatMessageProps {
   onRegenerate?: () => void;
   isRegenerating?: boolean;
   userAvatar?: string;
+  onSave?: () => void;
 }
 
-const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLast, onRegenerate, isRegenerating, userAvatar }) => {
+const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLast, onRegenerate, isRegenerating, userAvatar, onSave }) => {
   const isUser = message.role === 'user';
+  const [isSaved, setIsSaved] = useState(false);
 
   // "Thinking" state check: If it's the model, text is empty/whitespace, and it's the last message
   const isThinking = !isUser && isLast && (!message.text || message.text.trim() === '') && !message.isError;
 
+  const handleSave = () => {
+      if (onSave) {
+          onSave();
+          setIsSaved(true);
+          // Visual feedback reset after 2s
+          setTimeout(() => setIsSaved(false), 2000);
+      }
+  };
+
   return (
-    <div className={`flex w-full mb-6 ${isUser ? 'justify-end' : 'justify-start'} animate-pop-in`}>
+    <div className={`flex w-full mb-6 ${isUser ? 'justify-end' : 'justify-start'} animate-pop-in group`}>
       <div className={`flex gap-3 max-w-[85%] md:max-w-[75%] items-end`}>
         
         {/* Shepherd Avatar - Only show if not user */}
@@ -35,7 +47,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLast, onRegenerate
         {/* Bubble */}
         <div className={`flex flex-col min-w-0 ${isUser ? 'items-end' : 'items-start'}`}>
           <div className={`
-            px-4 py-3 shadow-sm text-sm md:text-base leading-relaxed break-words w-full
+            px-4 py-3 shadow-sm text-sm md:text-base leading-relaxed break-words w-full relative
             ${isUser 
               ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-none origin-bottom-right' 
               : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-100 dark:border-slate-700 rounded-2xl rounded-tl-none font-serif-text origin-bottom-left'}
@@ -81,17 +93,31 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLast, onRegenerate
             )}
           </div>
           
-          {/* Regenerate Button */}
-          {!isUser && isLast && !isThinking && onRegenerate && (
-              <button 
-                 onClick={onRegenerate}
-                 disabled={isRegenerating}
-                 className="mt-1 mr-1 self-end text-xs text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-1 transition-opacity animate-fade-in"
-              >
-                 <RotateCw size={12} className={isRegenerating ? 'animate-spin' : ''} />
-                 <span>{message.isError ? 'Retry' : 'Regenerate'}</span>
-              </button>
-          )}
+          {/* Action Row */}
+          <div className="flex items-center gap-2 mt-1 mr-1 self-end">
+              {/* Save Button (Hover only) */}
+              {!isThinking && onSave && (
+                  <button
+                      onClick={handleSave}
+                      className={`text-xs flex items-center gap-1 transition-all ${isSaved ? 'text-rose-500 scale-110' : 'text-slate-300 dark:text-slate-600 hover:text-rose-400 opacity-0 group-hover:opacity-100'}`}
+                      title="Save to Collection"
+                  >
+                      <Heart size={12} className={isSaved ? 'fill-rose-500' : ''} />
+                  </button>
+              )}
+
+              {/* Regenerate Button */}
+              {!isUser && isLast && !isThinking && onRegenerate && (
+                  <button 
+                     onClick={onRegenerate}
+                     disabled={isRegenerating}
+                     className="text-xs text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-1 transition-opacity animate-fade-in"
+                  >
+                     <RotateCw size={12} className={isRegenerating ? 'animate-spin' : ''} />
+                     <span>{message.isError ? 'Retry' : 'Regenerate'}</span>
+                  </button>
+              )}
+          </div>
         </div>
 
         {/* User Avatar - Only show if user */}

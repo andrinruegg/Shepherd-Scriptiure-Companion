@@ -142,6 +142,7 @@ export const db = {
 
       return (data || []).map((item: any) => ({
           id: item.id,
+          user_id: item.user_id, // Map owner ID
           type: item.type as 'verse' | 'chat',
           content: item.content,
           reference: item.reference,
@@ -168,6 +169,32 @@ export const db = {
               metadata: item.metadata || {}
           });
       
+      if (error) {
+          if (error.code === 'PGRST204' || error.message.includes('metadata')) {
+              console.error("CRITICAL SQL FIX REQUIRED: Please run 'ALTER TABLE saved_items ADD COLUMN metadata jsonb DEFAULT '{}'::jsonb;' in your Supabase SQL Editor.");
+          }
+          throw error;
+      }
+  },
+
+  // NEW: Update function to prevent delete/insert duplication
+  async updateSavedItem(id: string, updates: Partial<SavedItem>) {
+      ensureSupabase();
+      // @ts-ignore
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const dbUpdates: any = {};
+      if (updates.content) dbUpdates.content = updates.content;
+      if (updates.metadata) dbUpdates.metadata = updates.metadata;
+      
+      // @ts-ignore
+      const { error } = await supabase
+          .from('saved_items')
+          .update(dbUpdates)
+          .eq('id', id)
+          .eq('user_id', user.id); // Security: ensure ownership
+
       if (error) throw error;
   },
 
@@ -224,11 +251,16 @@ export const db = {
               .from('saved_items')
               .select('*')
               .eq('type', 'prayer')
-              .neq('user_id', user?.id) 
+              // removed neq user_id so users can see their own public prayers to verify it works
               .limit(50)
               .order('created_at', { ascending: false });
 
-          if (error) return []; 
+          if (error) {
+              if (error.code === 'PGRST204' || error.message.includes('metadata')) {
+                 console.error("CRITICAL SQL FIX REQUIRED: Please run 'ALTER TABLE saved_items ADD COLUMN metadata jsonb DEFAULT '{}'::jsonb;' in your Supabase SQL Editor.");
+              }
+              return []; 
+          }
 
           const accessiblePrayers: SavedItem[] = [];
           
@@ -237,12 +269,34 @@ export const db = {
               const vis = meta.visibility || 'private';
               
               if (vis === 'public') {
-                  accessiblePrayers.push({ ...item, date: new Date(item.created_at).getTime() });
+                  accessiblePrayers.push({ 
+                      id: item.id,
+                      user_id: item.user_id, // Map owner ID
+                      type: 'prayer',
+                      content: item.content,
+                      date: new Date(item.created_at).getTime(),
+                      metadata: meta
+                  });
               } else if (vis === 'friends') {
-                  accessiblePrayers.push({ ...item, date: new Date(item.created_at).getTime() });
+                  // In a real app, verify friendship here on backend or RLS
+                  accessiblePrayers.push({ 
+                      id: item.id,
+                      user_id: item.user_id, 
+                      type: 'prayer',
+                      content: item.content,
+                      date: new Date(item.created_at).getTime(),
+                      metadata: meta
+                  });
               } else if (vis === 'specific' && meta.allowed_users && user) {
                    if (meta.allowed_users.includes(user.id)) {
-                       accessiblePrayers.push({ ...item, date: new Date(item.created_at).getTime() });
+                       accessiblePrayers.push({ 
+                           id: item.id,
+                           user_id: item.user_id,
+                           type: 'prayer',
+                           content: item.content,
+                           date: new Date(item.created_at).getTime(),
+                           metadata: meta
+                       });
                    }
               }
           }
@@ -277,7 +331,9 @@ export const db = {
           const newMetadata = { ...currentMetadata, interactions: newInteractions };
           
           // @ts-ignore
-          await supabase.from('saved_items').update({ metadata: newMetadata }).eq('id', prayerId);
+          const { error } = await supabase.from('saved_items').update({ metadata: newMetadata }).eq('id', prayerId);
+          if (error) throw error;
+
           return newMetadata;
       }
   },
@@ -330,7 +386,12 @@ export const db = {
           }
           
           // @ts-ignore
-          await supabase.from('profiles').update(updates).eq('id', user.id);
+          const { error } = await supabase.from('profiles').update(updates).eq('id', user.id);
+          if (error) {
+              if (error.code === 'PGRST204' || error.message.includes('achievements')) {
+                  console.error("CRITICAL SQL FIX REQUIRED: Please run 'ALTER TABLE profiles ADD COLUMN achievements jsonb DEFAULT '[]'::jsonb;' in your Supabase SQL Editor.");
+              }
+          }
       },
       
       async addAchievement(achievement: Achievement) {
@@ -349,7 +410,14 @@ export const db = {
           const newSet = [...current, achievement];
           
           // @ts-ignore
-          await supabase.from('profiles').update({ achievements: newSet }).eq('id', user.id);
+          const { error } = await supabase.from('profiles').update({ achievements: newSet }).eq('id', user.id);
+          
+          if (error) {
+               if (error.code === 'PGRST204' || error.message.includes('achievements')) {
+                  console.error("CRITICAL SQL FIX REQUIRED: Please run 'ALTER TABLE profiles ADD COLUMN achievements jsonb DEFAULT '[]'::jsonb;' in your Supabase SQL Editor.");
+              }
+              throw error;
+          }
           return newSet;
       },
 
@@ -359,6 +427,14 @@ export const db = {
           const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle(); 
           if (error || !data) return null;
           return data as UserProfile;
+      },
+      
+      async getCurrentUser(): Promise<UserProfile | null> {
+          ensureSupabase();
+          // @ts-ignore
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return null;
+          return this.getUserProfile(user.id);
       },
 
       async searchUserByShareId(shareId: string): Promise<UserProfile | null> {

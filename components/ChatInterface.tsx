@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import { Send, Menu, Trash2, Plus } from 'lucide-react';
 import { Message } from '../types';
@@ -16,6 +17,7 @@ interface ChatInterfaceProps {
   onNewChat: () => void; // New Prop
   language: string;
   userAvatar?: string;
+  onSaveMessage: (message: Message) => void; // New prop for saving
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ 
@@ -27,7 +29,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   onDeleteCurrentChat,
   onNewChat,
   language,
-  userAvatar
+  userAvatar,
+  onSaveMessage
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -155,6 +158,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 onRegenerate={index > 0 ? onRegenerate : undefined}
                 isRegenerating={isLoading}
                 userAvatar={userAvatar}
+                onSave={() => onSaveMessage(msg)}
             />
           ))}
           

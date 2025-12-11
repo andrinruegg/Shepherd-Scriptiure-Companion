@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Trash2, Check, Feather, Calendar, Menu, Circle, CheckCircle2, Globe, Lock, Users, ChevronDown, User } from 'lucide-react';
+import { Plus, Trash2, Check, Feather, Calendar, Menu, Circle, CheckCircle2, Globe, Lock, Users, ChevronDown, User, Eye, EyeOff } from 'lucide-react';
 import { SavedItem, PrayerVisibility, UserProfile } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import { translations } from '../utils/translations';
@@ -12,9 +13,22 @@ interface PrayerListProps {
     onRemoveItem: (id: string) => void;
     language: string;
     onMenuClick: () => void;
+    currentUserId?: string;
+    userName?: string;
+    userAvatar?: string;
 }
 
-const PrayerList: React.FC<PrayerListProps> = ({ savedItems, onSaveItem, onUpdateItem, onRemoveItem, language, onMenuClick }) => {
+const PrayerList: React.FC<PrayerListProps> = ({ 
+    savedItems, 
+    onSaveItem, 
+    onUpdateItem, 
+    onRemoveItem, 
+    language, 
+    onMenuClick, 
+    currentUserId,
+    userName,
+    userAvatar
+}) => {
     const [newPrayer, setNewPrayer] = useState('');
     const [activeTab, setActiveTab] = useState<'journal' | 'community'>('journal');
     
@@ -23,6 +37,7 @@ const PrayerList: React.FC<PrayerListProps> = ({ savedItems, onSaveItem, onUpdat
     const [showVisibilityMenu, setShowVisibilityMenu] = useState(false);
     const [selectedFriends, setSelectedFriends] = useState<string[]>([]);
     const [showFriendSelector, setShowFriendSelector] = useState(false);
+    const [isAnonymous, setIsAnonymous] = useState(false); // New Anonymous State
     
     // Data Loading
     const [friendsList, setFriendsList] = useState<UserProfile[]>([]);
@@ -60,29 +75,26 @@ const PrayerList: React.FC<PrayerListProps> = ({ savedItems, onSaveItem, onUpdat
     // Load Community Prayers when tab changes
     useEffect(() => {
         if (activeTab === 'community') {
-            const loadCommunity = async () => {
-                setLoadingCommunity(true);
-                try {
-                    const data = await db.prayers.getCommunityPrayers();
-                    setCommunityPrayers(data);
-                } catch(e) { console.error(e); } 
-                finally { setLoadingCommunity(false); }
-            };
-            loadCommunity();
+            loadCommunityPrayers();
         }
     }, [activeTab]);
+
+    const loadCommunityPrayers = async () => {
+        setLoadingCommunity(true);
+        try {
+            const data = await db.prayers.getCommunityPrayers();
+            setCommunityPrayers(data);
+        } catch(e) { console.error(e); } 
+        finally { setLoadingCommunity(false); }
+    };
 
     const handleAddPrayer = async (e?: React.FormEvent) => {
         e?.preventDefault();
         if (!newPrayer.trim()) return;
 
-        // Get Current User Profile for Metadata
-        // We assume we can get it from local storage or cached profile to save a DB call, 
-        // but robustly we should probably pass it in props. For now, we rely on Supabase auth.
-        const profile = await db.social.getUserProfile((await db.social.getFriends())[0]?.id || 'unknown'); // Hacky fallback if no friends, usually we'd have a getCurrentUser method
-        // Better approach: get it from localStorage which is set in App.tsx
-        const authorName = localStorage.getItem('displayName') || 'Anonymous';
-        const authorAvatar = localStorage.getItem('userAvatar') || '';
+        // Ensure we use the latest props or fallback
+        const authorName = userName || localStorage.getItem('displayName') || 'Guest';
+        const authorAvatar = userAvatar || localStorage.getItem('userAvatar') || '';
 
         const item: SavedItem = {
             id: uuidv4(),
@@ -93,6 +105,7 @@ const PrayerList: React.FC<PrayerListProps> = ({ savedItems, onSaveItem, onUpdat
                 answered: false,
                 visibility: visibility,
                 allowed_users: visibility === 'specific' ? selectedFriends : [],
+                is_anonymous: isAnonymous,
                 author_name: authorName,
                 author_avatar: authorAvatar,
                 interactions: { type: 'amen', count: 0, user_ids: [] }
@@ -103,6 +116,7 @@ const PrayerList: React.FC<PrayerListProps> = ({ savedItems, onSaveItem, onUpdat
         setNewPrayer('');
         setVisibility('private');
         setSelectedFriends([]);
+        setIsAnonymous(false);
         setShowVisibilityMenu(false);
     };
 
@@ -112,6 +126,16 @@ const PrayerList: React.FC<PrayerListProps> = ({ savedItems, onSaveItem, onUpdat
             metadata: { ...prayer.metadata, answered: !prayer.metadata?.answered }
         };
         onUpdateItem(updated); 
+        
+        // If on community tab, refresh list after a short delay
+        if (activeTab === 'community') {
+            setCommunityPrayers(prev => prev.map(p => p.id === updated.id ? updated : p));
+        }
+    };
+
+    const handleCommunityDelete = async (id: string) => {
+        onRemoveItem(id);
+        setCommunityPrayers(prev => prev.filter(p => p.id !== id));
     };
 
     const handleToggleFriend = (friendId: string) => {
@@ -121,17 +145,10 @@ const PrayerList: React.FC<PrayerListProps> = ({ savedItems, onSaveItem, onUpdat
     };
 
     const handleAmen = async (prayer: SavedItem) => {
-        // Optimistic UI update for community prayers
         if (activeTab === 'community') {
-            // Find in local state
-            const currentUserId = (await db.social.getFriends())[0]?.id || 'me'; // Placeholder ID check
-            // Actually, we need real user ID. 
-            // Since we can't easily get it synchronously, we'll just toggle visually
-            
             setCommunityPrayers(prev => prev.map(p => {
                 if (p.id === prayer.id) {
                      const interactions = p.metadata?.interactions || { type: 'amen', count: 0, user_ids: [] };
-                     // Simple toggle logic assuming we are adding 1 for UX immediately
                      return { 
                          ...p, 
                          metadata: { 
@@ -149,9 +166,6 @@ const PrayerList: React.FC<PrayerListProps> = ({ savedItems, onSaveItem, onUpdat
 
             try {
                 await db.prayers.toggleAmen(prayer.id, prayer.metadata);
-                // Reload to get real state
-                const data = await db.prayers.getCommunityPrayers();
-                setCommunityPrayers(data);
             } catch (e) { console.error(e); }
         }
     };
@@ -226,32 +240,44 @@ const PrayerList: React.FC<PrayerListProps> = ({ savedItems, onSaveItem, onUpdat
                                 
                                 <div className="flex items-center justify-between">
                                     {/* Privacy Menu */}
-                                    <div className="relative" ref={menuRef}>
-                                        <button 
-                                            onClick={() => setShowVisibilityMenu(!showVisibilityMenu)}
-                                            className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-900 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-                                        >
-                                            <VisibilityIcon vis={visibility} />
-                                            <span>{VisibilityLabel({vis: visibility})}</span>
-                                            <ChevronDown size={12} />
-                                        </button>
+                                    <div className="flex gap-2">
+                                        <div className="relative" ref={menuRef}>
+                                            <button 
+                                                onClick={() => setShowVisibilityMenu(!showVisibilityMenu)}
+                                                className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-900 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                                            >
+                                                <VisibilityIcon vis={visibility} />
+                                                <span>{VisibilityLabel({vis: visibility})}</span>
+                                                <ChevronDown size={12} />
+                                            </button>
 
-                                        {showVisibilityMenu && (
-                                            <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 z-30 overflow-hidden animate-scale-in">
-                                                <button onClick={() => { setVisibility('private'); setShowVisibilityMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2">
-                                                    <Lock size={14} className="text-slate-400"/> {t.privacy.private}
-                                                </button>
-                                                <button onClick={() => { setVisibility('friends'); setShowVisibilityMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2">
-                                                    <Users size={14} className="text-blue-500"/> {t.privacy.friends}
-                                                </button>
-                                                <button onClick={() => { setVisibility('specific'); setShowVisibilityMenu(false); setShowFriendSelector(true); }} className="w-full text-left px-4 py-3 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2">
-                                                    <User size={14} className="text-purple-500"/> {t.privacy.specific}
-                                                </button>
-                                                <button onClick={() => { setVisibility('public'); setShowVisibilityMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 border-t border-slate-100 dark:border-slate-800">
-                                                    <Globe size={14} className="text-emerald-500"/> {t.privacy.public}
-                                                </button>
-                                            </div>
-                                        )}
+                                            {showVisibilityMenu && (
+                                                <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 z-30 overflow-hidden animate-scale-in">
+                                                    <button onClick={() => { setVisibility('private'); setShowVisibilityMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2">
+                                                        <Lock size={14} className="text-slate-400"/> {t.privacy.private}
+                                                    </button>
+                                                    <button onClick={() => { setVisibility('friends'); setShowVisibilityMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2">
+                                                        <Users size={14} className="text-blue-500"/> {t.privacy.friends}
+                                                    </button>
+                                                    <button onClick={() => { setVisibility('specific'); setShowVisibilityMenu(false); setShowFriendSelector(true); }} className="w-full text-left px-4 py-3 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2">
+                                                        <User size={14} className="text-purple-500"/> {t.privacy.specific}
+                                                    </button>
+                                                    <button onClick={() => { setVisibility('public'); setShowVisibilityMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 border-t border-slate-100 dark:border-slate-800">
+                                                        <Globe size={14} className="text-emerald-500"/> {t.privacy.public}
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Anonymous Toggle */}
+                                        <button 
+                                            onClick={() => setIsAnonymous(!isAnonymous)}
+                                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${isAnonymous ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-900 dark:text-slate-400'}`}
+                                            title="Post Anonymously"
+                                        >
+                                            {isAnonymous ? <EyeOff size={14} /> : <Eye size={14} />}
+                                            {isAnonymous ? 'Anonymous' : 'Public ID'}
+                                        </button>
                                     </div>
 
                                     <button 
@@ -375,39 +401,69 @@ const PrayerList: React.FC<PrayerListProps> = ({ savedItems, onSaveItem, onUpdat
                              ) : communityPrayers.length === 0 ? (
                                  <div className="text-center py-10 text-slate-400 italic">No shared prayers yet. Be the first to share!</div>
                              ) : (
-                                 communityPrayers.map((prayer, i) => (
-                                     <div key={prayer.id} className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm animate-slide-up" style={{ animationDelay: `${i * 0.1}s` }}>
-                                          <div className="flex items-center gap-3 mb-3">
-                                              <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-500 overflow-hidden">
-                                                  {prayer.metadata?.author_avatar ? <img src={prayer.metadata.author_avatar} className="w-full h-full object-cover"/> : prayer.metadata?.author_name?.charAt(0) || '?'}
-                                              </div>
-                                              <div>
-                                                  <div className="text-sm font-bold text-slate-800 dark:text-white">{prayer.metadata?.author_name || "Anonymous"}</div>
-                                                  <div className="text-[10px] text-slate-400">{new Date(prayer.date).toLocaleDateString()}</div>
-                                              </div>
-                                              <div className="ml-auto">
-                                                  <VisibilityIcon vis={prayer.metadata?.visibility || 'public'} />
-                                              </div>
-                                          </div>
-                                          
-                                          <p className="text-slate-800 dark:text-slate-200 text-lg leading-relaxed mb-4">
-                                              "{prayer.content}"
-                                          </p>
+                                 communityPrayers.map((prayer, i) => {
+                                     // Check if current user owns this prayer
+                                     const isOwner = currentUserId && prayer.user_id === currentUserId;
+                                     const isAnon = prayer.metadata?.is_anonymous;
+                                     const isAnswered = prayer.metadata?.answered;
 
-                                          <div className="flex items-center justify-between border-t border-slate-50 dark:border-slate-700 pt-3">
-                                              <button 
-                                                onClick={() => handleAmen(prayer)}
-                                                className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors active:scale-95"
-                                              >
-                                                  <span>🙏</span>
-                                                  <span className="text-sm font-bold">{t.amen}</span>
-                                                  {prayer.metadata?.interactions?.count ? (
-                                                      <span className="bg-indigo-200 dark:bg-indigo-800 px-1.5 rounded text-xs ml-1">{prayer.metadata.interactions.count}</span>
-                                                  ) : null}
-                                              </button>
-                                          </div>
-                                     </div>
-                                 ))
+                                     return (
+                                         <div key={prayer.id} className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm animate-slide-up" style={{ animationDelay: `${i * 0.1}s` }}>
+                                              <div className="flex items-center gap-3 mb-3">
+                                                  {/* Avatar: If Anonymous, show generic User icon */}
+                                                  <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-500 overflow-hidden">
+                                                      {isAnon ? <User size={16}/> : (prayer.metadata?.author_avatar ? <img src={prayer.metadata.author_avatar} className="w-full h-full object-cover"/> : (prayer.metadata?.author_name?.charAt(0) || '?'))}
+                                                  </div>
+                                                  <div>
+                                                      <div className="text-sm font-bold text-slate-800 dark:text-white">
+                                                          {isAnon ? "Anonymous" : (prayer.metadata?.author_name || "Guest")}
+                                                          {isAnswered && <span className="ml-2 text-[10px] text-emerald-500 bg-emerald-100 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded">Answered</span>}
+                                                      </div>
+                                                      <div className="text-[10px] text-slate-400">{new Date(prayer.date).toLocaleDateString()}</div>
+                                                  </div>
+                                                  
+                                                  <div className="ml-auto flex items-center gap-2">
+                                                      <VisibilityIcon vis={prayer.metadata?.visibility || 'public'} />
+                                                      {isOwner && (
+                                                          <>
+                                                              <button 
+                                                                onClick={() => toggleAnswered(prayer)} 
+                                                                className={`p-1.5 rounded-full transition-colors ${isAnswered ? 'text-emerald-500 bg-emerald-50' : 'text-slate-300 hover:text-emerald-500'}`}
+                                                                title="Mark Answered"
+                                                              >
+                                                                  <CheckCircle2 size={16} />
+                                                              </button>
+                                                              <button 
+                                                                onClick={() => handleCommunityDelete(prayer.id)} 
+                                                                className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                                                title="Delete"
+                                                              >
+                                                                  <Trash2 size={16} />
+                                                              </button>
+                                                          </>
+                                                      )}
+                                                  </div>
+                                              </div>
+                                              
+                                              <p className={`text-slate-800 dark:text-slate-200 text-lg leading-relaxed mb-4 ${isAnswered ? 'line-through opacity-70' : ''}`}>
+                                                  "{prayer.content}"
+                                              </p>
+
+                                              <div className="flex items-center justify-between border-t border-slate-50 dark:border-slate-700 pt-3">
+                                                  <button 
+                                                    onClick={() => handleAmen(prayer)}
+                                                    className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors active:scale-95"
+                                                  >
+                                                      <span>🙏</span>
+                                                      <span className="text-sm font-bold">{t.amen}</span>
+                                                      {prayer.metadata?.interactions?.count ? (
+                                                          <span className="bg-indigo-200 dark:bg-indigo-800 px-1.5 rounded text-xs ml-1">{prayer.metadata.interactions.count}</span>
+                                                      ) : null}
+                                                  </button>
+                                              </div>
+                                         </div>
+                                     );
+                                 })
                              )}
                         </div>
                     )}

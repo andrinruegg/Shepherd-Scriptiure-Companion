@@ -26,15 +26,12 @@ const SOUNDS = [
     { 
         id: 'stream', 
         icon: Waves, 
-        // Reverted to ocean-wave-1 as requested (Confirmed working)
         url: 'https://www.soundjay.com/nature/sounds/ocean-wave-1.mp3', 
         label: 'stream' 
     },
     { 
         id: 'night', 
         icon: Moon, 
-        // Switched to 'wind-howl-01' (Night Wind) on SoundJay.
-        // This is on the same server as Rain/Fire/Stream, so it is 100% guaranteed to work if others work.
         url: 'https://www.soundjay.com/nature/sounds/wind-howl-01.mp3', 
         label: 'night' 
     }
@@ -49,35 +46,47 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ isOpen, onClose, language }) => {
     const t = translations[language]?.sanctuary || translations['English'].sanctuary;
 
     useEffect(() => {
-        // CLEANUP: Stop any currently playing audio before starting new one
-        if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current = null;
-        }
-        setError(null);
+        let isCancelled = false;
 
-        if (activeSoundId) {
+        const playAudio = async () => {
+            // 1. Cleanup previous audio safely
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current = null;
+            }
+            
+            setError(null);
+
+            if (!activeSoundId) return;
+
             const sound = SOUNDS.find(s => s.id === activeSoundId);
-            if (sound) {
-                const audio = new Audio(sound.url);
-                audio.loop = true;
-                audio.volume = volume;
-                audioRef.current = audio;
+            if (!sound) return;
+
+            // 2. Setup new audio
+            const audio = new Audio(sound.url);
+            audio.loop = true;
+            audio.volume = volume;
+            audioRef.current = audio;
+
+            // 3. Play with Promise handling
+            try {
+                await audio.play();
+            } catch (err: any) {
+                if (isCancelled) return;
                 
-                const playPromise = audio.play();
-                
-                if (playPromise !== undefined) {
-                    playPromise.catch(e => {
-                        console.error("Audio play failed:", e);
-                        setError("Could not play sound. Check connection.");
-                        setActiveSoundId(null);
-                    });
+                // Ignore "interrupted" errors (happens when switching fast)
+                if (err.name !== 'AbortError' && !err.message.includes('interrupted')) {
+                    console.error("Audio playback error:", err);
+                    setError("Unable to play this sound. Please check connection.");
+                    // Don't auto-close, let user see error
                 }
             }
-        }
+        };
 
-        // Cleanup function runs when component unmounts OR when activeSoundId changes
+        playAudio();
+
         return () => {
+            isCancelled = true;
             if (audioRef.current) {
                 audioRef.current.pause();
                 audioRef.current = null;
@@ -85,7 +94,7 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ isOpen, onClose, language }) => {
         };
     }, [activeSoundId]);
 
-    // Handle volume changes separately
+    // Handle volume changes separately without reloading audio
     useEffect(() => {
         if (audioRef.current) {
             audioRef.current.volume = volume;

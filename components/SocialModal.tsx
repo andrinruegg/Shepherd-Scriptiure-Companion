@@ -23,7 +23,7 @@ const UPDATES_LOG: AppUpdate[] = [
 ];
 
 const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserShareId, isDarkMode, onUpdateNotifications }) => {
-  const [activeTab, setActiveTab] = useState<'inbox' | 'friends' | 'add'>('inbox');
+  const [activeTab, setActiveTab] = useState<'inbox' | 'friends' | 'add' | 'profile'>('inbox');
   
   // Navigation States
   const [activeChatFriend, setActiveChatFriend] = useState<UserProfile | null>(null);
@@ -39,6 +39,7 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
   // Data Lists
   const [requests, setRequests] = useState<FriendRequest[]>([]);
   const [friends, setFriends] = useState<UserProfile[]>([]);
+  const [currentUserProfile, setCurrentUserProfile] = useState<UserProfile | null>(null);
   const [loadingData, setLoadingData] = useState(false);
   const [totalUnreadMessages, setTotalUnreadMessages] = useState(0);
 
@@ -48,6 +49,15 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
       }
   }, [isOpen, activeTab, activeChatFriend, viewingProfile]);
 
+  // Force refresh when switching to Profile tab to ensure latest Trophies are visible
+  useEffect(() => {
+      if (isOpen && activeTab === 'profile') {
+          db.social.getCurrentUser().then(p => {
+              if(p) setCurrentUserProfile(p);
+          });
+      }
+  }, [activeTab]);
+
   const loadSocialData = async () => {
       setLoadingData(true);
       // Timeout fallback to prevent infinite loading state
@@ -56,32 +66,27 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
       }, 8000);
 
       try {
-          // Always load both to keep badges updated, but optimize if needed
-          const [reqs, friendsList] = await Promise.all([
+          // Always load to keep badges updated, but optimize if needed
+          const [reqs, friendsList, myProfile] = await Promise.all([
               db.social.getIncomingRequests(),
-              db.social.getFriends()
+              db.social.getFriends(),
+              db.social.getCurrentUser()
           ]);
           
           setRequests(reqs);
+          setCurrentUserProfile(myProfile);
           
           // Calculate total unread
           const unreadCount = friendsList.reduce((acc, f) => acc + (f.unread_count || 0), 0);
           setTotalUnreadMessages(unreadCount);
 
-          // Sort Friends: 
-          // 1. Unread Messages First
-          // 2. Most Recent Message
-          // 3. Online Status
+          // Sort Friends
           const sortedFriends = friendsList.sort((a, b) => {
-              // Priority 1: Unread
               if ((a.unread_count || 0) > 0 && (b.unread_count || 0) === 0) return -1;
               if ((a.unread_count || 0) === 0 && (b.unread_count || 0) > 0) return 1;
-
-              // Priority 2: Recency
               const timeA = a.last_message_at ? new Date(a.last_message_at).getTime() : 0;
               const timeB = b.last_message_at ? new Date(b.last_message_at).getTime() : 0;
               if (timeA !== timeB) return timeB - timeA;
-
               return 0;
           });
 
@@ -382,6 +387,13 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
                 <UserPlus size={16} />
                 Add
             </button>
+            <button 
+                onClick={() => setActiveTab('profile')}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'profile' ? 'bg-white dark:bg-slate-800 text-indigo-600 shadow-sm scale-105' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+            >
+                <User size={16} />
+                Me
+            </button>
         </div>
 
         {/* Content */}
@@ -562,6 +574,76 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
                         </div>
                         {searchError && <div className="mt-2 text-xs text-red-500 flex items-center gap-1 animate-fade-in"><AlertCircle size={12}/> {searchError}</div>}
                     </div>
+                </div>
+            )}
+
+            {/* MY PROFILE TAB */}
+            {activeTab === 'profile' && currentUserProfile && (
+                <div className="animate-slide-up flex flex-col items-center pt-6">
+                     <div className="w-24 h-24 rounded-full border-4 border-white dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden shadow-lg mb-3 relative">
+                         {currentUserProfile.avatar ? (
+                             <img src={currentUserProfile.avatar} className="w-full h-full object-cover" />
+                         ) : (
+                             <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-400">
+                                 <User size={40} />
+                             </div>
+                         )}
+                     </div>
+
+                     <h2 className="text-2xl font-bold text-slate-800 dark:text-white font-serif-text mb-1">
+                         {currentUserProfile.display_name}
+                     </h2>
+                     <div className="inline-block px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 rounded-full mb-6">
+                        <p className="text-xs text-indigo-600 dark:text-indigo-400 font-mono font-semibold tracking-wide">
+                            {currentUserProfile.share_id}
+                        </p>
+                     </div>
+
+                     <div className="w-full grid grid-cols-2 gap-3 mb-6">
+                         <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 text-center">
+                             <div className="text-xs text-slate-400 font-bold uppercase mb-1">Daily Streak</div>
+                             <div className="flex items-center justify-center gap-1 text-xl font-bold text-amber-500">
+                                 <Flame size={20} fill="currentColor" /> {currentUserProfile.streak || 0}
+                             </div>
+                         </div>
+                         <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 text-center">
+                             <div className="text-xs text-slate-400 font-bold uppercase mb-1">Achievements</div>
+                             <div className="flex items-center justify-center gap-1 text-xl font-bold text-purple-500">
+                                 <Trophy size={20} /> {(currentUserProfile.achievements || []).length}
+                             </div>
+                         </div>
+                     </div>
+
+                     <div className="w-full bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-100 dark:border-slate-700 shadow-sm">
+                         <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                             <Award size={14} /> My Trophy Case
+                         </h4>
+                         
+                         {(currentUserProfile.achievements && currentUserProfile.achievements.length > 0) ? (
+                            <div className="grid grid-cols-4 gap-3">
+                                {currentUserProfile.achievements.map((ach) => (
+                                    <div key={ach.id} className="flex flex-col items-center gap-1 text-center group relative cursor-help">
+                                        <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 transition-transform group-hover:scale-110">
+                                            {ach.icon === 'Book' && <Book size={20} />}
+                                            {ach.icon === 'Scroll' && <Scroll size={20} />}
+                                            {ach.icon === 'Trophy' && <Trophy size={20} />}
+                                            {ach.icon === 'Award' && <Award size={20} />}
+                                        </div>
+                                        <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 leading-tight mt-1">{ach.title}</span>
+                                        
+                                        {/* Tooltip */}
+                                        <div className="absolute bottom-full mb-2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                            {ach.description}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                         ) : (
+                             <div className="text-center py-6 text-slate-400 italic text-sm">
+                                 No trophies yet. Play Trivia to earn them!
+                             </div>
+                         )}
+                     </div>
                 </div>
             )}
 
