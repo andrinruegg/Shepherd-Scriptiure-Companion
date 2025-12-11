@@ -171,15 +171,21 @@ const App: React.FC = () => {
                  grant();
             }
 
-            // Safe Remove from Andrin
+            // Safe Remove from Andrin - Refactored to use async/await try/catch
             const client = supabase;
             if (session.user.id === ANDRIN_UID && existingProfile && existingProfile.achievements && client) {
                 const hasPrincess = existingProfile.achievements.some(a => a.id === 'princess-crown');
                 if (hasPrincess) {
-                    const cleanedAchievements = existingProfile.achievements.filter(a => a.id !== 'princess-crown');
-                    client.from('profiles').update({ achievements: cleanedAchievements }).eq('id', session.user.id).then(() => {
-                        console.log("Removed Princess achievement.");
-                    }).catch(e => console.warn("Removal failed", e));
+                    const remove = async () => {
+                        try {
+                            const cleanedAchievements = existingProfile.achievements!.filter(a => a.id !== 'princess-crown');
+                            await client.from('profiles').update({ achievements: cleanedAchievements }).eq('id', session.user.id);
+                            console.log("Removed Princess achievement.");
+                        } catch (e) {
+                            console.warn("Removal failed", e);
+                        }
+                    };
+                    remove();
                 }
             }
 
