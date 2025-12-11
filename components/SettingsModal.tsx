@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Moon, Sun, LogOut, User, Globe, Info, Edit2, Check, Key, ExternalLink, ChevronDown, ChevronUp, Snowflake, Camera, Trash2, AlignLeft, CloudSnow, Sparkles, Droplets, Crown, Heart, Wand2, Palette } from 'lucide-react';
+import { X, Moon, Sun, LogOut, User, Globe, Info, Edit2, Check, Key, ExternalLink, ChevronDown, ChevronUp, Snowflake, Camera, Trash2, AlignLeft, CloudSnow, Sparkles, Droplets, Crown, Heart, Wand2, Palette, Database, Copy } from 'lucide-react';
 import { UserPreferences } from '../types';
 import { translations } from '../utils/translations';
 
@@ -31,6 +31,44 @@ const PRINCESS_ACCESS_IDS = [
     '4f794724-48f5-454c-a374-c053324bc6c0'  // Andrin
 ];
 
+// ROBUST SQL FIX SCRIPT
+const FIX_SQL = `-- Run this in Supabase SQL Editor to fix Uploads & Voice:
+
+-- 1. Create/Update 'chat-media' bucket (Public Access)
+insert into storage.buckets (id, name, public) 
+values ('chat-media', 'chat-media', true)
+on conflict (id) do update set public = true;
+
+-- 2. Drop old policies to prevent "Policy already exists" errors
+drop policy if exists "Authenticated users can upload chat media" on storage.objects;
+drop policy if exists "Public access to chat media" on storage.objects;
+
+-- 3. Create policies for Upload and View
+create policy "Authenticated users can upload chat media"
+on storage.objects for insert
+to authenticated
+with check ( bucket_id = 'chat-media' );
+
+create policy "Public access to chat media"
+on storage.objects for select
+to public
+using ( bucket_id = 'chat-media' );
+
+-- 4. Enable RLS for Saved Items (Prayers/Verses)
+alter table saved_items enable row level security;
+
+-- 5. Drop old saved_items policies
+drop policy if exists "Users can manage own items" on saved_items;
+drop policy if exists "Users can read community prayers" on saved_items;
+
+-- 6. Re-create saved_items policies
+create policy "Users can manage own items" on saved_items
+using (auth.uid() = user_id);
+
+create policy "Users can read community prayers" on saved_items
+for select
+using (type = 'prayer');`;
+
 const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
@@ -52,6 +90,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const [isEditingKey, setIsEditingKey] = useState(false);
   const [showKeyTutorial, setShowKeyTutorial] = useState(false);
   
+  // DB Help State
+  const [showDbHelp, setShowDbHelp] = useState(false);
+
   // Check access
   const hasPrincessAccess = userId && PRINCESS_ACCESS_IDS.includes(userId);
 
@@ -421,6 +462,46 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                           </div>
                       )}
                   </div>
+              </div>
+          </section>
+
+          <hr className="border-slate-100 dark:border-slate-800" />
+
+          {/* DATABASE & STORAGE REPAIR */}
+          <section>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1">
+                 <Database size={12} />
+                 Database & Storage Repair
+              </h3>
+              
+              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-100 dark:border-slate-800">
+                  <button 
+                    onClick={() => setShowDbHelp(!showDbHelp)}
+                    className="w-full flex items-center justify-between text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                  >
+                      <span>Fix Uploads, Voice & Permissions</span>
+                      {showDbHelp ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
+                  </button>
+
+                  {showDbHelp && (
+                      <div className="mt-3 animate-fade-in">
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">
+                              If you see errors like <code>42703 (cors_origins)</code> or <code>42710 (policy exists)</code>, copy this code and run it in the Supabase SQL Editor.
+                          </p>
+                          <div className="relative group">
+                              <pre className="bg-slate-900 text-slate-200 p-3 rounded-lg text-[10px] overflow-x-auto font-mono border border-slate-700">
+                                  {FIX_SQL}
+                              </pre>
+                              <button 
+                                onClick={() => { navigator.clipboard.writeText(FIX_SQL); alert("SQL copied to clipboard!"); }}
+                                className="absolute top-2 right-2 p-1.5 bg-white/10 hover:bg-white/20 text-white rounded transition-colors"
+                                title="Copy SQL"
+                              >
+                                  <Copy size={12} />
+                              </button>
+                          </div>
+                      </div>
+                  )}
               </div>
           </section>
 
