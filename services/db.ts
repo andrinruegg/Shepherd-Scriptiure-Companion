@@ -2,42 +2,6 @@
 import { supabase } from './supabase';
 import { ChatSession, Message, SavedItem, BibleHighlight, UserProfile, FriendRequest, DirectMessage, Achievement } from '../types';
 
-/* 
-   IMPORTANT: SUPABASE SQL SETUP REQUIRED
-   
-   1. FOR PRAYER WALL (Database):
-      Run this SQL in your Supabase SQL Editor:
-      
-      -- Enable RLS
-      ALTER TABLE saved_items ENABLE ROW LEVEL SECURITY;
-
-      -- Allow users to see their own items (Read/Write)
-      CREATE POLICY "Users can manage own items" ON saved_items
-      USING (auth.uid() = user_id);
-
-      -- Allow users to READ 'prayer' type items created by others
-      CREATE POLICY "Users can read community prayers" ON saved_items
-      FOR SELECT
-      USING (type = 'prayer');
-
-   2. FOR CHAT MEDIA - VOICE & DRAWINGS (Storage):
-      You MUST create a storage bucket named 'chat-media' for uploads to work.
-      
-      -- 2a. Create Bucket (or do it via Dashboard -> Storage -> New Bucket -> 'chat-media' -> Public)
-      insert into storage.buckets (id, name, public) values ('chat-media', 'chat-media', true);
-
-      -- 2b. Add Storage Policies
-      create policy "Authenticated users can upload chat media"
-      on storage.objects for insert
-      to authenticated
-      with check ( bucket_id = 'chat-media' );
-
-      create policy "Public access to chat media"
-      on storage.objects for select
-      to public
-      using ( bucket_id = 'chat-media' );
-*/
-
 const ensureSupabase = () => {
     if (!supabase) throw new Error("Database not connected.");
 }

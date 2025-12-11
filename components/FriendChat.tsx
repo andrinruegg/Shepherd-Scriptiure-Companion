@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import { ArrowLeft, Send, Image as ImageIcon, Mic, Loader2, Trash2, Check, CheckCheck, Palette, Database, Copy, X, AlertCircle, Settings } from 'lucide-react';
+import { ArrowLeft, Send, Image as ImageIcon, Mic, Loader2, Trash2, Check, CheckCheck, Palette, X, AlertCircle, ExternalLink } from 'lucide-react';
 import { UserProfile, DirectMessage } from '../types';
 import { db } from '../services/db';
 import DrawingCanvas from './DrawingCanvas';
@@ -12,34 +12,12 @@ interface FriendChatProps {
   onMessagesRead?: () => void; 
 }
 
-const STORAGE_SQL = `-- Run this in Supabase SQL Editor to fix Media Uploads:
-
--- 1. Create the 'chat-media' bucket
-insert into storage.buckets (id, name, public) 
-values ('chat-media', 'chat-media', true)
-on conflict (id) do nothing;
-
--- 2. Allow authenticated users to upload
-create policy "Authenticated users can upload chat media"
-on storage.objects for insert
-to authenticated
-with check ( bucket_id = 'chat-media' );
-
--- 3. Allow everyone to view images/audio
-create policy "Public access to chat media"
-on storage.objects for select
-to public
-using ( bucket_id = 'chat-media' );`;
-
 const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShareId, onMessagesRead }) => {
   const [messages, setMessages] = useState<DirectMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [requestingMic, setRequestingMic] = useState(false);
-  
-  // SQL Help Modal State
-  const [showSqlHelp, setShowSqlHelp] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   // Graffiti State
@@ -245,43 +223,26 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
   };
 
   // --- AUDIO HANDLERS ---
-  const getSupportedMimeType = () => {
-      const types = ['audio/webm', 'audio/mp4', 'audio/ogg', 'audio/wav'];
-      for (const type of types) {
-          if (MediaRecorder.isTypeSupported(type)) return type;
-      }
-      return '';
-  }
-
+  
   const startRecording = async () => {
-      setErrorMessage(null); // Clear previous errors
+      setErrorMessage(null);
       setRequestingMic(true);
       
       // 1. Check Browser Support
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
           setRequestingMic(false);
-          setErrorMessage("Microphone not supported. Please use HTTPS or a modern browser.");
+          setErrorMessage("Microphone API not supported on this browser.");
           return;
       }
 
       try {
-          // This line triggers the browser permission prompt
+          // 2. Request Mic with standard constraints
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
           
-          // If we get here, user clicked "Allow"
-          setRequestingMic(false);
+          // 3. Initialize Recorder (Let browser pick defaults!)
+          // Do NOT force mimeTypes here, it causes issues on Safari/iOS
+          const recorder = new MediaRecorder(stream);
           
-          const mimeType = getSupportedMimeType();
-          const options = mimeType ? { mimeType } : undefined;
-          
-          let recorder;
-          try {
-              recorder = new MediaRecorder(stream, options);
-          } catch (err) {
-              console.warn("MediaRecorder creation failed with options, trying defaults", err);
-              recorder = new MediaRecorder(stream); // Fallback
-          }
-
           const chunks: BlobPart[] = [];
           
           recorder.ondataavailable = (e) => {
@@ -289,20 +250,29 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
           };
           
           recorder.onstop = async () => {
-              // Create blob with correct type
-              const finalType = mimeType || 'audio/webm';
-              const blob = new Blob(chunks, { type: finalType });
+              // 4. Determine Type from Recorder
+              // If recorder.mimeType is empty (Safari bug), fallback to audio/mp4 for iOS or webm for others
+              const detectedType = recorder.mimeType || (typeof window !== 'undefined' && (window as any).webkitAudioContext ? 'audio/mp4' : 'audio/webm');
               
-              stream.getTracks().forEach(track => track.stop()); // Stop mic immediately
+              const blob = new Blob(chunks, { type: detectedType });
+              
+              // Stop tracks
+              stream.getTracks().forEach(track => track.stop());
 
-              if (blob.size < 500) { // < 500 bytes is likely empty/noise
+              if (blob.size < 500) { 
                   console.warn("Audio too short, discarded.");
                   return;
               }
 
               setUploading(true);
               try {
-                  const ext = finalType.split('/')[1] || 'webm';
+                  // Determine extension based on actual mime type
+                  let ext = 'webm';
+                  if (detectedType.includes('mp4')) ext = 'mp4';
+                  if (detectedType.includes('aac')) ext = 'm4a';
+                  if (detectedType.includes('ogg')) ext = 'ogg';
+                  if (detectedType.includes('wav')) ext = 'wav';
+
                   const fileName = `voice-${currentUserShareId}-${Date.now()}.${ext}`;
                   const url = await db.social.uploadMedia(blob, fileName);
                   await db.social.sendMessage(friend.id, url, 'audio');
@@ -318,22 +288,25 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
           recorder.start();
           setMediaRecorder(recorder);
           setIsRecording(true);
+          setRequestingMic(false); // Success
+          
+          // Timer
           setRecordingTime(0);
           timerRef.current = setInterval(() => setRecordingTime(p => p + 1), 1000);
+
       } catch (e: any) { 
           setRequestingMic(false);
           console.error("Mic Access Error:", e);
           
-          // Improved Permission Error Detection
-          const isPermissionError = 
-              e.name === 'NotAllowedError' || 
-              e.name === 'PermissionDeniedError' || 
-              (typeof e.message === 'string' && e.message.toLowerCase().includes('permission denied'));
-
-          if (isPermissionError) {
-              setErrorMessage("Microphone blocked. Click the Lock icon 🔒 in your address bar to Allow.");
+          // 5. Detailed Error Messages
+          if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+              setErrorMessage("Mic Blocked: Click the Lock icon 🔒 in your address bar.");
+          } else if (e.name === 'NotFoundError') {
+              setErrorMessage("No microphone found on this device.");
+          } else if (e.name === 'NotReadableError') {
+              setErrorMessage("Microphone is busy. Close other apps using it.");
           } else {
-              setErrorMessage(`Mic Error: ${e.message || "Unknown error"}`);
+              setErrorMessage(`Mic Error: ${e.message || "Unknown"}`);
           }
       }
   };
@@ -350,18 +323,15 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
 
   const handleUploadError = (e: any, context: string) => {
       const msg = e.message || "Unknown error";
-      // Detect missing bucket or RLS policy errors
-      if (msg.includes("row not found") || msg.includes("Unexpected token") || msg.includes("violates row-level security") || msg.includes("new row violates")) {
-          setShowSqlHelp(true);
+      // Mask "Failed to fetch" with a friendly message
+      if (msg.includes('Failed to fetch')) {
+          setErrorMessage(`${context}: Network connection failed.`);
+      } else if (msg.includes('row-level security') || msg.includes('new row violates')) {
+          setErrorMessage(`${context}: Database permission denied. Run the SQL setup script.`);
       } else {
-          // If it's a fetch error, it's usually network
-          if (msg.includes('Failed to fetch')) {
-              setErrorMessage(`${context}: Network connection failed.`);
-          } else {
-              setErrorMessage(`${context}: ${msg}`);
-          }
-          setTimeout(() => setErrorMessage(null), 5000);
+          setErrorMessage(`${context}: ${msg}`);
       }
+      setTimeout(() => setErrorMessage(null), 5000);
   };
 
   const handleBack = async () => { await markAsRead(); onBack(); };
@@ -381,10 +351,19 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 overflow-hidden relative">
       {/* Error Toast */}
       {errorMessage && (
-          <div className="absolute top-16 left-4 right-4 z-50 bg-red-100 dark:bg-red-900/90 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-100 p-4 rounded-xl shadow-xl flex items-start gap-3 animate-slide-up backdrop-blur-md">
-              <AlertCircle size={20} className="mt-0.5 shrink-0 animate-pulse" />
-              <div className="flex-1 text-sm font-medium">{errorMessage}</div>
-              <button onClick={() => setErrorMessage(null)} className="p-1 hover:bg-red-200/50 rounded-full"><X size={18}/></button>
+          <div className="absolute top-16 left-4 right-4 z-50 bg-red-100 dark:bg-red-900/90 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-100 p-4 rounded-xl shadow-xl flex flex-col items-start gap-2 animate-slide-up backdrop-blur-md">
+              <div className="flex items-center gap-3 w-full">
+                  <AlertCircle size={20} className="mt-0.5 shrink-0 animate-pulse" />
+                  <div className="flex-1 text-sm font-medium">{errorMessage}</div>
+                  <button onClick={() => setErrorMessage(null)} className="p-1 hover:bg-red-200/50 rounded-full"><X size={18}/></button>
+              </div>
+              {/* Special message for Preview environment */}
+              <div className="text-xs bg-white/50 dark:bg-black/20 p-2 rounded w-full">
+                  <strong>Testing?</strong> If you are in the AI Studio preview window, Microphones are often blocked. 
+                  <a href={window.location.href} target="_blank" rel="noopener noreferrer" className="ml-1 underline text-indigo-600 dark:text-indigo-300 font-bold inline-flex items-center gap-1">
+                      Open App in New Tab <ExternalLink size={10} />
+                  </a>
+              </div>
           </div>
       )}
 
@@ -551,45 +530,6 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
               <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-xl flex items-center gap-3">
                   <Loader2 className="animate-spin text-indigo-600" />
                   <span className="text-sm font-medium dark:text-white">Sending...</span>
-              </div>
-          </div>
-      )}
-
-      {/* SQL HELP MODAL */}
-      {showSqlHelp && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowSqlHelp(false)} />
-              <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-xl shadow-2xl p-6 border border-red-200 dark:border-red-900 animate-scale-in">
-                  <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
-                          <Database size={24} />
-                          <h3 className="text-lg font-bold">Database Setup Required</h3>
-                      </div>
-                      <button onClick={() => setShowSqlHelp(false)} className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"><X size={20}/></button>
-                  </div>
-                  
-                  <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                      The "chat-media" storage bucket is missing in Supabase. Please copy the code below and run it in the Supabase <strong>SQL Editor</strong>.
-                  </p>
-
-                  <div className="relative group">
-                      <pre className="bg-slate-950 text-slate-200 p-4 rounded-lg text-[10px] md:text-xs overflow-x-auto font-mono border border-slate-800">
-                          {STORAGE_SQL}
-                      </pre>
-                      <button 
-                        onClick={() => { navigator.clipboard.writeText(STORAGE_SQL); alert("Copied to clipboard!"); }}
-                        className="absolute top-2 right-2 p-2 bg-white/10 hover:bg-white/20 text-white rounded-md transition-colors"
-                        title="Copy SQL"
-                      >
-                          <Copy size={14} />
-                      </button>
-                  </div>
-
-                  <div className="mt-4 flex justify-end">
-                      <button onClick={() => setShowSqlHelp(false)} className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700">
-                          Done
-                      </button>
-                  </div>
               </div>
           </div>
       )}

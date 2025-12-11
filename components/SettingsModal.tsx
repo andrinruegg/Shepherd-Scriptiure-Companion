@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Book, Moon, Sun, LogOut, User, Globe, Info, Edit2, Check, Key, ExternalLink, ChevronDown, ChevronUp, Snowflake, Camera, Trash2, AlignLeft, CloudSnow, Sparkles, Droplets, Crown, Heart, Wand2, Palette } from 'lucide-react';
+import { X, Moon, Sun, LogOut, User, Globe, Info, Edit2, Check, Key, ExternalLink, ChevronDown, ChevronUp, Snowflake, Camera, Trash2, AlignLeft, CloudSnow, Sparkles, Droplets, Crown, Heart, Wand2, Palette } from 'lucide-react';
 import { UserPreferences } from '../types';
 import { translations } from '../utils/translations';
 
@@ -10,7 +10,7 @@ interface SettingsModalProps {
   preferences: UserPreferences;
   onUpdatePreference: (key: keyof UserPreferences, value: string | boolean) => void;
   userEmail?: string;
-  userId?: string; // NEW PROP
+  userId?: string; 
   onLogout: () => void;
 }
 
@@ -51,7 +51,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const [customKey, setCustomKey] = useState('');
   const [isEditingKey, setIsEditingKey] = useState(false);
   const [showKeyTutorial, setShowKeyTutorial] = useState(false);
-
+  
   // Check access
   const hasPrincessAccess = userId && PRINCESS_ACCESS_IDS.includes(userId);
 

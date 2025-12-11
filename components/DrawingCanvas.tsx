@@ -56,8 +56,12 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
                 
                 img.onload = () => {
                     console.log("[DrawingCanvas] Background image loaded successfully.");
-                    ctx.drawImage(img, 0, 0, safeWidth, safeHeight);
-                    saveHistory();
+                    try {
+                        ctx.drawImage(img, 0, 0, safeWidth, safeHeight);
+                        saveHistory();
+                    } catch (e) {
+                        console.error("Image draw failed", e);
+                    }
                 };
                 img.onerror = (e) => {
                     console.error("[DrawingCanvas] Failed to load background image", e);
@@ -195,18 +199,19 @@ const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
       }
       
       try {
+          // This usually throws a SecurityError if the canvas is tainted (CORS issue)
           canvas.toBlob((blob) => {
               if (blob) {
                 console.log(`[DrawingCanvas] Blob created successfully. Size: ${blob.size} bytes. Type: ${blob.type}`);
                 onSend(blob);
               } else {
                 console.error("[DrawingCanvas] canvas.toBlob() returned null. This usually means the canvas is tainted (CORS security violation).");
-                alert("Security Error: Unable to save. The background image might be blocking export due to browser security settings.");
+                alert("Security Error: The background image is blocking the save. Please check Supabase storage CORS settings.");
               }
           }, 'image/png');
       } catch (error) {
           console.error("[DrawingCanvas] Exception during toBlob:", error);
-          alert(`Error processing drawing: ${error}`);
+          alert("Security Error: The background image is blocking the save. Please check Supabase storage CORS settings.");
       }
   };
 
