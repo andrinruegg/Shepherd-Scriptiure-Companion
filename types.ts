@@ -26,10 +26,18 @@ export interface ChatState {
 export interface UserPreferences {
   bibleTranslation: string; // e.g., 'NIV', 'ESV', 'KJV'
   theme: 'light' | 'dark';
-  winterTheme?: boolean; // Master Toggle
-  winterSnow?: boolean;    // Sub Toggle: Falling Snow
-  winterLights?: boolean;  // Sub Toggle: Christmas Lights
-  winterIcicles?: boolean; // Sub Toggle: Corner Icicles
+  
+  // Winter Theme
+  winterTheme?: boolean; 
+  winterSnow?: boolean;    
+  winterLights?: boolean;  
+  winterIcicles?: boolean; 
+
+  // Princess Theme
+  princessTheme?: boolean;
+  princessHearts?: boolean;   // Sub Toggle: Floating Hearts
+  princessSparkles?: boolean; // Sub Toggle: Shiny Sparkles
+
   language: string;
   displayName?: string;
   avatar?: string; // NEW: Base64 string for profile picture
