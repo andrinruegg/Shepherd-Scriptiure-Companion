@@ -43,6 +43,9 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
   const [recordingTime, setRecordingTime] = useState(0);
   const timerRef = useRef<any>(null);
 
+  // Safe fallback for ID to prevent upload errors if profile hasn't loaded
+  const safeShareId = currentUserShareId || 'unknown';
+
   const markAsRead = async () => {
       try {
         await db.social.markMessagesRead(friend.id);
@@ -176,7 +179,7 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
       if (!file) return;
       setUploading(true);
       try {
-          const fileName = `${currentUserShareId}-${Date.now()}.jpg`;
+          const fileName = `${safeShareId}-${Date.now()}.jpg`;
           const url = await db.social.uploadMedia(file, fileName);
           await db.social.sendMessage(friend.id, url, 'image');
           fetchMessages(false);
@@ -204,6 +207,10 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
 
   const handleSaveGraffiti = async (blob: Blob) => {
       if (uploading) return;
+      if (!friend || !friend.id) {
+          setErrorMessage("Error: Friend data missing. Restart app.");
+          return;
+      }
       setUploading(true);
       
       try {
@@ -273,7 +280,7 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
                   if (detectedType.includes('ogg')) ext = 'ogg';
                   if (detectedType.includes('wav')) ext = 'wav';
 
-                  const fileName = `voice-${currentUserShareId}-${Date.now()}.${ext}`;
+                  const fileName = `voice-${safeShareId}-${Date.now()}.${ext}`;
                   const url = await db.social.uploadMedia(blob, fileName);
                   await db.social.sendMessage(friend.id, url, 'audio');
                   fetchMessages(false);
@@ -324,10 +331,10 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
   const handleUploadError = (e: any, context: string) => {
       const msg = e.message || "Unknown error";
       // Mask "Failed to fetch" with a friendly message
-      if (msg.includes('Failed to fetch')) {
-          setErrorMessage(`${context}: Network connection failed.`);
+      if (msg.includes('Failed to fetch') || msg.includes('token <') || msg.includes('html')) {
+          setErrorMessage(`${context}: Server Connection Failed. Please try again later or Run SQL Fix.`);
       } else if (msg.includes('row-level security') || msg.includes('new row violates')) {
-          setErrorMessage(`${context}: Database permission denied. Run the SQL setup script.`);
+          setErrorMessage(`${context}: Permission Denied. Please run the SQL Repair in Settings.`);
       } else {
           setErrorMessage(`${context}: ${msg}`);
       }

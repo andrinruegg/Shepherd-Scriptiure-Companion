@@ -1,140 +1,20 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Dancing+Script:wght@700&display=swap');
-
 body {
   font-family: 'Inter', sans-serif;
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 .font-serif-text {
   font-family: 'Merriweather', serif;
 }
 
-/* --- PRINCESS MODE OVERRIDES --- */
-body.princess-mode {
-    --princess-primary: #ec4899; /* Pink 500 */
-    --princess-dark: #831843;    /* Pink 900 */
-    --princess-light: #fdf2f8;   /* Pink 50 */
-}
-
-/* --- BACKGROUNDS --- */
-/* Light Mode: Soft Rose */
-body.princess-mode .bg-slate-50, 
-body.princess-mode .bg-gray-50 { background-color: #fff1f2 !important; } /* Rose 50 */
-
-body.princess-mode .bg-slate-100,
-body.princess-mode .bg-gray-100 { background-color: #ffe4e6 !important; } /* Rose 100 */
-
-body.princess-mode .bg-slate-200,
-body.princess-mode .bg-gray-200 { background-color: #fecdd3 !important; } /* Rose 200 */
-
-body.princess-mode .bg-slate-300 { background-color: #fda4af !important; } /* Rose 300 */
-
-/* Dark Mode: Deep Royal Rose/Maroon (No more gray/black) */
-body.princess-mode .dark .bg-slate-950,
-body.princess-mode .dark .bg-gray-950 { background-color: #2e0215 !important; } /* Very Deep Rose */
-
-body.princess-mode .dark .bg-slate-900,
-body.princess-mode .dark .bg-gray-900 { background-color: #4a0420 !important; } /* Dark Rose */
-
-body.princess-mode .dark .bg-slate-800,
-body.princess-mode .dark .bg-gray-800 { background-color: #831843 !important; } /* Pink 900 */
-
-body.princess-mode .dark .bg-slate-700 { background-color: #9d174d !important; } /* Pink 800 */
-
-/* Modal Backdrops */
-body.princess-mode .bg-black\/50,
-body.princess-mode .bg-black\/60 { 
-    background-color: rgba(80, 7, 36, 0.7) !important; 
-    backdrop-filter: blur(4px);
-}
-
-/* --- TEXT COLORS --- */
-/* Light Mode Text: Deep Maroon instead of Black/Gray */
-body.princess-mode .text-slate-900,
-body.princess-mode .text-slate-800,
-body.princess-mode .text-gray-900,
-body.princess-mode .text-gray-800 { color: #881337 !important; } /* Rose 900 */
-
-body.princess-mode .text-slate-700,
-body.princess-mode .text-gray-700 { color: #9f1239 !important; } /* Rose 800 */
-
-body.princess-mode .text-slate-600,
-body.princess-mode .text-gray-600 { color: #be185d !important; } /* Rose 700 */
-
-body.princess-mode .text-slate-500,
-body.princess-mode .text-gray-500 { color: #db2777 !important; } /* Pink 600 */
-
-body.princess-mode .text-slate-400,
-body.princess-mode .text-gray-400 { color: #f472b6 !important; } /* Pink 400 */
-
-/* Dark Mode Text: Soft Pink/White */
-body.princess-mode .dark .text-slate-100,
-body.princess-mode .dark .text-gray-100 { color: #fff1f2 !important; } /* Rose 50 */
-
-body.princess-mode .dark .text-slate-200,
-body.princess-mode .dark .text-gray-200 { color: #ffe4e6 !important; } /* Rose 100 */
-
-body.princess-mode .dark .text-slate-300,
-body.princess-mode .dark .text-gray-300 { color: #fecdd3 !important; } /* Rose 200 */
-
-body.princess-mode .dark .text-slate-400,
-body.princess-mode .dark .text-gray-400 { color: #fbcfe8 !important; } /* Pink 200 */
-
-body.princess-mode .dark .text-slate-500 { color: #f9a8d4 !important; } /* Pink 300 */
-
-
-/* --- ACCENT COLORS (Indigo -> Pink) --- */
-body.princess-mode .bg-indigo-600 { background-color: #db2777 !important; box-shadow: 0 4px 14px 0 rgba(219, 39, 119, 0.39) !important; }
-body.princess-mode .hover\:bg-indigo-700:hover { background-color: #be185d !important; }
-body.princess-mode .text-indigo-600 { color: #db2777 !important; }
-body.princess-mode .bg-indigo-100 { background-color: #fce7f3 !important; color: #db2777 !important; }
-body.princess-mode .bg-indigo-50 { background-color: #fdf2f8 !important; }
-body.princess-mode .text-indigo-500 { color: #ec4899 !important; }
-
-/* Dark Mode Accents */
-body.princess-mode .dark .bg-indigo-900\/30 { background-color: rgba(131, 24, 67, 0.5) !important; }
-body.princess-mode .dark .text-indigo-400 { color: #f472b6 !important; }
-body.princess-mode .dark .text-indigo-300 { color: #fbcfe8 !important; }
-
-
-/* --- DAILY VERSE FIXES (Emerald -> Pink) --- */
-body.princess-mode .bg-emerald-600 { background-color: #be185d !important; } /* Rose 700 header */
-body.princess-mode .text-emerald-600 { color: #be185d !important; }
-body.princess-mode .bg-emerald-700\/50 { background-color: rgba(190, 24, 93, 0.5) !important; }
-body.princess-mode .border-emerald-800 { border-color: #881337 !important; }
-body.princess-mode .text-emerald-100 { color: #ffe4e6 !important; }
-body.princess-mode .from-emerald-500\/50 { --tw-gradient-from: #ec489980 !important; }
-body.princess-mode .to-emerald-700\/80 { --tw-gradient-to: #be185dcc !important; }
-
-/* --- BORDERS --- */
-body.princess-mode .border-slate-100,
-body.princess-mode .border-slate-200 { border-color: #fbcfe8 !important; } /* Pink 200 */
-
-body.princess-mode .dark .border-slate-700,
-body.princess-mode .dark .border-slate-800 { border-color: #831843 !important; } /* Pink 900 */
-
-
-/* --- FONTS & ANIMATIONS --- */
-/* Font additions for Princess Mode headers */
-body.princess-mode h1, 
-body.princess-mode h2 {
-    font-family: 'Dancing Script', cursive !important;
-    letter-spacing: 0.05em;
-}
-
-/* Floating Animation for Hearts */
-@keyframes floatUp {
-    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-    10% { opacity: 0.8; }
-    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
-}
-.animate-float-up {
-    animation: floatUp 15s linear infinite;
-}
+/* --------------------------- */
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {

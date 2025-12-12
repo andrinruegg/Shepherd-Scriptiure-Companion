@@ -12,7 +12,6 @@ import SavedCollection from './components/SavedCollection';
 import PrayerList from './components/PrayerList';
 import Sanctuary from './components/Sanctuary';
 import WinterOverlay from './components/WinterOverlay';
-import PrincessOverlay from './components/PrincessOverlay'; // NEW
 import SocialModal from './components/SocialModal';
 import QuizMode from './components/QuizMode';
 import PasswordResetModal from './components/PasswordResetModal';
@@ -68,12 +67,9 @@ const App: React.FC = () => {
     if (typeof window !== 'undefined') return localStorage.getItem('theme') === 'dark';
     return false;
   });
+  
   const [isWinterMode, setIsWinterMode] = useState(() => {
     if (typeof window !== 'undefined') return localStorage.getItem('winterMode') === 'true';
-    return false;
-  });
-  const [isPrincessMode, setIsPrincessMode] = useState(() => {
-    if (typeof window !== 'undefined') return localStorage.getItem('princessMode') === 'true';
     return false;
   });
   
@@ -91,24 +87,22 @@ const App: React.FC = () => {
       return val === null ? true : val === 'true';
   });
 
-  // Granular Princess Settings (Default true)
-  const [isPrincessHearts, setIsPrincessHearts] = useState(() => {
-      const val = localStorage.getItem('princessHearts');
-      return val === null ? true : val === 'true';
-  });
-  const [isPrincessGlitter, setIsPrincessGlitter] = useState(() => {
-      const val = localStorage.getItem('princessGlitter');
-      return val === null ? true : val === 'true';
-  });
-  const [isPrincessVignette, setIsPrincessVignette] = useState(() => {
-      const val = localStorage.getItem('princessVignette');
-      return val === null ? true : val === 'true';
-  });
-
   const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
   const [highlights, setHighlights] = useState<BibleHighlight[]>([]);
 
   useEffect(() => {
+    // STARTUP CLEANUP: Aggressively remove legacy modes from DOM and LocalStorage
+    document.body.classList.remove('princess-mode');
+    document.documentElement.classList.remove('princess-mode');
+    localStorage.removeItem('princessMode');
+    localStorage.removeItem('princessTheme');
+    
+    // Also check for legacy 'theme' values
+    const currentTheme = localStorage.getItem('theme');
+    if (currentTheme !== 'dark' && currentTheme !== 'light') {
+        localStorage.setItem('theme', 'light');
+    }
+
     const timer = setTimeout(() => { setShowSplash(false); }, 5000); 
     return () => clearTimeout(timer);
   }, []);
@@ -148,71 +142,37 @@ const App: React.FC = () => {
             // 2. Heartbeat (Fire and forget)
             db.social.heartbeat().catch(e => console.warn("Heartbeat failed", e));
 
-            // 3. SPECIAL HANDLING: PRINCESS ACHIEVEMENT
-            const ALEXIA_UID = '67acc5e4-87ae-483b-8db1-122d97f1e84a';
-            const ANDRIN_UID = '4f794724-48f5-454c-a374-c053324bc6c0';
-
-            // Safe Grant to Alexia - Wrapped in try/catch to avoid build errors with promises
-            if (session.user.id === ALEXIA_UID) {
-                 const grant = async () => {
-                     try {
-                        await db.social.addAchievement({
-                            id: 'princess-crown',
-                            icon: 'Crown',
-                            title: 'Princess',
-                            description: 'Daughter of the King',
-                            date_earned: Date.now(),
-                            difficulty_level: 'Hard'
-                        });
-                     } catch(e) {
-                         console.warn("Achievement grant check:", e);
-                     }
-                 };
-                 grant();
-            }
-
-            // Safe Remove from Andrin - Refactored to use async/await try/catch
-            const client = supabase;
-            if (session.user.id === ANDRIN_UID && existingProfile && existingProfile.achievements && client) {
-                const hasPrincess = existingProfile.achievements.some(a => a.id === 'princess-crown');
-                if (hasPrincess) {
-                    const remove = async () => {
-                        try {
-                            const cleanedAchievements = existingProfile.achievements!.filter(a => a.id !== 'princess-crown');
-                            await client.from('profiles').update({ achievements: cleanedAchievements }).eq('id', session.user.id);
-                            console.log("Removed Princess achievement.");
-                        } catch (e) {
-                            console.warn("Removal failed", e);
-                        }
-                    };
-                    remove();
-                }
-            }
-
         } catch (e) {
             // Global safety net - ensure chat can still load even if profile fails
             console.error("Initialization critical error (bypassed):", e);
         }
 
         // Load Preferences
-        const meta = session.user.user_metadata;
+        const meta = session.user.user_metadata || {};
+        
+        // --- SANITIZATION: Remove 'princessMode' from Supabase if present ---
+        if (meta.princessMode !== undefined || meta.princessTheme !== undefined) {
+             console.log("Sanitizing profile: Removing deprecated modes from cloud");
+             const updates: any = {
+                 princessMode: null,
+                 princessTheme: null
+             };
+             // Fire and forget update
+             supabase.auth.updateUser({ data: updates }).catch(e => console.warn("Sanitization failed", e));
+        }
+        // -----------------------------------------------------
+
         if (!displayName && meta.full_name) {
             setDisplayName(meta.full_name);
         }
         if (meta.language) setLanguage(meta.language);
         if (meta.theme) setIsDarkMode(meta.theme === 'dark');
         if (meta.winterMode !== undefined) setIsWinterMode(meta.winterMode === 'true' || meta.winterMode === true);
-        if (meta.princessMode !== undefined) setIsPrincessMode(meta.princessMode === 'true' || meta.princessMode === true);
         
         // Winter Sub-settings
         if (meta.winterSnow !== undefined) setIsWinterSnow(meta.winterSnow === 'true' || meta.winterSnow === true);
         if (meta.winterLights !== undefined) setIsWinterLights(meta.winterLights === 'true' || meta.winterLights === true);
         if (meta.winterIcicles !== undefined) setIsWinterIcicles(meta.winterIcicles === 'true' || meta.winterIcicles === true);
-
-        // Princess Sub-settings
-        if (meta.princessHearts !== undefined) setIsPrincessHearts(meta.princessHearts === 'true' || meta.princessHearts === true);
-        if (meta.princessGlitter !== undefined) setIsPrincessGlitter(meta.princessGlitter === 'true' || meta.princessGlitter === true);
-        if (meta.princessVignette !== undefined) setIsPrincessVignette(meta.princessVignette === 'true' || meta.princessVignette === true);
     };
 
     if (session) {
@@ -343,11 +303,6 @@ const App: React.FC = () => {
        setIsWinterMode(isWinter);
        localStorage.setItem('winterMode', String(isWinter));
        updateCloudPreference('winterMode', isWinter);
-    } else if (key === 'princessMode') {
-       const isPrincess = value === true;
-       setIsPrincessMode(isPrincess);
-       localStorage.setItem('princessMode', String(isPrincess));
-       updateCloudPreference('princessMode', isPrincess);
     } else if (key === 'winterSnow') {
         const val = value === true;
         setIsWinterSnow(val);
@@ -363,21 +318,6 @@ const App: React.FC = () => {
         setIsWinterIcicles(val);
         localStorage.setItem('winterIcicles', String(val));
         updateCloudPreference('winterIcicles', val);
-    } else if (key === 'princessHearts') {
-        const val = value === true;
-        setIsPrincessHearts(val);
-        localStorage.setItem('princessHearts', String(val));
-        updateCloudPreference('princessHearts', val);
-    } else if (key === 'princessGlitter') {
-        const val = value === true;
-        setIsPrincessGlitter(val);
-        localStorage.setItem('princessGlitter', String(val));
-        updateCloudPreference('princessGlitter', val);
-    } else if (key === 'princessVignette') {
-        const val = value === true;
-        setIsPrincessVignette(val);
-        localStorage.setItem('princessVignette', String(val));
-        updateCloudPreference('princessVignette', val);
     } else if (key === 'language') {
        setLanguage(value as string);
        localStorage.setItem('language', value as string);
@@ -700,14 +640,6 @@ const App: React.FC = () => {
           />
       )}
       
-      {isPrincessMode && (
-          <PrincessOverlay 
-            showHearts={isPrincessHearts}
-            showGlitter={isPrincessGlitter}
-            showVignette={isPrincessVignette}
-          />
-      )}
-      
       {loadingAuth ? (
           <div className="fixed inset-0 bg-slate-950 flex items-center justify-center z-50">
                <div className="flex flex-col items-center gap-4">
@@ -757,7 +689,6 @@ const App: React.FC = () => {
             )}
             {currentView === 'bible' && ( <BibleReader language={language} onSaveItem={handleSaveItem} onMenuClick={() => setIsSidebarOpen(true)} highlights={highlights} onAddHighlight={handleAddHighlight} onRemoveHighlight={handleRemoveHighlight} /> )}
             {currentView === 'saved' && ( <SavedCollection savedItems={savedItems} onRemoveItem={handleRemoveSavedItem} language={language} onMenuClick={() => setIsSidebarOpen(true)} /> )}
-            {/* Pass displayName and userAvatar prop here to fix Anonymous bug */}
             {currentView === 'prayer' && ( 
                 <PrayerList 
                     savedItems={savedItems} 
@@ -786,10 +717,6 @@ const App: React.FC = () => {
                 winterSnow: isWinterSnow,
                 winterLights: isWinterLights,
                 winterIcicles: isWinterIcicles,
-                princessMode: isPrincessMode, 
-                princessHearts: isPrincessHearts,
-                princessGlitter: isPrincessGlitter,
-                princessVignette: isPrincessVignette,
                 language, 
                 displayName, 
                 avatar, 

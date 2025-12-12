@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, UserPlus, Users, Bell, Search, Check, AlertCircle, Copy, User, MessageCircle, ArrowLeft, Trash2, Shield, Info, Circle, Flame, Award, Book, Scroll, Trophy, Crown } from 'lucide-react';
+import { X, UserPlus, Users, Bell, Search, Check, AlertCircle, Copy, User, MessageCircle, ArrowLeft, Trash2, Shield, Info, Circle, Flame, Award, Book, Scroll, Trophy } from 'lucide-react';
 import { UserProfile, FriendRequest, AppUpdate, Achievement } from '../types';
 import { db } from '../services/db';
 import FriendChat from './FriendChat';
@@ -26,8 +26,7 @@ const UPDATES_LOG: AppUpdate[] = [
 const MASTER_ACHIEVEMENTS = [
     { id: 'perfect-easy', icon: 'Book', title: 'Bible Scholar', description: 'Score 100% on Easy Quiz' },
     { id: 'perfect-medium', icon: 'Scroll', title: 'Disciple', description: 'Score 100% on Medium Quiz' },
-    { id: 'perfect-hard', icon: 'Trophy', title: 'Theologian', description: 'Score 100% on Hard Quiz' },
-    { id: 'princess-crown', icon: 'Crown', title: 'Princess', description: 'Unobtainable' }
+    { id: 'perfect-hard', icon: 'Trophy', title: 'Theologian', description: 'Score 100% on Hard Quiz' }
 ];
 
 const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserShareId, isDarkMode, onUpdateNotifications }) => {
@@ -216,27 +215,13 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
   };
 
   // HELPER: Renders the full achievement grid (Locked & Unlocked)
-  const renderAchievementGrid = (userAchievements: Achievement[] = [], profileId: string) => {
+  const renderAchievementGrid = (userAchievements: Achievement[] = []) => {
       const unlockedIds = new Set(userAchievements.map(a => a.id));
       
-      // FORCE UNLOCK PRINCESS FOR ALEXIA (VISUAL ONLY)
-      // This ensures she sees it even if the DB save failed
-      const ALEXIA_UID = '67acc5e4-87ae-483b-8db1-122d97f1e84a';
-      if (profileId === ALEXIA_UID) {
-          unlockedIds.add('princess-crown');
-      }
-
       const unlockedList = MASTER_ACHIEVEMENTS.filter(a => unlockedIds.has(a.id));
       const lockedList = MASTER_ACHIEVEMENTS.filter(a => !unlockedIds.has(a.id));
 
       const renderItem = (ach: typeof MASTER_ACHIEVEMENTS[0], isUnlocked: boolean) => {
-          let tooltipText = ach.description;
-          // Special logic for Princess achievement
-          if (ach.id === 'princess-crown') {
-              if (isUnlocked) tooltipText = "Awarded for being Andrin's princess of God ❤️ ✝️";
-              else tooltipText = "Unobtainable";
-          }
-
           return (
               <div key={ach.id} className={`flex flex-col items-center gap-1 text-center group relative cursor-help ${isUnlocked ? '' : 'opacity-50 grayscale'}`}>
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center border transition-transform group-hover:scale-110 ${isUnlocked ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800' : 'bg-slate-200 dark:bg-slate-800 text-slate-400 border-slate-300 dark:border-slate-700'}`}>
@@ -244,13 +229,12 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
                       {ach.icon === 'Scroll' && <Scroll size={18} />}
                       {ach.icon === 'Trophy' && <Trophy size={18} />}
                       {ach.icon === 'Award' && <Award size={18} />}
-                      {ach.icon === 'Crown' && <Crown size={18} className={isUnlocked ? "text-rose-500 fill-rose-200 dark:fill-rose-900/50" : ""} />}
                   </div>
                   <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400 leading-tight">{ach.title}</span>
                   
                   {/* Tooltip */}
                   <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30 w-32 shadow-xl border border-slate-700">
-                      {tooltipText}
+                      {ach.description}
                       {/* Triangle pointer */}
                       <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
                   </div>
@@ -371,7 +355,7 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
                          </div>
 
                          {/* Enhanced Achievements Section (Showing Locked & Unlocked) */}
-                         {renderAchievementGrid(viewingProfile.achievements || [], viewingProfile.id)}
+                         {renderAchievementGrid(viewingProfile.achievements || [])}
 
                          <div className="flex gap-3 w-full mt-auto">
                              {isFriend ? (
@@ -678,7 +662,7 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, currentUserS
                      </div>
 
                      {/* My Achievements (Enhanced Grid) */}
-                     {renderAchievementGrid(currentUserProfile?.achievements || [], currentUserProfile?.id || "")}
+                     {renderAchievementGrid(currentUserProfile?.achievements || [])}
                 </div>
             )}
 

@@ -619,11 +619,49 @@ export const db = {
       async uploadMedia(file: Blob, path: string): Promise<string> {
           ensureSupabase();
           // @ts-ignore
-          const { data, error } = await supabase.storage.from('chat-media').upload(path, file, { upsert: true });
+          // Explicitly define Content-Type based on blob type or fallback
+          const fileOptions = {
+              upsert: true,
+              contentType: file.type || 'application/octet-stream',
+              cacheControl: '3600'
+          };
+
+          // @ts-ignore
+          const { data, error } = await supabase.storage.from('chat-media').upload(path, file, fileOptions);
           
           if (error) {
               console.error("Storage upload error:", error);
-              throw new Error(`Upload Failed: ${error.message || 'Check storage bucket permissions'}`);
+              const msg = error.message || "Unknown Upload Error";
+              
+              // Handle "Unexpected token <" (HTML error) which implies bad session or 403
+              if (msg.includes('<') || msg.includes('html') || msg.includes('row-level security')) {
+                  // Fallback: If Overwrite failed (Permission Denied for UPDATE), try Deleting then Re-uploading (INSERT)
+                  try {
+                      console.log("Attempting overwrite fallback (Delete then Insert)...");
+                      // @ts-ignore
+                      await supabase.storage.from('chat-media').remove([path]);
+                      // Retry upload
+                      // @ts-ignore
+                      const { error: retryError } = await supabase.storage.from('chat-media').upload(path, file, fileOptions);
+                      if (retryError) throw retryError;
+                  } catch (fallbackError: any) {
+                      // CRITICAL: If still failing with HTML/Token error, user session is corrupt.
+                      if (msg.includes('<') || msg.includes('html')) {
+                          // Force logout if we can access auth, otherwise throw specific error
+                          // @ts-ignore
+                          if (supabase?.auth) {
+                              console.warn("Session expired. Signing out.");
+                              // @ts-ignore
+                              await supabase.auth.signOut();
+                              window.location.reload();
+                          }
+                          throw new Error("Your session has expired. Please sign in again.");
+                      }
+                      throw new Error(`Permission Denied.`);
+                  }
+              } else {
+                  throw new Error(`Upload Failed.`);
+              }
           }
           
           // @ts-ignore
@@ -646,10 +684,30 @@ export const db = {
           // @ts-ignore
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) throw new Error("Not authenticated");
+          if (!friendId) throw new Error("Invalid friend ID for drawing");
 
           const ids = [user.id, friendId].sort();
           const friendshipFileId = `${ids[0]}_${ids[1]}`;
-          const path = `graffiti/${friendshipFileId}.png`;
+          
+          // FIX: Clean up any old files from this specific user for this pair to save space
+          // Note: We can only delete files WE own. 
+          try {
+              // List files that look like our pattern
+              // @ts-ignore
+              const { data: oldFiles } = await supabase.storage.from('chat-media').list('graffiti', { search: friendshipFileId });
+              if (oldFiles && oldFiles.length > 0) {
+                  const filesToDelete = oldFiles.map((f: any) => `graffiti/${f.name}`);
+                  // Best effort delete - if we don't own them, this will fail silently/gracefully usually
+                  // @ts-ignore
+                  await supabase.storage.from('chat-media').remove(filesToDelete);
+              }
+          } catch (cleanupError) {
+              console.warn("Cleanup failed (likely permission), proceeding to upload new file", cleanupError);
+          }
+
+          // FIX: Use Unique Timestamp to bypass "Overwrite" permission lock
+          // This forces a "Create" action which is always allowed.
+          const path = `graffiti/${friendshipFileId}_${Date.now()}.png`;
 
           return this.uploadMedia(blob, path);
       },
@@ -662,23 +720,32 @@ export const db = {
 
           const ids = [user.id, friendId].sort();
           const friendshipFileId = `${ids[0]}_${ids[1]}`;
-          const fileName = `${friendshipFileId}.png`;
-          const path = `graffiti/${fileName}`;
 
-          // @ts-ignore
-          const { data: list, error } = await supabase.storage.from('chat-media').list('graffiti', {
-              limit: 1,
-              search: fileName
-          });
-          
-          if (error || !list || list.length === 0) return null;
-          
-          const fileMetadata = list[0];
-          // @ts-ignore
-          const { data: urlData } = supabase.storage.from('chat-media').getPublicUrl(path);
-          
-          const version = fileMetadata.updated_at || fileMetadata.created_at || '1';
-          return `${urlData.publicUrl}?v=${version}`;
+          try {
+              // Search for ANY file starting with this pair ID
+              // @ts-ignore
+              const { data: list, error } = await supabase.storage.from('chat-media').list('graffiti', {
+                  limit: 10,
+                  sortBy: { column: 'created_at', order: 'desc' }, // Get newest first
+                  search: friendshipFileId
+              });
+              
+              if (error) return null;
+              if (!list || list.length === 0) return null;
+              
+              // The first one is the newest
+              const fileMetadata = list[0];
+              const path = `graffiti/${fileMetadata.name}`;
+              
+              // @ts-ignore
+              const { data: urlData } = supabase.storage.from('chat-media').getPublicUrl(path);
+              
+              // Force cache bust
+              return `${urlData.publicUrl}?t=${new Date(fileMetadata.created_at).getTime()}`;
+          } catch (e) {
+              console.warn("Error fetching graffiti", e);
+              return null;
+          }
       }
   }
 };

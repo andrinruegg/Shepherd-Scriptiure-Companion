@@ -38,7 +38,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const messagesTopRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-
+  
   // Translations
   const t = translations[language]?.chat || translations['English'].chat;
 
@@ -61,7 +61,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         // Otherwise, scroll to BOTTOM to see latest
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages.length, isLoading]); // Changed dependency to messages.length to avoid scroll on every re-render
+  }, [messages.length, isLoading]); 
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -107,15 +107,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           >
             <Menu size={24} />
           </button>
-          <div className="bg-emerald-600 p-2 rounded-lg text-white hidden md:block">
-            <ShepherdLogo size={24} className="text-white" />
-          </div>
-          <div className="md:hidden">
-             <h1 className="text-lg font-semibold text-slate-800 dark:text-slate-100 tracking-tight font-serif-text">Shepherd</h1>
-          </div>
-          <div className="hidden md:block">
-            <h1 className="text-xl font-semibold text-slate-800 dark:text-slate-100 tracking-tight font-serif-text">Shepherd</h1>
-            <p className="hidden md:block text-xs text-slate-500 dark:text-slate-400 font-medium">{t.subtitle}</p>
+          
+          <div className="flex items-center gap-3 select-none">
+              <div className="bg-emerald-600 p-2 rounded-lg text-white hidden md:block">
+                <ShepherdLogo size={24} className="text-white" />
+              </div>
+              <div className="md:hidden">
+                 <h1 className="text-lg font-semibold text-slate-800 dark:text-slate-100 tracking-tight font-serif-text">Shepherd</h1>
+              </div>
+              <div className="hidden md:block">
+                <h1 className="text-xl font-semibold text-slate-800 dark:text-slate-100 tracking-tight font-serif-text">Shepherd</h1>
+                <p className="hidden md:block text-xs text-slate-500 dark:text-slate-400 font-medium">{t.subtitle}</p>
+              </div>
           </div>
         </div>
         
