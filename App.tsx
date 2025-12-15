@@ -705,7 +705,6 @@ const App: React.FC = () => {
                       userAvatar={avatar}
                       dailyStreak={dailyStreak} 
                       onNavigate={setCurrentView}
-                      onMenuClick={() => setIsSettingsOpen(true)}
                       onOpenSettings={() => setIsSettingsOpen(true)}
                       onOpenNotifications={() => handleOpenSocial('inbox')}
                       onOpenProfile={() => handleOpenSocial('profile')}
