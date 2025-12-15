@@ -139,10 +139,24 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-      <div className="bg-slate-900 w-full max-w-4xl h-[90vh] md:h-auto md:max-h-[90vh] rounded-3xl overflow-hidden flex flex-col md:flex-row shadow-2xl border border-slate-800 animate-scale-in">
+      {/* 
+         LAYOUT FIX: 
+         - Mobile: flex-col, overflow-y-auto on parent, h-auto. Allows full page scrolling.
+         - Desktop: md:flex-row, md:overflow-hidden, fixed height. Allows sidebar scrolling.
+      */}
+      <div className="bg-slate-900 w-full max-w-4xl rounded-3xl shadow-2xl border border-slate-800 animate-scale-in flex flex-col md:flex-row max-h-[90vh] overflow-y-auto md:overflow-hidden md:h-[85vh]">
         
         {/* PREVIEW AREA */}
-        <div className="flex-1 bg-slate-950/50 p-6 flex items-center justify-center relative overflow-hidden group">
+        <div className="flex-1 bg-slate-950/50 p-6 flex items-center justify-center relative md:overflow-hidden group shrink-0 min-h-[350px]">
+           
+           {/* Mobile Close Button (Top Right) */}
+           <button 
+                onClick={onClose}
+                className="md:hidden absolute top-4 right-4 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors z-20 backdrop-blur-sm"
+           >
+               <X size={20} />
+           </button>
+
            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
            
            <div 
@@ -194,13 +208,14 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
         </div>
 
         {/* CONTROLS AREA */}
-        <div className="w-full md:w-80 bg-slate-900 border-l border-slate-800 flex flex-col">
+        <div className="w-full md:w-80 bg-slate-900 border-t md:border-t-0 md:border-l border-slate-800 flex flex-col shrink-0 h-auto md:h-full">
             <div className="p-4 border-b border-slate-800 flex items-center justify-between">
                 <h3 className="text-white font-bold font-serif-text">{t.title}</h3>
                 <button onClick={onClose} className="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800 transition-colors"><X size={20}/></button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
+            {/* Scrollable Content: On mobile this expands naturally within parent scroll. On desktop it scrolls internally. */}
+            <div className="flex-1 p-4 space-y-6 md:overflow-y-auto custom-scrollbar">
                 
                 {/* TABS */}
                 <div className="flex p-1 bg-slate-800 rounded-lg mb-4">
@@ -360,7 +375,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
 
             </div>
 
-            <div className="p-4 border-t border-slate-800 bg-slate-900">
+            <div className="p-4 border-t border-slate-800 bg-slate-900 sticky bottom-0 z-10 md:static">
                 <button
                     onClick={handleDownload}
                     disabled={isDownloading}
