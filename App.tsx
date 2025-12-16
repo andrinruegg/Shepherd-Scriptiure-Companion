@@ -362,6 +362,18 @@ const App: React.FC = () => {
             updateCloudPreference('theme', 'light');
         }
 
+    } else if (['winterSnow', 'winterLights', 'winterIcicles', 'princessHearts', 'princessSparkles'].includes(key)) {
+        // Handle Sub-Preferences Generic
+        const boolVal = value === true;
+        if (key === 'winterSnow') setIsWinterSnow(boolVal);
+        if (key === 'winterLights') setIsWinterLights(boolVal);
+        if (key === 'winterIcicles') setIsWinterIcicles(boolVal);
+        if (key === 'princessHearts') setIsPrincessHearts(boolVal);
+        if (key === 'princessSparkles') setIsPrincessSparkles(boolVal);
+        
+        localStorage.setItem(key, String(boolVal));
+        updateCloudPreference(key, boolVal);
+
     } else if (key === 'language') {
        // CRITICAL: Ensure immediate state update for UI
        setLanguage(value as string);

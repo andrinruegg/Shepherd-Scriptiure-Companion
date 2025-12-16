@@ -1,10 +1,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Book, ChevronLeft, ChevronRight, Heart, X, ArrowLeft, Volume2, Pause, Volume1, Image } from 'lucide-react';
+import { Book, ChevronLeft, ChevronRight, Heart, X, ArrowLeft, Volume2, Pause, Volume1, Image, Loader2, Info } from 'lucide-react';
 import { BIBLE_BOOKS, fetchChapter } from '../services/bibleService';
 import { BibleChapter, SavedItem, BibleHighlight } from '../types';
 import { translations } from '../utils/translations';
 import { v4 as uuidv4 } from 'uuid';
+import { generateSpeech } from '../services/geminiService';
 
 interface BibleReaderProps {
   language: string;
@@ -15,6 +16,21 @@ interface BibleReaderProps {
   onRemoveHighlight: (ref: string) => void;
   onOpenComposer: (text: string, reference: string) => void; 
 }
+
+// RAW PCM Decoding Logic for Gemini API
+function base64ToUint8Array(base64: string) {
+  const binaryString = atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
+}
+
+// --- CONFIG ---
+// Increased to 10 verses per chunk to reduce AI voice context switching
+const VERSES_PER_CHUNK = 10;
 
 const BibleReader: React.FC<BibleReaderProps> = ({ 
     language, 
@@ -31,12 +47,22 @@ const BibleReader: React.FC<BibleReaderProps> = ({
   const [loading, setLoading] = useState(false);
   const [activeVerse, setActiveVerse] = useState<number | null>(null);
   
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+  // Audio State
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentChunkIndex, setCurrentChunkIndex] = useState<number | null>(null);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [showBufferingWarning, setShowBufferingWarning] = useState(false);
+  
+  // Refs for buffering logic
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
+  const isPlayingRef = useRef(false);
+  
+  // Audio Cache: Stores index -> AudioBuffer
+  const audioCacheRef = useRef<Map<number, AudioBuffer>>(new Map());
+  const pendingRequestsRef = useRef<Set<number>>(new Set());
   
   const t = translations[language]?.bible || translations['English'].bible;
-  const commonT = translations[language]?.common || translations['English'].common;
-  
   const selectedBook = BIBLE_BOOKS.find(b => b.id === selectedBookId) || BIBLE_BOOKS[0];
   
   const getLocalizedBookName = (book: typeof BIBLE_BOOKS[0]) => {
@@ -47,9 +73,11 @@ const BibleReader: React.FC<BibleReaderProps> = ({
 
   const displayBookName = getLocalizedBookName(selectedBook);
 
+  // Stop audio when changing chapters
   useEffect(() => {
-    window.speechSynthesis.cancel();
-    setIsSpeaking(false);
+    stopAudio();
+    audioCacheRef.current.clear(); // Clear cache on chapter change
+    pendingRequestsRef.current.clear();
     
     const loadChapter = async () => {
       setLoading(true);
@@ -59,29 +87,158 @@ const BibleReader: React.FC<BibleReaderProps> = ({
       setActiveVerse(null);
     };
     loadChapter();
-    
     return () => {
-        window.speechSynthesis.cancel();
+        stopAudio();
+        if (audioContextRef.current) {
+            audioContextRef.current.close();
+            audioContextRef.current = null;
+        }
     };
   }, [selectedBookId, chapter, language]);
 
-  const toggleAudio = () => {
-      if (isSpeaking) {
-          window.speechSynthesis.cancel();
-          setIsSpeaking(false);
+  // Show "Buffering" if loading takes > 1.5s
+  useEffect(() => {
+      let timer: any;
+      if (audioLoading) {
+          timer = setTimeout(() => setShowBufferingWarning(true), 1000);
       } else {
-          if (!data || !data.verses) return;
-          const fullText = data.verses.map(v => `${v.verse}. ${v.text}`).join(' ');
-          const utterance = new SpeechSynthesisUtterance(fullText);
-          utterance.lang = language === 'Romanian' ? 'ro-RO' : (language === 'German' ? 'de-DE' : 'en-US');
-          utterance.rate = 0.9; 
-          utterance.pitch = 1.0;
-          utterance.onend = () => setIsSpeaking(false);
-          utterance.onerror = () => setIsSpeaking(false);
-          speechRef.current = utterance;
-          window.speechSynthesis.speak(utterance);
-          setIsSpeaking(true);
+          setShowBufferingWarning(false);
       }
+      return () => clearTimeout(timer);
+  }, [audioLoading]);
+
+  // Ensure AudioContext is ready
+  const initAudioContext = async () => {
+      if (!audioContextRef.current) {
+          audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({sampleRate: 24000});
+      }
+      if (audioContextRef.current.state === 'suspended') {
+          await audioContextRef.current.resume();
+      }
+      return audioContextRef.current;
+  };
+
+  // Helper to fetch and decode a block of text
+  const fetchAndDecodeChunk = async (text: string): Promise<AudioBuffer> => {
+      const ctx = await initAudioContext();
+      const base64Audio = await generateSpeech(text, language);
+      const rawBytes = base64ToUint8Array(base64Audio);
+      const pcm16 = new Int16Array(rawBytes.buffer);
+      const float32 = new Float32Array(pcm16.length);
+      for (let i = 0; i < pcm16.length; i++) {
+          float32[i] = pcm16[i] / 32768;
+      }
+      const audioBuffer = ctx.createBuffer(1, float32.length, 24000);
+      audioBuffer.copyToChannel(float32, 0);
+      return audioBuffer;
+  };
+
+  const getChunkText = (verses: any[], chunkIndex: number) => {
+      const start = chunkIndex * VERSES_PER_CHUNK;
+      const end = start + VERSES_PER_CHUNK;
+      const chunkVerses = verses.slice(start, end);
+      return chunkVerses.map(v => v.text).join(' ');
+  };
+
+  // Preload logic: Fetch specific chunk if not in cache
+  const preloadChunk = async (chunkIndex: number, verses: any[]) => {
+      const totalChunks = Math.ceil(verses.length / VERSES_PER_CHUNK);
+      if (chunkIndex >= totalChunks) return;
+      
+      // If already cached or pending, skip
+      if (audioCacheRef.current.has(chunkIndex) || pendingRequestsRef.current.has(chunkIndex)) return;
+
+      try {
+          pendingRequestsRef.current.add(chunkIndex);
+          const text = getChunkText(verses, chunkIndex);
+          const buffer = await fetchAndDecodeChunk(text);
+          audioCacheRef.current.set(chunkIndex, buffer);
+          pendingRequestsRef.current.delete(chunkIndex);
+      } catch (e) {
+          console.warn(`Preload failed for chunk ${chunkIndex}`, e);
+          pendingRequestsRef.current.delete(chunkIndex);
+      }
+  };
+
+  const playChunk = async (chunkIndex: number) => {
+      if (!data || !data.verses) return;
+      if (!isPlayingRef.current) return;
+
+      const totalChunks = Math.ceil(data.verses.length / VERSES_PER_CHUNK);
+      if (chunkIndex >= totalChunks) {
+          stopAudio(); // End of chapter
+          return;
+      }
+
+      setCurrentChunkIndex(chunkIndex);
+      
+      // Aggressive Preload: Start fetching next 2 chunks immediately
+      // This buffers ahead more aggressively to prevent stops
+      preloadChunk(chunkIndex + 1, data.verses);
+      preloadChunk(chunkIndex + 2, data.verses);
+
+      try {
+          let bufferToPlay: AudioBuffer;
+
+          // 1. Check cache
+          if (audioCacheRef.current.has(chunkIndex)) {
+              bufferToPlay = audioCacheRef.current.get(chunkIndex)!;
+          } else {
+              // 2. Cold Start (or cache miss)
+              setAudioLoading(true);
+              const text = getChunkText(data.verses, chunkIndex);
+              bufferToPlay = await fetchAndDecodeChunk(text);
+              
+              // Cache it in case we seek back
+              audioCacheRef.current.set(chunkIndex, bufferToPlay);
+              
+              if (!isPlayingRef.current) { setAudioLoading(false); return; }
+              setAudioLoading(false);
+          }
+
+          const ctx = await initAudioContext();
+          const source = ctx.createBufferSource();
+          source.buffer = bufferToPlay;
+          source.connect(ctx.destination);
+          
+          source.onended = () => {
+              if (sourceNodeRef.current === source && isPlayingRef.current) {
+                  playChunk(chunkIndex + 1);
+              }
+          };
+
+          if (sourceNodeRef.current) try { sourceNodeRef.current.stop(); } catch(e) {}
+          sourceNodeRef.current = source;
+          source.start();
+
+      } catch (e) {
+          console.error("Audio playback error:", e);
+          setAudioLoading(false);
+          setIsPlaying(false);
+          isPlayingRef.current = false;
+      }
+  };
+
+  const toggleAudio = () => {
+      if (isPlaying) {
+          stopAudio();
+      } else {
+          const startChunk = currentChunkIndex || 0;
+          setIsPlaying(true);
+          isPlayingRef.current = true;
+          playChunk(startChunk);
+      }
+  };
+
+  const stopAudio = () => {
+      if (sourceNodeRef.current) {
+          try { sourceNodeRef.current.stop(); } catch(e) {}
+          sourceNodeRef.current = null;
+      }
+      setIsPlaying(false);
+      isPlayingRef.current = false;
+      setAudioLoading(false);
+      setShowBufferingWarning(false);
   };
 
   const handleNext = () => {
@@ -156,10 +313,10 @@ const BibleReader: React.FC<BibleReaderProps> = ({
                <button
                   onClick={toggleAudio}
                   disabled={loading || !data}
-                  className={`ml-2 p-2 rounded-full transition-all ${isSpeaking ? 'bg-indigo-100 text-indigo-600 animate-pulse' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
-                  title={isSpeaking ? t.audio.pause : t.audio.play}
+                  className={`ml-2 p-2 rounded-full transition-all flex items-center justify-center ${isPlaying ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                  title={isPlaying ? t.audio.pause : t.audio.play}
                >
-                   {isSpeaking ? <Pause size={20} fill="currentColor"/> : <Volume1 size={20}/>}
+                   {audioLoading ? <Loader2 size={20} className="animate-spin" /> : isPlaying ? <Pause size={20} fill="currentColor"/> : <Volume1 size={20}/>}
                </button>
            </div>
 
@@ -193,6 +350,17 @@ const BibleReader: React.FC<BibleReaderProps> = ({
            </div>
        </header>
 
+       {/* Buffering Indicator Toast */}
+       {showBufferingWarning && (
+           <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 bg-indigo-900/90 text-white px-4 py-2 rounded-full flex items-center gap-3 shadow-xl backdrop-blur-sm animate-scale-in">
+               <Loader2 size={16} className="animate-spin text-indigo-300" />
+               <div className="flex flex-col">
+                   <span className="text-xs font-bold">Downloading audio...</span>
+                   <span className="text-[10px] text-indigo-300">Using high quality AI voice</span>
+               </div>
+           </div>
+       )}
+
        {/* Reader Area */}
        <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
            <div className="max-w-3xl mx-auto bg-white dark:bg-slate-800 rounded-xl shadow-sm p-8 min-h-[60vh] mb-10">
@@ -209,16 +377,21 @@ const BibleReader: React.FC<BibleReaderProps> = ({
                        
                        {data.verses.map((v) => {
                            const highlightColor = getHighlightColor(v.verse);
+                           // Calculate which chunk this verse belongs to
+                           const thisChunkIndex = Math.floor((v.verse - 1) / VERSES_PER_CHUNK); // verse is 1-based, index 0-based
+                           const isReading = currentChunkIndex === thisChunkIndex && isPlaying;
+                           
                            return (
                                <span 
                                     key={v.verse} 
                                     onClick={() => setActiveVerse(activeVerse === v.verse ? null : v.verse)}
                                     className={`
-                                        relative inline cursor-pointer rounded px-1 transition-colors mx-0.5
+                                        relative inline cursor-pointer rounded px-1 transition-all mx-0.5 duration-300
                                         ${highlightColor || 'hover:bg-slate-100 dark:hover:bg-slate-700'}
+                                        ${isReading ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-900 dark:text-indigo-100' : ''}
                                     `}
                                >
-                                   <sup className="text-xs text-slate-400 font-sans mr-1 select-none">{v.verse}</sup>
+                                   <sup className={`text-xs font-sans mr-1 select-none ${isReading ? 'text-indigo-500 font-bold' : 'text-slate-400'}`}>{v.verse}</sup>
                                    {v.text}
                                    
                                    {activeVerse === v.verse && (

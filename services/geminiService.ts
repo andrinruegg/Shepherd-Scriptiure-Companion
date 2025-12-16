@@ -1,5 +1,5 @@
 
-import { GoogleGenAI, GenerateContentResponse, Content, Type } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse, Content, Type, Modality } from "@google/genai";
 import { Message, QuizQuestion } from "../types";
 
 // --- KEY MANAGEMENT SYSTEM ---
@@ -207,6 +207,32 @@ export const sendMessageStream = async (
     console.error("Gemini API Error:", error);
     onError(error);
   }
+};
+
+/**
+ * Generates High Quality AI Speech for text.
+ * Returns Base64 encoded audio string.
+ */
+export const generateSpeech = async (text: string, language: string): Promise<string> => {
+    return await makeRequestWithRetry(async (client) => {
+        const response = await client.models.generateContent({
+            model: "gemini-2.5-flash-preview-tts",
+            contents: [{ parts: [{ text: text }] }],
+            config: {
+                responseModalities: [Modality.AUDIO],
+                speechConfig: {
+                    voiceConfig: {
+                        // "Fenrir" is a deep, authoritative male voice suitable for Bible reading.
+                        prebuiltVoiceConfig: { voiceName: 'Fenrir' },
+                    },
+                },
+            },
+        });
+        
+        const audioData = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+        if (!audioData) throw new Error("No audio data returned");
+        return audioData;
+    });
 };
 
 /**

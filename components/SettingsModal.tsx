@@ -225,40 +225,43 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     </button>
                 </div>
 
-                {/* Sub-toggles for Winter Mode */}
+                {/* Sub-toggles for Winter Mode - REMOVED ANIMATION CLASS to prevent lag on toggle */}
                 {preferences.winterTheme && (
-                    <div className="pl-14 space-y-2 animate-slide-up">
+                    <div className="pl-14 space-y-2">
                         <div className="flex items-center justify-between">
-                            <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                            <label htmlFor="winter-snow" className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 cursor-pointer select-none">
                                 <CloudSnow size={12} className="text-slate-400"/> {t.winter.snow}
                             </label>
                             <input 
+                                id="winter-snow"
                                 type="checkbox" 
                                 checked={preferences.winterSnow ?? true} 
                                 onChange={(e) => onUpdatePreference('winterSnow', e.target.checked)}
-                                className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+                                className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 cursor-pointer"
                             />
                         </div>
                         <div className="flex items-center justify-between">
-                            <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                            <label htmlFor="winter-lights" className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 cursor-pointer select-none">
                                 <Sparkles size={12} className="text-amber-400"/> {t.winter.lights}
                             </label>
                             <input 
+                                id="winter-lights"
                                 type="checkbox" 
                                 checked={preferences.winterLights ?? true} 
                                 onChange={(e) => onUpdatePreference('winterLights', e.target.checked)}
-                                className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+                                className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 cursor-pointer"
                             />
                         </div>
                         <div className="flex items-center justify-between">
-                            <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                            <label htmlFor="winter-icicles" className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 cursor-pointer select-none">
                                 <Droplets size={12} className="text-blue-400"/> {t.winter.icicles}
                             </label>
                             <input 
+                                id="winter-icicles"
                                 type="checkbox" 
                                 checked={preferences.winterIcicles ?? true} 
                                 onChange={(e) => onUpdatePreference('winterIcicles', e.target.checked)}
-                                className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+                                className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 cursor-pointer"
                             />
                         </div>
                     </div>
@@ -290,29 +293,31 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     </button>
                 </div>
 
-                {/* Sub-toggles for Princess Mode */}
+                {/* Sub-toggles for Princess Mode - REMOVED ANIMATION CLASS to prevent lag */}
                 {preferences.princessTheme && (
-                    <div className="pl-14 space-y-2 animate-slide-up">
+                    <div className="pl-14 space-y-2">
                         <div className="flex items-center justify-between">
-                            <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                            <label htmlFor="princess-hearts" className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 cursor-pointer select-none">
                                 <Heart size={12} className="text-pink-400 fill-pink-400"/> {t.princess.hearts}
                             </label>
                             <input 
+                                id="princess-hearts"
                                 type="checkbox" 
                                 checked={preferences.princessHearts ?? true} 
                                 onChange={(e) => onUpdatePreference('princessHearts', e.target.checked)}
-                                className="w-4 h-4 rounded text-pink-600 focus:ring-pink-500 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 accent-pink-500"
+                                className="w-4 h-4 rounded text-pink-600 focus:ring-pink-500 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 accent-pink-500 cursor-pointer"
                             />
                         </div>
                         <div className="flex items-center justify-between">
-                            <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                            <label htmlFor="princess-aurora" className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 cursor-pointer select-none">
                                 <Sparkles size={12} className="text-yellow-400"/> {t.princess.aurora}
                             </label>
                             <input 
+                                id="princess-aurora"
                                 type="checkbox" 
                                 checked={preferences.princessSparkles ?? true} 
                                 onChange={(e) => onUpdatePreference('princessSparkles', e.target.checked)}
-                                className="w-4 h-4 rounded text-pink-600 focus:ring-pink-500 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 accent-pink-500"
+                                className="w-4 h-4 rounded text-pink-600 focus:ring-pink-500 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 accent-pink-500 cursor-pointer"
                             />
                         </div>
                     </div>
