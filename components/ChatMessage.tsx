@@ -2,7 +2,7 @@
 import React, { memo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Message } from '../types';
-import { User, RotateCw, Heart, Languages, Image, Key } from 'lucide-react';
+import { User, RotateCw, Heart, Languages, Image } from 'lucide-react';
 import ShepherdLogo from './ShepherdLogo';
 import { translateContent } from '../services/geminiService';
 import { translations } from '../utils/translations';
@@ -36,8 +36,6 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   const [isTranslating, setIsTranslating] = useState(false);
 
   const isThinking = !isUser && isLast && (!message.text || message.text.trim() === '') && !message.isError;
-  const t = translations[language]?.chat || translations['English'].chat;
-  const isMissingKeyError = message.isError && message.text === "MISSING_API_KEY_TEMPLATE";
 
   const handleSave = () => {
       if (onSave) {
@@ -62,6 +60,26 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
       } finally {
           setIsTranslating(false);
       }
+  };
+
+  // SMART VERSE EXTRACTION: Find markdown blockquotes or text in quotes
+  const handleOpenComposer = () => {
+      let textToUse = message.text;
+      
+      if (!isUser) {
+          // 1. Look for markdown blockquotes (preferred)
+          const blockquoteMatches = message.text.match(/^> .+/gm);
+          if (blockquoteMatches && blockquoteMatches.length > 0) {
+              textToUse = blockquoteMatches.map(m => m.replace(/^> /, '')).join('\n');
+          } 
+          // 2. Look for text in large double quotes if no blockquote
+          else {
+              const quoteMatches = message.text.match(/"([^"]{30,})"/);
+              if (quoteMatches) textToUse = quoteMatches[1];
+          }
+      }
+      
+      onOpenComposer(textToUse);
   };
 
   return (
@@ -92,22 +110,6 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                  <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                  <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce"></div>
               </div>
-            ) : isMissingKeyError ? (
-                // Special UI for Missing API Key
-                <div className="flex flex-col items-start gap-3 p-1">
-                    <div className="flex items-center gap-2 font-bold text-red-600 dark:text-red-400">
-                        <Key size={18} />
-                        <span>{t.missingKeyTitle || "API Key Required"}</span>
-                    </div>
-                    <p className="text-sm font-sans opacity-90">{t.missingKeyDesc || "To chat with Shepherd, you need to provide a free Google Gemini API Key."}</p>
-                    <button 
-                        onClick={onOpenSettings}
-                        className="mt-2 px-5 py-2.5 bg-red-100 hover:bg-red-200 dark:bg-red-900/40 dark:hover:bg-red-900/60 text-red-700 dark:text-red-200 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm hover:shadow hover:-translate-y-0.5"
-                    >
-                        <Key size={14} />
-                        {t.setupKey || "Setup API Key"}
-                    </button>
-                </div>
             ) : (
               <div className={`markdown-content ${isUser ? 'text-white' : 'text-slate-800 dark:text-slate-100'} ${message.isError ? 'font-sans text-xs' : ''}`}>
                 <ReactMarkdown
@@ -139,16 +141,15 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
               </div>
             )}
             
-            {!isThinking && !isMissingKeyError && (
+            {!isThinking && (
               <div className={`text-[10px] mt-2 opacity-70 w-full text-right ${isUser ? 'text-indigo-100' : 'text-slate-400 dark:text-slate-500'}`}>
                 {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
             )}
           </div>
           
-          {/* Action Row */}
           <div className="flex items-center gap-3 mt-1 mr-1 self-end opacity-0 group-hover:opacity-100 transition-opacity">
-              {!isThinking && !isMissingKeyError && message.text && (
+              {!isThinking && message.text && (
                   <button
                       onClick={handleTranslate}
                       disabled={isTranslating}
@@ -159,9 +160,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                   </button>
               )}
 
-              {!isThinking && !isMissingKeyError && !isUser && message.text && (
+              {!isThinking && !isUser && message.text && (
                   <button
-                      onClick={() => onOpenComposer(message.text)}
+                      onClick={handleOpenComposer}
                       className="text-xs flex items-center gap-1 transition-all text-slate-400 dark:text-slate-500 hover:text-purple-500"
                       title="Create Image"
                   >
@@ -169,7 +170,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                   </button>
               )}
 
-              {!isThinking && !isMissingKeyError && onSave && (
+              {!isThinking && onSave && (
                   <button
                       onClick={handleSave}
                       className={`text-xs flex items-center gap-1 transition-all ${isSaved ? 'text-rose-500 scale-110' : 'text-slate-400 dark:text-slate-500 hover:text-rose-400'}`}

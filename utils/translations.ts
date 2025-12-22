@@ -5,6 +5,7 @@ export const translations: Record<string, any> = {
         goodMorning: "Good Morning",
         goodAfternoon: "Good Afternoon",
         goodEvening: "Good Evening",
+        subtitle: "Find peace in His word today.",
         welcome: "Welcome back, {name}",
         dailyVerse: "Verse of the Day",
         readVerse: "Read Verse",
@@ -16,15 +17,33 @@ export const translations: Record<string, any> = {
         bibleDesc: "Explore the scriptures",
         prayerTitle: "Prayer Journal",
         prayerDesc: "Write & share prayers",
-        storiesTitle: "Bible Stories",
-        storiesDesc: "Lives of faith",
         quizTitle: "Bible Trivia",
         quizDesc: "Test your knowledge",
         friendsTitle: "Friends",
         friendsDesc: "Chat & Connect",
         favoritesTitle: "Favorites",
         favoritesSub: "Your Collection",
-        favoritesDesc: "Your saved collection"
+        favoritesDesc: "Your saved collection",
+        feedback: "Share Feedback"
+    },
+    feedback: {
+        title: "Share Feedback",
+        desc: "Help us make Shepherd better. Found a bug or have an idea?",
+        type: "Feedback Type",
+        bug: "Report a Bug",
+        feature: "Feature Request",
+        suggestion: "General Suggestion",
+        other: "Other",
+        subject: "Subject",
+        subjectPlaceholder: "Summarize your feedback",
+        message: "Message",
+        messagePlaceholder: "Tell us more about your experience...",
+        submit: "Send Feedback",
+        success: "Thank you! Your feedback has been sent.",
+        error: "Oops! Something went wrong. Please try again.",
+        targetEmail: "Sent to: andrinruegg732@gmail.com",
+        requiredField: "Please fill out this field",
+        invalidEmail: "Please enter a valid email"
     },
     common: {
         translate: "Translate",
@@ -76,7 +95,15 @@ export const translations: Record<string, any> = {
             leaves: "Ferns",
             palm: "Leaves",
             cross: "Bible"
-        }
+        },
+        presets: [
+            { text: "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.", ref: "Jeremiah 29:11" },
+            { text: "And we know that in all things God works for the good of those who love him, who have been called according to his purpose.", ref: "Romans 8:28" },
+            { text: "I can do all this through him who gives me strength.", ref: "Philippians 4:13" },
+            { text: "Trust in the Lord with all your heart and lean not on your own understanding.", ref: "Proverbs 3:5" },
+            { text: "The Lord is my shepherd, I lack nothing.", ref: "Psalm 23:1" },
+            { text: "Love is patient, love is kind. It does not envy, it does not boast, it is not proud.", ref: "1 Corinthians 13:4" }
+        ]
     },
     dailyVerse: {
         title: "Daily Scripture",
@@ -140,16 +167,9 @@ export const translations: Record<string, any> = {
           bible: "Bible",
           saved: "Saved",
           prayer: "Prayers",
-          quiz: "Trivia",
-          stories: "Stories"
+          quiz: "Trivia"
       },
       sanctuary: "Sanctuary"
-    },
-    stories: {
-        title: "Biblical Figures",
-        subtitle: "Stories of Faith",
-        readMore: "Read Story",
-        back: "Back to List"
     },
     chat: {
       subtitle: "Scripture Companion",
@@ -196,7 +216,7 @@ export const translations: Record<string, any> = {
         filterPrayer: "Prayers",
         remove: "Remove",
         bibleVerse: "Bible Verse",
-        chatMessage: "Chat Message",
+        chatMessage: "AI Guidance",
         prayerItem: "Prayer",
         date: "Date"
     },
@@ -376,15 +396,21 @@ export const translations: Record<string, any> = {
             'perfect-medium': { title: "Disciple", description: "Score 100% on Medium Quiz" },
             'perfect-hard': { title: "Theologian", description: "Score 100% on Hard Quiz" }
         }
+    },
+    // Fix: Add missing stories translations for PersonaTab
+    stories: {
+        title: "Biblical Heroes",
+        subtitle: "Converse with figures of faith",
+        disclaimer: "Conversations are AI roleplay. Always refer to Scripture as the final authority.",
+        startRoleplay: "Speak with them"
     }
   },
-  
-  // ---------------- ROMANIAN ----------------
   Romanian: {
     home: {
         goodMorning: "Bună Dimineața",
         goodAfternoon: "Bună Ziua",
         goodEvening: "Bună Seara",
+        subtitle: "Găsește pacea în cuvântul Lui astăzi.",
         welcome: "Bine ai revenit, {name}",
         dailyVerse: "Versetul Zilei",
         readVerse: "Citește Versetul",
@@ -396,15 +422,33 @@ export const translations: Record<string, any> = {
         bibleDesc: "Explorează scripturile",
         prayerTitle: "Jurnal Rugăciune",
         prayerDesc: "Scrie & partajează",
-        storiesTitle: "Povești Biblice",
-        storiesDesc: "Vieți de credință",
         quizTitle: "Trivia Biblică",
         quizDesc: "Testează cunoștințele",
         friendsTitle: "Prieteni",
         friendsDesc: "Chat & Conectare",
         favoritesTitle: "Favorite",
         favoritesSub: "Colecția Ta",
-        favoritesDesc: "Colecția ta salvată"
+        favoritesDesc: "Colecția ta salvată",
+        feedback: "Trimite Feedback"
+    },
+    feedback: {
+        title: "Trimite Feedback",
+        desc: "Ajută-ne să facem Shepherd mai bun. Ai găsit un bug sau ai o idee?",
+        type: "Tip Feedback",
+        bug: "Raportează un Bug",
+        feature: "Sugestie Funcție",
+        suggestion: "Sugestie Generală",
+        other: "Altele",
+        subject: "Subiect",
+        subjectPlaceholder: "Rezumat feedback",
+        message: "Mesaj",
+        messagePlaceholder: "Spune-ne mai multe despre experiența ta...",
+        submit: "Trimite Feedback",
+        success: "Mulțumim! Feedback-ul tău a fost trimis.",
+        error: "Hopa! Ceva n-a mers bine. Te rugăm să încerci din nou.",
+        targetEmail: "Trimis către: andrinruegg732@gmail.com",
+        requiredField: "Vă rugăm să completați acest câmp",
+        invalidEmail: "Vă rugăm să introduceți un e-mail valid"
     },
     common: {
         translate: "Traduce",
@@ -456,7 +500,15 @@ export const translations: Record<string, any> = {
             leaves: "Ferigi",
             palm: "Frunze",
             cross: "Biblie"
-        }
+        },
+        presets: [
+            { text: "Căci Eu ştiu gândurile pe care le am cu privire la voi, zice Domnul, gânduri de pace şi nu de nenorocire, ca să vă dau un viitor şi o nădejde.", ref: "Ieremia 29:11" },
+            { text: "De altă parte, ştim că toate lucrurile lucrează împreună spre binele celor ce iubesc pe Dumnezeu.", ref: "Romani 8:28" },
+            { text: "Pot totul în Hristos, care mă întăreşte.", ref: "Filipeni 4:13" },
+            { text: "Încrede-te în Domnul din toată inima ta şi nu te bizui pe înţelepciunea ta!", ref: "Proverbe 3:5" },
+            { text: "Domnul este Păstorul meu: nu voi duce lipsă de nimic.", ref: "Psalmul 23:1" },
+            { text: "Dragostea este îndelung răbdătoare, este plină de bunătate; dragostea nu pizmuieşte; dragostea nu se laudă.", ref: "1 Corinteni 13:4" }
+        ]
     },
     dailyVerse: {
         title: "Versetul Zilei",
@@ -520,16 +572,9 @@ export const translations: Record<string, any> = {
           bible: "Biblia",
           saved: "Salvate",
           prayer: "Rugăciuni",
-          quiz: "Trivia",
-          stories: "Povești"
+          quiz: "Trivia"
       },
       sanctuary: "Sanctuar"
-    },
-    stories: {
-        title: "Figuri Biblice",
-        subtitle: "Povești de Credință",
-        readMore: "Citește Povestea",
-        back: "Înapoi la Listă"
     },
     chat: {
       subtitle: "Partener Scriptural",
@@ -576,7 +621,7 @@ export const translations: Record<string, any> = {
         filterPrayer: "Rugăciuni",
         remove: "Șterge",
         bibleVerse: "Verset Biblic",
-        chatMessage: "Mesaj Chat",
+        chatMessage: "Îndrumare AI",
         prayerItem: "Rugăciune",
         date: "Dată"
     },
@@ -732,7 +777,7 @@ export const translations: Record<string, any> = {
         },
         chat: {
             placeholder: "Mesaj...",
-            paintMode: "Mod Pictură"
+            paintMode: "Paint Mode"
         },
         status: {
             online: "Online",
@@ -756,15 +801,21 @@ export const translations: Record<string, any> = {
             'perfect-medium': { title: "Ucenic", description: "Obține 100% la modul Mediu" },
             'perfect-hard': { title: "Teolog", description: "Obține 100% la modul Greu" }
         }
+    },
+    // Fix: Add missing stories translations for PersonaTab (Romanian)
+    stories: {
+        title: "Eroi Biblici",
+        subtitle: "Conversați cu figuri ale credinței",
+        disclaimer: "Conversațiile sunt joc de rol AI. Consultați întotdeauna Scriptura ca autoritate finală.",
+        startRoleplay: "Vorbește cu ei"
     }
   },
-
-  // ---------------- GERMAN ----------------
   German: {
     home: {
         goodMorning: "Guten Morgen",
         goodAfternoon: "Guten Tag",
         goodEvening: "Guten Abend",
+        subtitle: "Finde heute Frieden in Seinem Wort.",
         welcome: "Willkommen zurück, {name}",
         dailyVerse: "Vers des Tages",
         readVerse: "Vers lesen",
@@ -776,15 +827,33 @@ export const translations: Record<string, any> = {
         bibleDesc: "Erkunde die Schrift",
         prayerTitle: "Gebetstagebuch",
         prayerDesc: "Schreiben & teilen",
-        storiesTitle: "Bibelgeschichten",
-        storiesDesc: "Leben im Glauben",
         quizTitle: "Bibel Trivia",
         quizDesc: "Teste dein Wissen",
         friendsTitle: "Freunde",
         friendsDesc: "Chatten & Verbinden",
         favoritesTitle: "Favoriten",
         favoritesSub: "Deine Sammlung",
-        favoritesDesc: "Deine Sammlung"
+        favoritesDesc: "Deine Sammlung",
+        feedback: "Feedback teilen"
+    },
+    feedback: {
+        title: "Feedback teilen",
+        desc: "Helfen Sie uns, Shepherd besser zu machen. Bug gefunden oder eine Idee?",
+        type: "Feedback-Typ",
+        bug: "Fehler melden",
+        feature: "Funktionswunsch",
+        suggestion: "Allgemeiner Vorschlag",
+        other: "Sonstiges",
+        subject: "Betreff",
+        subjectPlaceholder: "Feedback zusammenfassen",
+        message: "Nachricht",
+        messagePlaceholder: "Erzähle uns mehr über deine Erfahrung...",
+        submit: "Feedback senden",
+        success: "Danke! Ihr Feedback wurde gesendet.",
+        error: "Hoppla! Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
+        targetEmail: "Gesendet an: andrinruegg732@gmail.com",
+        requiredField: "Bitte füllen Sie dieses Feld aus",
+        invalidEmail: "Bitte geben Sie eine gültige E-Mail-Adresse ein"
     },
     common: {
         translate: "Übersetzen",
@@ -836,7 +905,15 @@ export const translations: Record<string, any> = {
             leaves: "Farne",
             palm: "Blätter",
             cross: "Bibel"
-        }
+        },
+        presets: [
+            { text: "Denn ich weiß wohl, was ich für Gedanken über euch habe, spricht der HERR: Gedanken des Friedens und nicht des Leides, dass ich gebe Zukunft und Hoffnung.", ref: "Jeremia 29,11" },
+            { text: "Wir wissen aber, dass denen, die Gott lieben, alle Dinge zum Besten dienen.", ref: "Römer 8,28" },
+            { text: "Ich vermag alles durch den, der mich mächtig macht.", ref: "Philipper 4,13" },
+            { text: "Verlass dich auf den HERRN von ganzem Herzen, und verlass dich nicht auf deinen Verstand.", ref: "Sprüche 3,5" },
+            { text: "Der HERR ist mein Hirte, mir wird nichts mangeln.", ref: "Psalm 23,1" },
+            { text: "Die Liebe ist langmütig und freundlich, die Liebe eifert nicht, die Liebe treibt nicht Mutwillen.", ref: "1. Korinther 13,4" }
+        ]
     },
     dailyVerse: {
         title: "Tagesvers",
@@ -900,16 +977,9 @@ export const translations: Record<string, any> = {
           bible: "Bibel",
           saved: "Gespeichert",
           prayer: "Gebete",
-          quiz: "Trivia",
-          stories: "Geschichten"
+          quiz: "Trivia"
       },
       sanctuary: "Ruheort"
-    },
-    stories: {
-        title: "Biblische Gestalten",
-        subtitle: "Geschichten des Glaubens",
-        readMore: "Geschichte lesen",
-        back: "Zurück zur Liste"
     },
     chat: {
       subtitle: "Schriftbegleiter",
@@ -956,7 +1026,7 @@ export const translations: Record<string, any> = {
         filterPrayer: "Gebete",
         remove: "Entfernen",
         bibleVerse: "Bibelvers",
-        chatMessage: "Chat-Nachricht",
+        chatMessage: "KI-Führung",
         prayerItem: "Gebet",
         date: "Datum"
     },
@@ -1021,7 +1091,7 @@ export const translations: Record<string, any> = {
       sadness: { label: "Traurigkeit", query: "Ich bin traurig. Bitte gib mir einen Vers des Trostes für ein schweres Herz." },
       gratitude: { label: "Dankbarkeit", query: "Ich möchte dankbar sein. Gib mir einen Vers über Dankbarkeit." },
       strength: { label: "Stärke", query: "Ich fühle mich schwach. Bitte teile einen Vers über die Kraft von Gott." },
-      joy: { label: "Freude", query: "Ich möchte mich freuen! Gib mir einen freudigen Bibelvers." },
+      joy: { label: "Freude", query: "Ich möchte mich freuen! Geben Sie mir einen freudigen Bibelvers." },
       forgiveness: { label: "Vergebung", query: "Was sagt die Bibel über Vergebung? Gib mir einen Vers zu diesem Thema." },
     },
     settings: {
@@ -1129,13 +1199,20 @@ export const translations: Record<string, any> = {
             { version: "1.3.0", date: "09.12.2025", title: "Sozialer Chat", changes: ["Echtzeit-Nachrichten", "Fotos teilen", "Sprachnachrichten", "Online Status"] },
             { version: "1.2.0", date: "09.12.2025", title: "Winter Update", changes: ["Wintermodus hinzugefügt", "Verbesserte Visuals", "API Fixes"] },
             { version: "1.1.0", date: "08.12.2025", title: "Bibel-Reader", changes: ["Vollständiger Bibel-Reader", "Markierungen", "Verse speichern"] },
-            { version: "1.0.0", date: "08.12.2025", title: "Start", changes: ["Shepherd KI Chat", "Supabase Integration"] }
+            { version: "1.0.0", date: "08.12.2025", title: "Start", changes: ["Shepherd KI Chat", "Integrare Supabase"] }
         ],
         achievementList: {
             'perfect-easy': { title: "Bibelgelehrter", description: "Erziele 100% im einfachen Modus" },
             'perfect-medium': { title: "Jünger", description: "Erziele 100% im mittleren Modus" },
             'perfect-hard': { title: "Theologe", description: "Erziele 100% im schweren Modus" }
         }
+    },
+    // Fix: Add missing stories translations for PersonaTab (German)
+    stories: {
+        title: "Biblische Helden",
+        subtitle: "Sprechen Sie mit Vorbildern des Glaubens",
+        disclaimer: "Gespräche sind KI-Rollenspiele. Beziehen Sie sich immer auf die Heilige Schrift als letzte Instanz.",
+        startRoleplay: "Mit ihnen sprechen"
     }
   }
 };

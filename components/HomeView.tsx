@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { MessageCircle, Book, Feather, Scroll, Brain, ArrowRight, Flame, Settings, Bell, Headphones, Heart, User, Users, Sparkles } from 'lucide-react';
+import { MessageCircle, Book, Feather, Brain, ArrowRight, Flame, Settings, Bell, Headphones, Heart, User, Users, Sparkles, MessageSquare } from 'lucide-react';
 import { AppView } from '../types';
 import { translations } from '../utils/translations';
 import { getDailyVerse } from '../services/dailyVerseService';
@@ -17,6 +17,7 @@ interface HomeViewProps {
     onOpenProfile: () => void;
     onOpenFriends: () => void;
     onOpenSanctuary: () => void;
+    onOpenFeedback: () => void; 
     notificationCount: number;
     onOpenDailyVerse: () => void;
 }
@@ -32,6 +33,7 @@ const HomeView: React.FC<HomeViewProps> = ({
     onOpenProfile,
     onOpenFriends,
     onOpenSanctuary,
+    onOpenFeedback,
     notificationCount,
     onOpenDailyVerse
 }) => {
@@ -48,19 +50,16 @@ const HomeView: React.FC<HomeViewProps> = ({
         else setGreeting(t.goodEvening);
     }, [language, t]);
 
-    // Enhanced Features List
     const FEATURES = [
         { id: 'bible', label: t.bibleTitle, sub: t.bibleDesc, icon: Book, bg: 'from-emerald-500 to-teal-600', iconColor: 'text-white', delay: '0.1s' },
         { id: 'prayer', label: t.prayerTitle, sub: t.prayerDesc, icon: Feather, bg: 'from-blue-500 to-indigo-600', iconColor: 'text-white', delay: '0.2s' },
-        { id: 'stories', label: t.storiesTitle, sub: t.storiesDesc, icon: Scroll, bg: 'from-amber-500 to-orange-600', iconColor: 'text-white', delay: '0.3s' },
-        { id: 'quiz', label: t.quizTitle, sub: t.quizDesc, icon: Brain, bg: 'from-purple-500 to-violet-600', iconColor: 'text-white', delay: '0.4s' },
-        { id: 'friends', label: t.friendsTitle || 'Friends', sub: t.friendsDesc || 'Connect', icon: Users, bg: 'from-pink-500 to-rose-600', iconColor: 'text-white', delay: '0.5s', action: onOpenFriends },
-        { id: 'saved', label: t.favoritesTitle || 'Saved', sub: t.favoritesSub || 'Collection', icon: Heart, bg: 'from-red-500 to-rose-600', iconColor: 'text-white', delay: '0.6s' }
+        { id: 'quiz', label: t.quizTitle, sub: t.quizDesc, icon: Brain, bg: 'from-purple-500 to-violet-600', iconColor: 'text-white', delay: '0.3s' },
+        { id: 'friends', label: t.friendsTitle || 'Friends', sub: t.friendsDesc || 'Connect', icon: Users, bg: 'from-pink-500 to-rose-600', iconColor: 'text-white', delay: '0.4s', action: onOpenFriends },
+        { id: 'saved', label: t.favoritesTitle || 'Saved', sub: t.favoritesSub || 'Collection', icon: Heart, bg: 'from-red-500 to-rose-600', iconColor: 'text-white', delay: '0.5s' }
     ];
 
     return (
         <div className="flex flex-col h-full overflow-y-auto">
-            {/* Header */}
             <header className="px-6 py-4 flex items-center justify-between glass-header">
                 <div className="flex items-center gap-3">
                     <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-xl shadow-lg shadow-indigo-500/20">
@@ -95,28 +94,21 @@ const HomeView: React.FC<HomeViewProps> = ({
             </header>
 
             <div className="flex-1 p-6 max-w-5xl mx-auto w-full pb-24">
-                
-                {/* Hero Section */}
                 <div className="mb-10 animate-fade-in mt-4">
                     <h1 className="text-3xl md:text-5xl font-serif-text font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
                         {greeting}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">{displayName || 'Friend'}</span>
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400 text-lg font-medium opacity-80">
-                        {t.welcome.replace('{name}', '').replace('Welcome back,', 'Find peace in His word today.')}
+                        {t.subtitle}
                     </p>
                 </div>
 
-                {/* Daily Verse - Light Mode REDESIGN */}
-                {/* Now uses a White Card with Emerald text in light mode, and keeping Slate-900 in dark mode */}
                 <div 
                     onClick={onOpenDailyVerse}
                     className="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 text-slate-800 dark:text-white shadow-xl shadow-emerald-900/5 dark:shadow-none mb-12 group cursor-pointer animate-scale-in transform transition-transform hover:scale-[1.01] border border-emerald-50 dark:border-white/10"
                 >
-                    {/* Background Art */}
                     <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 dark:from-emerald-900/20 dark:to-slate-900 opacity-100"></div>
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-multiply dark:mix-blend-overlay"></div>
-                    
-                    {/* Decorative Elements */}
                     <div className="absolute -right-20 -top-20 w-64 h-64 bg-emerald-200/20 dark:bg-emerald-500/10 rounded-full blur-3xl"></div>
                     
                     <div className="relative p-8 md:p-10 z-10">
@@ -138,11 +130,9 @@ const HomeView: React.FC<HomeViewProps> = ({
                     </div>
                 </div>
 
-                {/* AI Chat Entry - Large Feature */}
                 <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4 animate-slide-up ml-1">{t.jumpTo}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {/* Primary Chat Action */}
                     <button 
                         onClick={() => onNavigate('chat')}
                         className="col-span-1 md:col-span-2 p-1 rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-xl shadow-indigo-500/10 group hover:shadow-2xl transition-all animate-slide-up"
@@ -163,7 +153,6 @@ const HomeView: React.FC<HomeViewProps> = ({
                         </div>
                     </button>
 
-                    {/* Bento Grid Items */}
                     {FEATURES.map((feature: any) => (
                         <button 
                             key={feature.id}
@@ -180,6 +169,16 @@ const HomeView: React.FC<HomeViewProps> = ({
                             </div>
                         </button>
                     ))}
+                </div>
+
+                <div className="mt-12 mb-8 flex justify-center">
+                    <button 
+                        onClick={onOpenFeedback}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 transition-all text-sm font-bold shadow-sm"
+                    >
+                        <MessageSquare size={16} />
+                        {t.feedback}
+                    </button>
                 </div>
             </div>
         </div>

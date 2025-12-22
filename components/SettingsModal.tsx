@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Moon, Sun, LogOut, User, Globe, Info, Edit2, Check, Key, ExternalLink, ChevronDown, ChevronUp, Snowflake, Camera, Trash2, AlignLeft, CloudSnow, Sparkles, Droplets, Crown, Heart } from 'lucide-react';
+import { X, Moon, Sun, LogOut, User, Globe, Info, Edit2, Check, AlignLeft, CloudSnow, Sparkles, Droplets, Crown, Heart, Camera, Trash2, Snowflake } from 'lucide-react';
 import { UserPreferences } from '../types';
 import { translations } from '../utils/translations';
 
@@ -35,16 +35,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const [isEditingBio, setIsEditingBio] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  // Custom API Key State
-  const [customKey, setCustomKey] = useState('');
-  const [isEditingKey, setIsEditingKey] = useState(false);
-  const [showKeyTutorial, setShowKeyTutorial] = useState(false);
 
   useEffect(() => {
       if (isOpen) {
-          const storedKey = localStorage.getItem('custom_api_key') || '';
-          setCustomKey(storedKey);
           setTempBio(preferences.bio || '');
       }
   }, [isOpen, preferences.bio]);
@@ -61,17 +54,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const handleSaveBio = () => {
       onUpdatePreference('bio', tempBio);
       setIsEditingBio(false);
-  }
-
-  const handleSaveKey = () => {
-      localStorage.setItem('custom_api_key', customKey.trim());
-      setIsEditingKey(false);
-  };
-
-  const handleClearKey = () => {
-      localStorage.removeItem('custom_api_key');
-      setCustomKey('');
-      setIsEditingKey(false);
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -225,7 +207,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     </button>
                 </div>
 
-                {/* Sub-toggles for Winter Mode - REMOVED ANIMATION CLASS to prevent lag on toggle */}
                 {preferences.winterTheme && (
                     <div className="pl-14 space-y-2">
                         <div className="flex items-center justify-between">
@@ -293,7 +274,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     </button>
                 </div>
 
-                {/* Sub-toggles for Princess Mode - REMOVED ANIMATION CLASS to prevent lag */}
                 {preferences.princessTheme && (
                     <div className="pl-14 space-y-2">
                         <div className="flex items-center justify-between">
@@ -324,80 +304,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 )}
             </div>
 
-          </section>
-
-          <hr className="border-slate-100 dark:border-slate-800" />
-
-          {/* ADVANCED: CUSTOM API KEY */}
-          <section>
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1">
-                 <Key size={12} />
-                 {t.apiKey.title}
-              </h3>
-              
-              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-100 dark:border-slate-800">
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-3 leading-relaxed">
-                      {t.apiKey.desc}
-                  </p>
-
-                  {isEditingKey ? (
-                      <div className="flex gap-2 mb-3">
-                           <input 
-                              type="password"
-                              value={customKey}
-                              onChange={(e) => setCustomKey(e.target.value)}
-                              placeholder="Paste API Key here..."
-                              className="flex-1 p-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded outline-none text-slate-800 dark:text-slate-200"
-                           />
-                           <button onClick={handleSaveKey} className="p-2 bg-emerald-600 text-white rounded hover:bg-emerald-700">
-                               <Check size={14} />
-                           </button>
-                           <button onClick={() => { setIsEditingKey(false); setCustomKey(localStorage.getItem('custom_api_key') || ''); }} className="p-2 bg-slate-200 dark:bg-slate-700 text-slate-600 rounded">
-                               <X size={14} />
-                           </button>
-                      </div>
-                  ) : (
-                      <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                             <div className={`w-2 h-2 rounded-full ${customKey ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'}`}></div>
-                             <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                                 {customKey ? t.apiKey.custom : t.apiKey.shared}
-                             </span>
-                          </div>
-                          <div className="flex gap-2">
-                              {customKey && (
-                                  <button onClick={handleClearKey} className="text-xs text-red-500 hover:text-red-600 underline">Remove</button>
-                              )}
-                              <button onClick={() => setIsEditingKey(true)} className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
-                                  {customKey ? t.apiKey.change : t.apiKey.add}
-                              </button>
-                          </div>
-                      </div>
-                  )}
-                  
-                  {/* Tutorial Dropdown */}
-                  <div className="mt-2">
-                      <button 
-                        onClick={() => setShowKeyTutorial(!showKeyTutorial)}
-                        className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-indigo-500 font-medium transition-colors"
-                      >
-                         {showKeyTutorial ? <ChevronUp size={12}/> : <ChevronDown size={12}/>}
-                         {t.apiKey.howTo}
-                      </button>
-                      
-                      {showKeyTutorial && (
-                          <div className="mt-2 text-[11px] text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-950 p-3 rounded border border-slate-100 dark:border-slate-800 animate-fade-in">
-                              <ol className="list-decimal ml-4 space-y-2">
-                                  <li>{t.apiKey.step1} <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-indigo-500 hover:underline inline-flex items-center gap-0.5"><ExternalLink size={10}/></a></li>
-                                  <li>{t.apiKey.step2}</li>
-                                  <li><strong>{t.apiKey.step3}</strong></li>
-                                  <li className="text-slate-400 italic">{t.apiKey.step4}</li>
-                                  <li>{t.apiKey.step5}</li>
-                              </ol>
-                          </div>
-                      )}
-                  </div>
-              </div>
           </section>
 
           <hr className="border-slate-100 dark:border-slate-800" />

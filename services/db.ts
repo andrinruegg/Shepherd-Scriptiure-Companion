@@ -169,9 +169,6 @@ export const db = {
           });
       
       if (error) {
-          if (error.code === 'PGRST204' || error.message.includes('metadata')) {
-              console.error("CRITICAL SQL FIX REQUIRED: Please run 'ALTER TABLE saved_items ADD COLUMN metadata jsonb DEFAULT '{}'::jsonb;' in your Supabase SQL Editor.");
-          }
           throw error;
       }
   },
@@ -237,6 +234,23 @@ export const db = {
       const { error } = await supabase.from('highlights').delete().eq('ref', ref);
       if (error) throw error;
   },
+
+  async saveFeedback(type: string, subject: string, message: string) {
+      ensureSupabase();
+      // @ts-ignore
+      const { data: { user } } = await supabase.auth.getUser();
+      // Tag the record with the destination requested by user
+      // @ts-ignore
+      const { error } = await supabase.from('feedback').insert({
+          user_id: user?.id || null,
+          type,
+          subject,
+          message,
+          metadata: { recipient: 'andrinruegg732@gmail.com' },
+          created_at: new Date().toISOString()
+      });
+      if (error) throw error;
+  },
   
   prayers: {
       async getCommunityPrayers(): Promise<SavedItem[]> {
@@ -245,7 +259,6 @@ export const db = {
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) return [];
 
-          // 1. Fetch current user's friends to validate 'friends' visibility
           // @ts-ignore
           const { data: friendshipData } = await supabase
               .from('friendships')
@@ -257,8 +270,6 @@ export const db = {
               f.requester_id === user.id ? f.receiver_id : f.requester_id
           );
 
-          // 2. Fetch ALL prayers (limit to recent 100)
-          // RLS POLICY MUST ALLOW SELECT ON type='prayer' FOR THIS TO WORK
           // @ts-ignore
           const { data, error } = await supabase
               .from('saved_items')
@@ -281,26 +292,10 @@ export const db = {
               
               let isVisible = false;
 
-              // Always see my own prayers
-              if (ownerId === user.id) {
-                  isVisible = true;
-              } 
-              // Public prayers
-              else if (vis === 'public') {
-                  isVisible = true;
-              } 
-              // Friends only prayers
-              else if (vis === 'friends') {
-                  if (friendIds.includes(ownerId)) {
-                      isVisible = true;
-                  }
-              } 
-              // Specific people
-              else if (vis === 'specific' && meta.allowed_users) {
-                  if (Array.isArray(meta.allowed_users) && meta.allowed_users.includes(user.id)) {
-                      isVisible = true;
-                  }
-              }
+              if (ownerId === user.id) isVisible = true;
+              else if (vis === 'public') isVisible = true;
+              else if (vis === 'friends' && friendIds.includes(ownerId)) isVisible = true;
+              else if (vis === 'specific' && meta.allowed_users?.includes(user.id)) isVisible = true;
 
               if (isVisible) {
                   accessiblePrayers.push({ 
@@ -342,11 +337,9 @@ export const db = {
           }
           
           const newMetadata = { ...currentMetadata, interactions: newInteractions };
-          
           // @ts-ignore
           const { error } = await supabase.from('saved_items').update({ metadata: newMetadata }).eq('id', prayerId);
           if (error) throw error;
-
           return newMetadata;
       }
   },
@@ -380,7 +373,6 @@ export const db = {
           if (existing && existing.share_id) { finalIdToSave = existing.share_id; }
 
           const updates: any = { id: user.id, display_name: displayName, avatar: avatar || null, bio: bio || null, share_id: finalIdToSave, last_seen: new Date().toISOString() };
-
           // @ts-ignore
           const { error } = await supabase.from('profiles').upsert(updates, { onConflict: 'id' });
           if (error) console.error("Profile sync failed", error);
@@ -392,19 +384,10 @@ export const db = {
            // @ts-ignore
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) return;
-          
           const updates: any = { streak };
-          if (achievements) {
-              updates.achievements = achievements;
-          }
-          
+          if (achievements) updates.achievements = achievements;
           // @ts-ignore
-          const { error } = await supabase.from('profiles').update(updates).eq('id', user.id);
-          if (error) {
-              if (error.code === 'PGRST204' || error.message.includes('achievements')) {
-                  console.error("CRITICAL SQL FIX REQUIRED: Please run 'ALTER TABLE profiles ADD COLUMN achievements jsonb DEFAULT '[]'::jsonb;' in your Supabase SQL Editor.");
-              }
-          }
+          await supabase.from('profiles').update(updates).eq('id', user.id);
       },
       
       async addAchievement(achievement: Achievement) {
@@ -412,54 +395,22 @@ export const db = {
           // @ts-ignore
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) return;
-          
           // @ts-ignore
           const { data } = await supabase.from('profiles').select('achievements').eq('id', user.id).single();
           const current: Achievement[] = data?.achievements || [];
-          
-          // Avoid duplicates
           if (current.some(a => a.id === achievement.id)) return;
-          
           const newSet = [...current, achievement];
-          
           // @ts-ignore
-          const { error } = await supabase.from('profiles').update({ achievements: newSet }).eq('id', user.id);
-          
-          if (error) {
-               if (error.code === 'PGRST204' || error.message.includes('achievements')) {
-                  console.error("CRITICAL SQL FIX REQUIRED: Please run 'ALTER TABLE profiles ADD COLUMN achievements jsonb DEFAULT '[]'::jsonb;' in your Supabase SQL Editor.");
-              }
-              throw error;
-          }
+          await supabase.from('profiles').update({ achievements: newSet }).eq('id', user.id);
           return newSet;
       },
 
       async getUserProfile(userId: string): Promise<UserProfile | null> {
           ensureSupabase();
-          
-          // TRY 1: Get Everything
-          try {
-              // @ts-ignore
-              const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle(); 
-              if (!error && data) return data as UserProfile;
-          } catch (e) {}
-
-          // TRY 2: Fallback (If achievements column missing, select only base fields)
-          try {
-              // @ts-ignore
-              const { data, error } = await supabase.from('profiles')
-                  .select('id, share_id, display_name, avatar, bio, last_seen, streak')
-                  .eq('id', userId)
-                  .maybeSingle();
-                  
-              if (error || !data) return null;
-              
-              // Return mock empty achievements to satisfy type
-              return { ...data, achievements: [] } as UserProfile;
-          } catch (e) {
-              console.error("Failed to load profile", e);
-              return null;
-          }
+          // @ts-ignore
+          const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle(); 
+          if (error || !data) return null;
+          return data as UserProfile;
       },
       
       async getCurrentUser(): Promise<UserProfile | null> {
@@ -484,11 +435,9 @@ export const db = {
           const { data: { user } } = await supabase!.auth.getUser();
           if (!user) throw new Error('Not authenticated');
           if (user.id === targetUserId) throw new Error("You cannot add yourself.");
-
           // @ts-ignore
           const { data: existing } = await supabase!.from('friendships').select('*').or(`and(requester_id.eq.${user.id},receiver_id.eq.${targetUserId}),and(requester_id.eq.${targetUserId},receiver_id.eq.${user.id})`).maybeSingle();
           if (existing) throw new Error("Request already sent or you are already friends.");
-
           // @ts-ignore
           const { error } = await supabase!.from('friendships').insert({ requester_id: user.id, receiver_id: targetUserId, status: 'pending' });
           if (error) throw error;
@@ -499,14 +448,10 @@ export const db = {
           // @ts-ignore
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) return [];
-
           // @ts-ignore
           const { data, error } = await supabase.from('friendships').select(`id, created_at, status, requester:profiles!requester_id ( id, share_id, display_name, avatar, bio )`).eq('receiver_id', user.id).eq('status', 'pending');
           if (error) throw error;
-          
-          return (data || [])
-            .filter((r: any) => r.requester !== null)
-            .map((r: any) => ({ id: r.id, status: r.status, created_at: r.created_at, requester: r.requester }));
+          return (data || []).filter((r: any) => r.requester !== null).map((r: any) => ({ id: r.id, status: r.status, created_at: r.created_at, requester: r.requester }));
       },
 
       async respondToRequest(requestId: string, accept: boolean) {
@@ -527,7 +472,6 @@ export const db = {
           // @ts-ignore
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) throw new Error("Not authenticated");
-
           // @ts-ignore
           await supabase.from('friendships').delete().eq('requester_id', user.id).eq('receiver_id', friendId);
           // @ts-ignore
@@ -539,19 +483,14 @@ export const db = {
           // @ts-ignore
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) return [];
-
           // @ts-ignore
           const { data, error } = await supabase.from('friendships').select(`requester:profiles!requester_id(*), receiver:profiles!receiver_id(*)`).eq('status', 'accepted').or(`requester_id.eq.${user.id},receiver_id.eq.${user.id}`);
           if (error) throw error;
 
           const friends: UserProfile[] = [];
           (data || []).forEach((row: any) => {
-              if (row.requester && row.requester.id) {
-                 if(row.requester.id !== user.id) friends.push(row.requester);
-              } 
-              if (row.receiver && row.receiver.id) {
-                 if(row.receiver.id !== user.id) friends.push(row.receiver);
-              }
+              if (row.requester?.id && row.requester.id !== user.id) friends.push(row.requester);
+              if (row.receiver?.id && row.receiver.id !== user.id) friends.push(row.receiver);
           });
 
           // @ts-ignore
@@ -560,18 +499,12 @@ export const db = {
           unreadData?.forEach((m: any) => { unreadMap.set(m.sender_id, (unreadMap.get(m.sender_id) || 0) + 1); });
 
           // @ts-ignore
-          const { data: latestMsgs } = await supabase.from('direct_messages')
-            .select('sender_id, receiver_id, created_at')
-            .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-            .order('created_at', { ascending: false })
-            .limit(200);
-            
+          const { data: latestMsgs } = await supabase.from('direct_messages').select('sender_id, receiver_id, created_at').or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`).order('created_at', { ascending: false }).limit(200);
           const latestMap = new Map();
           latestMsgs?.forEach((m: any) => {
               const otherId = m.sender_id === user.id ? m.receiver_id : m.sender_id;
               if (!latestMap.has(otherId)) latestMap.set(otherId, m.created_at);
           });
-
           return friends.map(f => ({ ...f, unread_count: unreadMap.get(f.id) || 0, last_message_at: latestMap.get(f.id) || '' }));
       },
       
@@ -580,7 +513,6 @@ export const db = {
           // @ts-ignore
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) return [];
-
           // @ts-ignore
           const { data, error } = await supabase.from('direct_messages').select('*').or(`and(sender_id.eq.${user.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${user.id})`).order('created_at', { ascending: true });
           if (error) throw error;
@@ -592,7 +524,6 @@ export const db = {
           // @ts-ignore
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) throw new Error("Not authenticated");
-
           // @ts-ignore
           const { data, error } = await supabase.from('direct_messages').insert({ sender_id: user.id, receiver_id: friendId, content: content, message_type: type }).select().single();
           if (error) throw error;
@@ -602,8 +533,7 @@ export const db = {
       async deleteDirectMessage(messageId: string) {
           ensureSupabase();
           // @ts-ignore
-          const { error } = await supabase.from('direct_messages').delete().eq('id', messageId);
-          if (error) throw error;
+          await supabase.from('direct_messages').delete().eq('id', messageId);
       },
 
       async markMessagesRead(friendId: string) {
@@ -611,7 +541,6 @@ export const db = {
           // @ts-ignore
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) return;
-
           // @ts-ignore
           await supabase.from('direct_messages').update({ read_at: new Date().toISOString() }).eq('sender_id', friendId).eq('receiver_id', user.id).is('read_at', null).select('id');
       },
@@ -619,51 +548,8 @@ export const db = {
       async uploadMedia(file: Blob, path: string): Promise<string> {
           ensureSupabase();
           // @ts-ignore
-          // Explicitly define Content-Type based on blob type or fallback
-          const fileOptions = {
-              upsert: true,
-              contentType: file.type || 'application/octet-stream',
-              cacheControl: '3600'
-          };
-
-          // @ts-ignore
-          const { data, error } = await supabase.storage.from('chat-media').upload(path, file, fileOptions);
-          
-          if (error) {
-              console.error("Storage upload error:", error);
-              const msg = error.message || "Unknown Upload Error";
-              
-              // Handle "Unexpected token <" (HTML error) which implies bad session or 403
-              if (msg.includes('<') || msg.includes('html') || msg.includes('row-level security')) {
-                  // Fallback: If Overwrite failed (Permission Denied for UPDATE), try Deleting then Re-uploading (INSERT)
-                  try {
-                      console.log("Attempting overwrite fallback (Delete then Insert)...");
-                      // @ts-ignore
-                      await supabase.storage.from('chat-media').remove([path]);
-                      // Retry upload
-                      // @ts-ignore
-                      const { error: retryError } = await supabase.storage.from('chat-media').upload(path, file, fileOptions);
-                      if (retryError) throw retryError;
-                  } catch (fallbackError: any) {
-                      // CRITICAL: If still failing with HTML/Token error, user session is corrupt.
-                      if (msg.includes('<') || msg.includes('html')) {
-                          // Force logout if we can access auth, otherwise throw specific error
-                          // @ts-ignore
-                          if (supabase?.auth) {
-                              console.warn("Session expired. Signing out.");
-                              // @ts-ignore
-                              await supabase.auth.signOut();
-                              window.location.reload();
-                          }
-                          throw new Error("Your session has expired. Please sign in again.");
-                      }
-                      throw new Error(`Permission Denied.`);
-                  }
-              } else {
-                  throw new Error(`Upload Failed.`);
-              }
-          }
-          
+          const { data, error } = await supabase.storage.from('chat-media').upload(path, file, { upsert: true, contentType: file.type || 'application/octet-stream' });
+          if (error) throw error;
           // @ts-ignore
           const { data: urlData } = supabase.storage.from('chat-media').getPublicUrl(path);
           return `${urlData.publicUrl}?t=${Date.now()}`; 
@@ -683,32 +569,9 @@ export const db = {
           ensureSupabase();
           // @ts-ignore
           const { data: { user } } = await supabase.auth.getUser();
-          if (!user) throw new Error("Not authenticated");
-          if (!friendId) throw new Error("Invalid friend ID for drawing");
-
           const ids = [user.id, friendId].sort();
           const friendshipFileId = `${ids[0]}_${ids[1]}`;
-          
-          // FIX: Clean up any old files from this specific user for this pair to save space
-          // Note: We can only delete files WE own. 
-          try {
-              // List files that look like our pattern
-              // @ts-ignore
-              const { data: oldFiles } = await supabase.storage.from('chat-media').list('graffiti', { search: friendshipFileId });
-              if (oldFiles && oldFiles.length > 0) {
-                  const filesToDelete = oldFiles.map((f: any) => `graffiti/${f.name}`);
-                  // Best effort delete - if we don't own them, this will fail silently/gracefully usually
-                  // @ts-ignore
-                  await supabase.storage.from('chat-media').remove(filesToDelete);
-              }
-          } catch (cleanupError) {
-              console.warn("Cleanup failed (likely permission), proceeding to upload new file", cleanupError);
-          }
-
-          // FIX: Use Unique Timestamp to bypass "Overwrite" permission lock
-          // This forces a "Create" action which is always allowed.
           const path = `graffiti/${friendshipFileId}_${Date.now()}.png`;
-
           return this.uploadMedia(blob, path);
       },
 
@@ -716,36 +579,14 @@ export const db = {
           ensureSupabase();
           // @ts-ignore
           const { data: { user } } = await supabase.auth.getUser();
-          if (!user) return null;
-
           const ids = [user.id, friendId].sort();
           const friendshipFileId = `${ids[0]}_${ids[1]}`;
-
-          try {
-              // Search for ANY file starting with this pair ID
-              // @ts-ignore
-              const { data: list, error } = await supabase.storage.from('chat-media').list('graffiti', {
-                  limit: 10,
-                  sortBy: { column: 'created_at', order: 'desc' }, // Get newest first
-                  search: friendshipFileId
-              });
-              
-              if (error) return null;
-              if (!list || list.length === 0) return null;
-              
-              // The first one is the newest
-              const fileMetadata = list[0];
-              const path = `graffiti/${fileMetadata.name}`;
-              
-              // @ts-ignore
-              const { data: urlData } = supabase.storage.from('chat-media').getPublicUrl(path);
-              
-              // Force cache bust
-              return `${urlData.publicUrl}?t=${new Date(fileMetadata.created_at).getTime()}`;
-          } catch (e) {
-              console.warn("Error fetching graffiti", e);
-              return null;
-          }
+          // @ts-ignore
+          const { data: list } = await supabase.storage.from('chat-media').list('graffiti', { limit: 1, sortBy: { column: 'created_at', order: 'desc' }, search: friendshipFileId });
+          if (!list || list.length === 0) return null;
+          // @ts-ignore
+          const { data: urlData } = supabase.storage.from('chat-media').getPublicUrl(`graffiti/${list[0].name}`);
+          return `${urlData.publicUrl}?t=${Date.now()}`;
       }
   }
 };

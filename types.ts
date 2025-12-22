@@ -98,7 +98,7 @@ export type SocialTab = 'inbox' | 'friends' | 'add' | 'profile';
 
 // --- NEW TYPES FOR BIBLE READER & SAVED ITEMS ---
 
-export type AppView = 'home' | 'chat' | 'bible' | 'saved' | 'prayer' | 'quiz' | 'stories';
+export type AppView = 'home' | 'chat' | 'bible' | 'saved' | 'prayer' | 'quiz';
 
 export interface BibleBook {
   id: string;   // e.g. 'GEN'
@@ -164,30 +164,19 @@ export interface QuizQuestion {
   reference: string;
 }
 
+// Fix: Add missing BibleStory interface used by StoriesTab and StoriesData
 export interface BibleStory {
-    id: string;
-    name: string;
-    role: string;
-    image: string;
-    
-    // Detailed biographical data
-    meaningOfName?: string;
-    timeline?: string; // e.g., "c. 1000 BC" or "1st Century AD"
-    
-    family?: {
-        parents?: string;
-        spouse?: string;
-        children?: string;
-        siblings?: string;
-    };
-    
-    traits?: string[];
-    
-    keyVerses?: Array<{
-        ref: string;
-        text: string;
-    }>;
-    
-    // Array of paragraphs for formatted reading
-    biography: string[]; 
+  id: string;
+  name: string;
+  role: string;
+  image: string;
+  meaningOfName?: string;
+  timeline?: string;
+  traits: string[];
+  family?: {
+      parents?: string;
+      siblings?: string;
+  };
+  keyVerses?: { ref: string; text: string }[];
+  biography: string[];
 }
