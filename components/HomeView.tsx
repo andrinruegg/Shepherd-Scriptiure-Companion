@@ -39,7 +39,6 @@ const HomeView: React.FC<HomeViewProps> = ({
 }) => {
     const t = translations[language]?.home || translations['English'].home;
     const tSidebar = translations[language]?.sidebar || translations['English'].sidebar; 
-    const storiesT = translations[language]?.stories || translations['English'].stories;
     const dailyVerse = getDailyVerse(language);
     
     const [greeting, setGreeting] = useState('');
@@ -51,7 +50,7 @@ const HomeView: React.FC<HomeViewProps> = ({
         else setGreeting(t.goodEvening);
     }, [language, t]);
 
-    const SECONDARY_GRID = [
+    const TOOLS_GRID = [
         { id: 'bible', label: t.bibleTitle, sub: t.bibleDesc, icon: Book, bg: 'from-emerald-500 to-teal-600', iconColor: 'text-white', delay: '0.2s' },
         { id: 'prayer', label: t.prayerTitle, sub: t.prayerDesc, icon: Feather, bg: 'from-blue-500 to-indigo-600', iconColor: 'text-white', delay: '0.25s' },
         { id: 'quiz', label: t.quizTitle, sub: t.quizDesc, icon: Brain, bg: 'from-purple-500 to-violet-600', iconColor: 'text-white', delay: '0.3s' },
@@ -104,7 +103,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                     </p>
                 </div>
 
-                {/* FEATURED DAILY VERSE */}
+                {/* FEATURED: VERSE OF THE DAY (MOST PROMINENT) */}
                 <div 
                     onClick={onOpenDailyVerse}
                     className="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 text-slate-800 dark:text-white shadow-xl shadow-emerald-900/5 dark:shadow-none mb-12 group cursor-pointer animate-scale-in transform transition-transform hover:scale-[1.01] border border-emerald-50 dark:border-white/10"
@@ -129,13 +128,13 @@ const HomeView: React.FC<HomeViewProps> = ({
                     </div>
                 </div>
 
-                {/* LIBRARY SECTION HEADING */}
+                {/* LIBRARY SECTION */}
                 <div className="flex items-center gap-3 mb-6 ml-1 animate-slide-up">
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-[0.2em]">{t.jumpTo}</h3>
                     <div className="h-px bg-slate-200 dark:bg-slate-800 flex-1 opacity-50"></div>
                 </div>
 
-                {/* DIVINE AI TOOLS - RESTORED SPECIAL EFFECTS AND POSITION */}
+                {/* PREMIUM AI TOOLS AT TOP OF LIBRARY */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <button 
                         onClick={() => onNavigate('chat')}
@@ -179,9 +178,9 @@ const HomeView: React.FC<HomeViewProps> = ({
                     </button>
                 </div>
 
-                {/* SECONDARY TOOL GRID */}
+                {/* STANDARD LIBRARY TOOLS GRID */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                    {SECONDARY_GRID.map((feature: any) => (
+                    {TOOLS_GRID.map((feature: any) => (
                         <button 
                             key={feature.id}
                             onClick={() => feature.action ? feature.action() : onNavigate(feature.id as AppView)}

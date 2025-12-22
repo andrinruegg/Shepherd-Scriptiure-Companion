@@ -92,7 +92,32 @@ export const translations: Record<string, any> = {
     quiz: { title: "Trivia", start: "Start", difficulty: "Difficulty", easy: "Easy", medium: "Medium", hard: "Hard", score: "Score", next: "Next", correct: "Correct!", incorrect: "Incorrect", explanation: "Explanation", loading: "Loading...", results: "Results", time: "Time", accuracy: "Accuracy", playAgain: "Again", home: "Home", mode: "Mode", question: "Question" },
     topics: { title: "Topics", anxiety: { label: "Anxiety", query: "Anxious help." }, love: { label: "Love", query: "About love." }, hope: { label: "Hope", query: "Need hope." }, sadness: { label: "Sadness", query: "Feeling sad." }, gratitude: { label: "Gratitude", query: "Be thankful." }, strength: { label: "Strength", query: "Be strong." }, joy: { label: "Joy", query: "Need joy." }, forgiveness: { label: "Forgiveness", query: "Forgive." } },
     settings: { title: "Settings", preferences: "Preferences", language: "Language", appearance: "Theme", light: "Light", dark: "Dark", winter: { title: "Winter", desc: "Snow", snow: "Snow", lights: "Lights", icicles: "Icicles" }, princess: { title: "Princess", desc: "Magic", hearts: "Hearts", aurora: "Aurora" }, account: "Account", loggedIn: "LoggedIn", signOut: "Sign Out", about: "About", aboutText: "Companion app.", displayName: "Name", bio: "Bio", noBio: "Empty." },
-    social: { title: "Social", tabs: { inbox: "Inbox", friends: "Friends", add: "Add", me: "Me" }, inbox: { title: "Inbox", requests: "Requests", noRequests: "None", updates: "Updates" }, friends: { title: "Friends", loading: "Loading...", empty: "Empty.", streak: "Streak" }, add: { title: "Add", yourId: "ID", shareText: "Share", enterId: "Enter ID", search: "Search" }, profile: { title: "Profile", streak: "Streak", achievements: "Badges", locked: "Locked", about: "About", message: "Message", unfriend: "Remove", addFriend: "Add" }, chat: { placeholder: "Message...", paintMode: "Paint" }, status: { online: "Online", offline: "Offline", activeNow: "Active", lastSeen: "Last seen", ago: "ago" }, updatesList: [], achievementList: {} },
+    social: { 
+        title: "Social", 
+        tabs: { inbox: "Inbox", friends: "Friends", add: "Add", me: "Me" }, 
+        inbox: { title: "Inbox", requests: "Requests", noRequests: "None", updates: "Updates" }, 
+        friends: { title: "Friends", loading: "Loading...", empty: "Empty.", streak: "Streak" }, 
+        add: { title: "Add", yourId: "ID", shareText: "Share", enterId: "Enter ID", search: "Search" }, 
+        profile: { title: "Profile", streak: "Streak", achievements: "Badges", locked: "Locked", about: "About", message: "Message", unfriend: "Remove", addFriend: "Add" }, 
+        chat: { placeholder: "Message...", paintMode: "Paint" }, 
+        status: { online: "Online", offline: "Offline", activeNow: "Active", lastSeen: "Last seen", ago: "ago" }, 
+        updatesList: [
+            { version: "1.8.0", date: "Today", title: "Eyewitness Restoration", changes: ["Petrus Persona complete rewrite (forbidden from citations/emojis)", "Premium UI effects restored for AI tools", "Library layout re-architected", "Bible fetch error handling improved"] },
+            { version: "1.7.0", date: "14.12.2025", title: "New Dashboard", changes: ["Home page added", "Improved navigation", "Quick actions"] },
+            { version: "1.6.0", date: "12.12.2025", title: "Bible Reader Update", changes: ["Fixed Romanian Bible loading", "Instant chapter switching", "Offline-available text"] },
+            { version: "1.5.0", date: "11.12.2025", title: "Quiz & Achievements", changes: ["Bible Trivia mode", "Achievements for scores", "View friends streaks", "Progress tracking"] },
+            { version: "1.4.0", date: "10.12.2025", title: "Graffiti Perfection", changes: ["Fixed save issues", "Smoother drawing", "Upload reliability"] },
+            { version: "1.3.0", date: "09.12.2025", title: "Social Chat", changes: ["Real-time messaging", "Photo sharing", "Voice messages", "Online status"] },
+            { version: "1.2.0", date: "09.12.2025", title: "Winter Update", changes: ["Winter mode added", "Improved visuals", "API fixes"] },
+            { version: "1.1.0", date: "08.12.2025", title: "Bible Reader", changes: ["Full Bible reader", "Highlights", "Save verses"] },
+            { version: "1.0.0", date: "08.12.2025", title: "Launch", changes: ["Shepherd AI Chat", "Supabase integration"] }
+        ], 
+        achievementList: {
+            "perfect-easy": { title: "Bible Scholar", description: "Completed Easy Quiz with 100% accuracy!" },
+            "perfect-medium": { title: "Faithful Disciple", description: "Completed Medium Quiz with 100% accuracy!" },
+            "perfect-hard": { title: "Divine Theologian", description: "Completed Hard Quiz with 100% accuracy!" }
+        } 
+    },
     feedback: { title: "Feedback", desc: "Improve app.", type: "Type", bug: "Bug", feature: "Feature", suggestion: "Idea", other: "Other", subject: "Subject", subjectPlaceholder: "Title", message: "Message", messagePlaceholder: "Text", submit: "Send", success: "Sent!", error: "Error.", targetEmail: "andrinruegg732@gmail.com", requiredField: "Required", invalidEmail: "Invalid" },
     composer: {
         title: "Visual Composer",
@@ -202,8 +227,26 @@ export const translations: Record<string, any> = {
     quiz: { title: "Trivia", start: "Start", difficulty: "Dificultate", easy: "Ușor", medium: "Mediu", hard: "Greu", score: "Scor", next: "Următorul", correct: "Corect!", incorrect: "Incorect", explanation: "Explicație", results: "Rezultate", time: "Timp", accuracy: "Acuratețe", playAgain: "Din nou", home: "Acasă", mode: "Mod", question: "Întrebare" },
     topics: { title: "Subiecte", anxiety: { label: "Anxietate", query: "Ajutor anxietate." }, love: { label: "Love", query: "Despre dragoste." }, hope: { label: "Speranță", query: "Am nevoie de speranță." }, sadness: { label: "Tristețe", query: "Sunt trist." }, gratitude: { label: "Recunoștință", query: "Mulțumire." }, strength: { label: "Putere", query: "Fii tare." }, joy: { label: "Bucurie", query: "Bucurie." }, forgiveness: { label: "Iertare", query: "Iertare." } },
     settings: { title: "Setări", preferences: "Preferințe", language: "Limbă", appearance: "Aspect", light: "Luminos", dark: "Întunecat", winter: { title: "Iarnă", desc: "Zăpadă", snow: "Zăpadă", lights: "Lumini", icicles: "Țurțuri" }, princess: { title: "Prințesă", desc: "Magic", hearts: "Inimi", aurora: "Aurora" }, account: "Cont", loggedIn: "Autentificat", signOut: "Deconectare", about: "Despre", aboutText: "Shepherd Companion.", displayName: "Nume", bio: "Bio", noBio: "Fără descriere." },
-    social: { title: "Social", tabs: { inbox: "Mesaje", friends: "Prieteni", add: "Adaugă", me: "Eu" }, inbox: { title: "Notificări", requests: "Cereri", noRequests: "Nicio cerere", updates: "Noutăți" }, friends: { title: "Prieteni", loading: "Se încarcă...", empty: "Gol.", streak: "Serie" }, add: { title: "Adaugă", yourId: "ID-ul tău", shareText: "Partajează", enterId: "Introdu ID", search: "Caută" }, profile: { title: "Profil", streak: "Serie", achievements: "Insigne", locked: "Blocat", about: "Despre", message: "Mesaj", unfriend: "Șterge", addFriend: "Adaugă" }, status: { online: "Online", offline: "Offline", activeNow: "Activ", lastSeen: "Văzut", ago: "în urmă" }, updatesList: [], achievementList: {} },
-    feedback: { title: "Feedback", desc: "Îmbunătățește aplicația.", type: "Tip", bug: "Eroare", feature: "Funcție", suggestion: "Sugestie", other: "Altul", subject: "Subiect", subjectPlaceholder: "Titlu", message: "Mesaj", messagePlaceholder: "Text", submit: "Trimite", success: "Trimis!", error: "Eroare.", targetEmail: "andrinruegg732@gmail.com", requiredField: "Obligatoriu" },
+    social: { 
+        title: "Social", 
+        tabs: { inbox: "Mesaje", friends: "Prieteni", add: "Adaugă", me: "Eu" }, 
+        inbox: { title: "Notificări", requests: "Cereri", noRequests: "Nicio cerere", updates: "Noutăți" }, 
+        friends: { title: "Prieteni", loading: "Se încarcă...", empty: "Gol.", streak: "Serie" }, 
+        add: { title: "Adaugă", yourId: "ID-ul tău", shareText: "Partajează", enterId: "Introdu ID", search: "Caută" }, 
+        profile: { title: "Profil", streak: "Serie", achievements: "Insigne", locked: "Blocat", about: "Despre", message: "Mesaj", unfriend: "Șterge", addFriend: "Adaugă" }, 
+        status: { online: "Online", offline: "Offline", activeNow: "Activ", lastSeen: "Văzut", ago: "în urmă" }, 
+        updatesList: [
+            { version: "1.8.0", date: "Azi", title: "Restaurare Divină", changes: ["Rescris persona lui Petru (fără citate/emoji)", "Restaurat efectele premium pentru unelte", "Reorganizat layout-ul Librăriei", "Îmbunătățit erorile de descărcare Biblie"] },
+            { version: "1.7.0", date: "14.12.2025", title: "Tablou de Bord Nou", changes: ["Pagina principală adăugată", "Navigare îmbunătățită"] },
+            { version: "1.6.0", date: "12.12.2025", title: "Update Bible Reader", changes: ["Rezolvat încărcarea Bibliei române", "Schimbare instantanee a capitolelor"] },
+            { version: "1.5.0", date: "11.12.2025", title: "Quiz & Realizări", changes: ["Mod Trivia Biblică", "Insigne pentru scoruri"] },
+            { version: "1.0.0", date: "08.12.2025", title: "Start", changes: ["Chat Shepherd AI", "Integrare Supabase"] }
+        ], 
+        achievementList: {
+            "perfect-easy": { title: "Savant Biblic", description: "Test ușor finalizat cu 100%!" }
+        } 
+    },
+    feedback: { title: "Feedback", desc: "Îmbunătățește aplicația.", type: "Type", bug: "Eroare", feature: "Funcție", suggestion: "Sugestie", other: "Altul", subject: "Subiect", subjectPlaceholder: "Titlu", message: "Mesaj", messagePlaceholder: "Text", submit: "Trimite", success: "Trimis!", error: "Eroare.", targetEmail: "andrinruegg732@gmail.com", requiredField: "Obligatoriu" },
     composer: {
         title: "Compozitor Vizual",
         theme: "Temă",
@@ -307,10 +350,28 @@ export const translations: Record<string, any> = {
     prayer: { title: "Gebete", tabs: { journal: "Journal", community: "Wand" }, newPrayer: "Neu", placeholder: "Was liegt dir am Herzen?", answered: "Beantwortet", empty: "Leer.", active: "Aktiv", privacy: { label: "Privatsphäre", private: "Privat", friends: "Freunde", specific: "Spezifisch", public: "Öffentlich", anonymous: "Anonym" }, amen: "Amen" },
     sanctuary: { title: "Heiligtum", rain: "Regen", fire: "Feuer", stream: "Bach", volume: "Lautstärke" },
     quiz: { title: "Quiz", start: "Start", difficulty: "Schwierigkeit", easy: "Einfach", medium: "Mittel", hard: "Schwer", score: "Punktzahl", next: "Weiter", correct: "Richtig!", incorrect: "Falsch", explanation: "Erklärung", results: "Ergebnisse", accuracy: "Genauigkeit", playAgain: "Nochmal", home: "Start", mode: "Modus", question: "Frage" },
-    topics: { title: "Themen", anxiety: { label: "Angst", query: "Hilfe bei Angst." }, love: { label: "Liebe", query: "Über die Liebe." }, hope: { label: "Hoffnung", query: "Hoffnung." }, sadness: { label: "Trauer", query: "Bin traurig." }, gratitude: { label: "Dankbarkeit", query: "Dankbarkeit." }, strength: { label: "Stärke", query: "Sei stark." }, joy: { label: "Freude", query: "Freude." }, forgiveness: { label: "Vergebung", query: "Vergebung." } },
+    topics: { title: "Themen", anxiety: { label: "Angst", query: "Hilfe bei Angst." }, love: { label: "Liebe", query: "Über die Liebe." }, hope: { label: "Hoffnung", query: "Hoffnung." }, sadness: { label: "Trauer", query: "Bin trauerig." }, gratitude: { label: "Dankbarkeit", query: "Dankbarkeit." }, strength: { label: "Stärke", query: "Sei stark." }, joy: { label: "Freude", query: "Freude." }, forgiveness: { label: "Vergebung", query: "Vergebung." } },
     settings: { title: "Einstellungen", preferences: "Präferenzen", language: "Sprache", appearance: "Design", light: "Hell", dark: "Dunkel", winter: { title: "Winter", desc: "Schnee", snow: "Schnee", lights: "Lichter", icicles: "Eiszapfen" }, princess: { title: "Prinzessin", desc: "Magie", hearts: "Herzen", aurora: "Aurora" }, account: "Konto", loggedIn: "Angemeldet", signOut: "Abmelden", about: "Über", aboutText: "Shepherd Begleiter.", displayName: "Name", bio: "Bio", noBio: "Leer." },
-    social: { title: "Soziales", tabs: { inbox: "Inbox", friends: "Freunde", add: "Hinzufügen", me: "Ich" }, inbox: { title: "Benachrichtigungen", requests: "Anfragen", noRequests: "Keine Anfragen", updates: "Updates" }, friends: { title: "Freunde", loading: "Laden...", empty: "Leer.", streak: "Serie" }, add: { title: "Hinzufügen", yourId: "Deine ID", shareText: "Teilen", enterId: "ID eingeben", search: "Suchen" }, profile: { title: "Profil", streak: "Serie", achievements: "Abzeichen", locked: "Gesperrt", about: "Über", message: "Nachricht", unfriend: "Löschen", addFriend: "Hinzufügen" }, status: { online: "Online", offline: "Offline", activeNow: "Aktiv", lastSeen: "Zuletzt gesehen", ago: "vor" }, updatesList: [], achievementList: {} },
-    feedback: { title: "Feedback", desc: "App verbessern.", type: "Typ", bug: "Fehler", feature: "Funktion", suggestion: "Vorschlag", other: "Sonstiges", subject: "Betreff", message: "Nachricht", submit: "Senden", success: "Gesendet!", error: "Fehler.", targetEmail: "andrinruegg732@gmail.com", requiredField: "Pflichtfeld" },
+    social: { 
+        title: "Soziales", 
+        tabs: { inbox: "Inbox", friends: "Freunde", add: "Hinzufügen", me: "Ich" }, 
+        inbox: { title: "Benachrichtigungen", requests: "Anfragen", noRequests: "Keine Anfragen", updates: "Updates" }, 
+        friends: { title: "Freunde", loading: "Laden...", empty: "Leer.", streak: "Serie" }, 
+        add: { title: "Hinzufügen", yourId: "Deine ID", shareText: "Teilen", enterId: "ID eingeben", search: "Suchen" }, 
+        profile: { title: "Profil", streak: "Serie", achievements: "Abzeichen", locked: "Gesperrt", about: "Über", message: "Nachricht", unfriend: "Löschen", addFriend: "Hinzufügen" }, 
+        status: { online: "Online", offline: "Offline", activeNow: "Aktiv", lastSeen: "Zuletzt gesehen", ago: "vor" }, 
+        updatesList: [
+            { version: "1.8.0", date: "Heute", title: "Göttliche Wiederherstellung", changes: ["Petrus-Persona überarbeitet (keine Zitate/Emojis)", "Premium UI-Effekte wiederhergestellt", "Librärie-Layout verbessert", "Bibel-Ladefehler behoben"] },
+            { version: "1.7.0", date: "14.12.2025", title: "Neues Dashboard", changes: ["Startseite hinzugefügt", "Verbesserte Navigation"] },
+            { version: "1.6.0", date: "12.12.2025", title: "Bibel-Reader Update", changes: ["Laden der rumänischen Bibel behoben", "Sofortiger Kapitelwechsel", "Offline-verfügbarer Text"] },
+            { version: "1.5.0", date: "11.12.2025", title: "Quiz & Erfolge", changes: ["Bibel Trivia Modus", "Erfolge für Punkte", "Freunde-Streaks ansehen", "Fortschrittstracking"] },
+            { version: "1.0.0", date: "08.12.2025", title: "Start", changes: ["Shepherd KI Chat", "Supabase Integration"] }
+        ], 
+        achievementList: {
+            "perfect-easy": { title: "Bibelgelehrter", description: "Einfaches Quiz zu 100 % abgeschlossen!" }
+        } 
+    },
+    feedback: { title: "Feedback", desc: "App verbessern.", type: "Type", bug: "Fehler", feature: "Funktion", suggestion: "Vorschlag", other: "Sonstiges", subject: "Betreff", message: "Nachricht", submit: "Senden", success: "Gesendet!", error: "Fehler.", targetEmail: "andrinruegg732@gmail.com", requiredField: "Pflichtfeld" },
     composer: {
         title: "Bildgestalter",
         theme: "Design",
