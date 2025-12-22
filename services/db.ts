@@ -4,17 +4,17 @@ import { ChatSession, Message, SavedItem, BibleHighlight, UserProfile, FriendReq
 
 const ensureSupabase = () => {
     if (!supabase) throw new Error("Database not connected.");
+    return supabase;
 }
 
 export const db = {
   async getUserChats(): Promise<ChatSession[]> {
-    ensureSupabase();
-    // @ts-ignore
-    const { data: { user } } = await supabase.auth.getUser();
+    const client = ensureSupabase();
+    const { data: authData } = await client.auth.getUser();
+    const user = authData?.user;
     if (!user) throw new Error('Not authenticated');
 
-    // @ts-ignore
-    const { data: chatsData, error: chatsError } = await supabase
+    const { data: chatsData, error: chatsError } = await client
       .from('chats')
       .select(`
         id,
@@ -50,16 +50,15 @@ export const db = {
   },
 
   async createChat(title: string = 'New Conversation', initialMessage?: Message, id?: string): Promise<ChatSession> {
-    ensureSupabase();
-    // @ts-ignore
-    const { data: { user } } = await supabase.auth.getUser();
+    const client = ensureSupabase();
+    const { data: authData } = await client.auth.getUser();
+    const user = authData?.user;
     if (!user) throw new Error('Not authenticated');
 
     const chatData: any = { user_id: user.id, title };
     if (id) chatData.id = id;
 
-    // @ts-ignore
-    const { data: chat, error: chatError } = await supabase
+    const { data: chat, error: chatError } = await client
       .from('chats')
       .insert(chatData)
       .select()
@@ -81,27 +80,23 @@ export const db = {
   },
 
   async deleteChat(chatId: string) {
-    ensureSupabase();
-    // @ts-ignore
-    const { error: msgError } = await supabase.from('messages').delete().eq('chat_id', chatId);
+    const client = ensureSupabase();
+    const { error: msgError } = await client.from('messages').delete().eq('chat_id', chatId);
     if (msgError) console.warn("Message deletion warning:", msgError);
 
-    // @ts-ignore
-    const { error } = await supabase.from('chats').delete().eq('id', chatId);
+    const { error } = await client.from('chats').delete().eq('id', chatId);
     if (error) throw error;
   },
 
   async updateChatTitle(chatId: string, title: string) {
-    ensureSupabase();
-    // @ts-ignore
-    const { error } = await supabase.from('chats').update({ title }).eq('id', chatId);
+    const client = ensureSupabase();
+    const { error } = await client.from('chats').update({ title }).eq('id', chatId);
     if (error) throw error;
   },
 
   async addMessage(chatId: string, message: Message): Promise<Message[]> {
-    ensureSupabase();
-    // @ts-ignore
-    const { data, error } = await supabase
+    const client = ensureSupabase();
+    const { data, error } = await client
       .from('messages')
       .insert({
         chat_id: chatId,
@@ -125,13 +120,12 @@ export const db = {
   },
 
   async getSavedItems(): Promise<SavedItem[]> {
-      ensureSupabase();
-      // @ts-ignore
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = ensureSupabase();
+      const { data: authData } = await client.auth.getUser();
+      const user = authData?.user;
       if (!user) return [];
 
-      // @ts-ignore
-      const { data, error } = await supabase
+      const { data, error } = await client
           .from('saved_items')
           .select('*')
           .eq('user_id', user.id)
@@ -141,7 +135,7 @@ export const db = {
 
       return (data || []).map((item: any) => ({
           id: item.id,
-          user_id: item.user_id, // Map owner ID
+          user_id: item.user_id,
           type: item.type as 'verse' | 'chat',
           content: item.content,
           reference: item.reference,
@@ -151,13 +145,12 @@ export const db = {
   },
 
   async saveItem(item: SavedItem) {
-      ensureSupabase();
-      // @ts-ignore
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = ensureSupabase();
+      const { data: authData } = await client.auth.getUser();
+      const user = authData?.user;
       if (!user) throw new Error('Not authenticated');
 
-      // @ts-ignore
-      const { error } = await supabase
+      const { error } = await client
           .from('saved_items')
           .insert({
               user_id: user.id,
@@ -174,17 +167,16 @@ export const db = {
   },
 
   async updateSavedItem(id: string, updates: Partial<SavedItem>) {
-      ensureSupabase();
-      // @ts-ignore
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = ensureSupabase();
+      const { data: authData } = await client.auth.getUser();
+      const user = authData?.user;
       if (!user) throw new Error('Not authenticated');
 
       const dbUpdates: any = {};
       if (updates.content) dbUpdates.content = updates.content;
       if (updates.metadata) dbUpdates.metadata = updates.metadata;
       
-      // @ts-ignore
-      const { error } = await supabase
+      const { error } = await client
           .from('saved_items')
           .update(dbUpdates)
           .eq('id', id)
@@ -194,20 +186,18 @@ export const db = {
   },
 
   async deleteSavedItem(id: string) {
-      ensureSupabase();
-      // @ts-ignore
-      const { error } = await supabase.from('saved_items').delete().eq('id', id);
+      const client = ensureSupabase();
+      const { error } = await client.from('saved_items').delete().eq('id', id);
       if (error) throw error;
   },
 
   async getHighlights(): Promise<BibleHighlight[]> {
-      ensureSupabase();
-      // @ts-ignore
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = ensureSupabase();
+      const { data: authData } = await client.auth.getUser();
+      const user = authData?.user;
       if (!user) return [];
 
-      // @ts-ignore
-      const { data, error } = await supabase.from('highlights').select('*').eq('user_id', user.id);
+      const { data, error } = await client.from('highlights').select('*').eq('user_id', user.id);
       if (error) throw error;
 
       return (data || []).map((h: any) => ({
@@ -218,30 +208,26 @@ export const db = {
   },
 
   async addHighlight(highlight: BibleHighlight) {
-      ensureSupabase();
-      // @ts-ignore
-      const { data: { user } } = await supabase.auth.getUser();
+      const client = ensureSupabase();
+      const { data: authData } = await client.auth.getUser();
+      const user = authData?.user;
       if (!user) throw new Error('Not authenticated');
 
-      // @ts-ignore
-      const { error } = await supabase.from('highlights').insert({ user_id: user.id, ref: highlight.ref, color: highlight.color });
+      const { error } = await client.from('highlights').insert({ user_id: user.id, ref: highlight.ref, color: highlight.color });
       if (error) throw error;
   },
 
   async deleteHighlight(ref: string) {
-      ensureSupabase();
-      // @ts-ignore
-      const { error } = await supabase.from('highlights').delete().eq('ref', ref);
+      const client = ensureSupabase();
+      const { error } = await client.from('highlights').delete().eq('ref', ref);
       if (error) throw error;
   },
 
   async saveFeedback(type: string, subject: string, message: string) {
-      ensureSupabase();
-      // @ts-ignore
-      const { data: { user } } = await supabase.auth.getUser();
-      // Tag the record with the destination requested by user
-      // @ts-ignore
-      const { error } = await supabase.from('feedback').insert({
+      const client = ensureSupabase();
+      const { data: authData } = await client.auth.getUser();
+      const user = authData?.user;
+      const { error } = await client.from('feedback').insert({
           user_id: user?.id || null,
           type,
           subject,
@@ -254,13 +240,12 @@ export const db = {
   
   prayers: {
       async getCommunityPrayers(): Promise<SavedItem[]> {
-          ensureSupabase();
-          // @ts-ignore
-          const { data: { user } } = await supabase.auth.getUser();
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
           if (!user) return [];
 
-          // @ts-ignore
-          const { data: friendshipData } = await supabase
+          const { data: friendshipData } = await client
               .from('friendships')
               .select('requester_id, receiver_id')
               .eq('status', 'accepted')
@@ -270,8 +255,7 @@ export const db = {
               f.requester_id === user.id ? f.receiver_id : f.requester_id
           );
 
-          // @ts-ignore
-          const { data, error } = await supabase
+          const { data, error } = await client
               .from('saved_items')
               .select('*')
               .eq('type', 'prayer')
@@ -313,9 +297,9 @@ export const db = {
       },
       
       async toggleAmen(prayerId: string, currentMetadata: any): Promise<any> {
-          ensureSupabase();
-          // @ts-ignore
-          const { data: { user } } = await supabase.auth.getUser();
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
           if (!user) return currentMetadata;
 
           const interactions = currentMetadata.interactions || { type: 'amen', count: 0, user_ids: [] };
@@ -337,8 +321,7 @@ export const db = {
           }
           
           const newMetadata = { ...currentMetadata, interactions: newInteractions };
-          // @ts-ignore
-          const { error } = await supabase.from('saved_items').update({ metadata: newMetadata }).eq('id', prayerId);
+          const { error } = await client.from('saved_items').update({ metadata: newMetadata }).eq('id', prayerId);
           if (error) throw error;
           return newMetadata;
       }
@@ -346,145 +329,128 @@ export const db = {
 
   social: {
       async heartbeat() {
-          ensureSupabase();
-          // @ts-ignore
-          const { data: { user } } = await supabase.auth.getUser();
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
           if (!user) return;
-          // @ts-ignore
-          await supabase.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', user.id);
+          await client.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', user.id);
       },
 
       async checkShareIdExists(shareId: string): Promise<boolean> {
-          ensureSupabase();
-          // @ts-ignore
-          const { data, error } = await supabase.from('profiles').select('id').eq('share_id', shareId).maybeSingle();
+          const client = ensureSupabase();
+          const { data } = await client.from('profiles').select('id').eq('share_id', shareId).maybeSingle();
           return !!data;
       },
 
       async upsertProfile(shareId: string, displayName: string, avatar?: string, bio?: string) {
-          ensureSupabase();
-          // @ts-ignore
-          const { data: { user } } = await supabase.auth.getUser();
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
           if (!user) return;
 
-          // @ts-ignore
-          const { data: existing } = await supabase.from('profiles').select('share_id').eq('id', user.id).maybeSingle();
+          const { data: existing } = await client.from('profiles').select('share_id').eq('id', user.id).maybeSingle();
           let finalIdToSave = shareId;
           if (existing && existing.share_id) { finalIdToSave = existing.share_id; }
 
           const updates: any = { id: user.id, display_name: displayName, avatar: avatar || null, bio: bio || null, share_id: finalIdToSave, last_seen: new Date().toISOString() };
-          // @ts-ignore
-          const { error } = await supabase.from('profiles').upsert(updates, { onConflict: 'id' });
+          const { error } = await client.from('profiles').upsert(updates, { onConflict: 'id' });
           if (error) console.error("Profile sync failed", error);
           return finalIdToSave;
       },
       
       async updateProfileStats(streak: number, achievements?: Achievement[]) {
-          ensureSupabase();
-           // @ts-ignore
-          const { data: { user } } = await supabase.auth.getUser();
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
           if (!user) return;
           const updates: any = { streak };
           if (achievements) updates.achievements = achievements;
-          // @ts-ignore
-          await supabase.from('profiles').update(updates).eq('id', user.id);
+          await client.from('profiles').update(updates).eq('id', user.id);
       },
       
       async addAchievement(achievement: Achievement) {
-          ensureSupabase();
-          // @ts-ignore
-          const { data: { user } } = await supabase.auth.getUser();
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
           if (!user) return;
-          // @ts-ignore
-          const { data } = await supabase.from('profiles').select('achievements').eq('id', user.id).single();
+          const { data } = await client.from('profiles').select('achievements').eq('id', user.id).single();
           const current: Achievement[] = data?.achievements || [];
           if (current.some(a => a.id === achievement.id)) return;
           const newSet = [...current, achievement];
-          // @ts-ignore
-          await supabase.from('profiles').update({ achievements: newSet }).eq('id', user.id);
+          await client.from('profiles').update({ achievements: newSet }).eq('id', user.id);
           return newSet;
       },
 
       async getUserProfile(userId: string): Promise<UserProfile | null> {
-          ensureSupabase();
-          // @ts-ignore
-          const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle(); 
+          const client = ensureSupabase();
+          const { data, error } = await client.from('profiles').select('*').eq('id', userId).maybeSingle(); 
           if (error || !data) return null;
           return data as UserProfile;
       },
       
       async getCurrentUser(): Promise<UserProfile | null> {
-          ensureSupabase();
-          // @ts-ignore
-          const { data: { user } } = await supabase.auth.getUser();
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
           if (!user) return null;
           return this.getUserProfile(user.id);
       },
 
       async searchUserByShareId(shareId: string): Promise<UserProfile | null> {
-          ensureSupabase();
-          // @ts-ignore
-          const { data, error } = await supabase.from('profiles').select('*').eq('share_id', shareId).maybeSingle();
+          const client = ensureSupabase();
+          const { data, error } = await client.from('profiles').select('*').eq('share_id', shareId).maybeSingle();
           if (error || !data) return null;
           return data as UserProfile;
       },
 
       async sendFriendRequest(targetUserId: string) {
-          ensureSupabase();
-          // @ts-ignore
-          const { data: { user } } = await supabase!.auth.getUser();
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
           if (!user) throw new Error('Not authenticated');
           if (user.id === targetUserId) throw new Error("You cannot add yourself.");
-          // @ts-ignore
-          const { data: existing } = await supabase!.from('friendships').select('*').or(`and(requester_id.eq.${user.id},receiver_id.eq.${targetUserId}),and(requester_id.eq.${targetUserId},receiver_id.eq.${user.id})`).maybeSingle();
+          const { data: existing } = await client.from('friendships').select('*').or(`and(requester_id.eq.${user.id},receiver_id.eq.${targetUserId}),and(requester_id.eq.${targetUserId},receiver_id.eq.${user.id})`).maybeSingle();
           if (existing) throw new Error("Request already sent or you are already friends.");
-          // @ts-ignore
-          const { error } = await supabase!.from('friendships').insert({ requester_id: user.id, receiver_id: targetUserId, status: 'pending' });
+          const { error } = await client.from('friendships').insert({ requester_id: user.id, receiver_id: targetUserId, status: 'pending' });
           if (error) throw error;
       },
 
       async getIncomingRequests(): Promise<FriendRequest[]> {
-          ensureSupabase();
-          // @ts-ignore
-          const { data: { user } } = await supabase.auth.getUser();
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
           if (!user) return [];
-          // @ts-ignore
-          const { data, error } = await supabase.from('friendships').select(`id, created_at, status, requester:profiles!requester_id ( id, share_id, display_name, avatar, bio )`).eq('receiver_id', user.id).eq('status', 'pending');
+          const { data, error } = await client.from('friendships').select(`id, created_at, status, requester:profiles!requester_id ( id, share_id, display_name, avatar, bio )`).eq('receiver_id', user.id).eq('status', 'pending');
           if (error) throw error;
           return (data || []).filter((r: any) => r.requester !== null).map((r: any) => ({ id: r.id, status: r.status, created_at: r.created_at, requester: r.requester }));
       },
 
       async respondToRequest(requestId: string, accept: boolean) {
-          ensureSupabase();
+          const client = ensureSupabase();
           if (accept) {
-              // @ts-ignore
-              const { error } = await supabase.from('friendships').update({ status: 'accepted' }).eq('id', requestId);
+              const { error } = await client.from('friendships').update({ status: 'accepted' }).eq('id', requestId);
               if (error) throw error;
           } else {
-              // @ts-ignore
-              const { error } = await supabase.from('friendships').delete().eq('id', requestId);
+              const { error } = await client.from('friendships').delete().eq('id', requestId);
               if (error) throw error;
           }
       },
 
       async removeFriend(friendId: string) {
-          ensureSupabase();
-          // @ts-ignore
-          const { data: { user } } = await supabase.auth.getUser();
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
           if (!user) throw new Error("Not authenticated");
-          // @ts-ignore
-          await supabase.from('friendships').delete().eq('requester_id', user.id).eq('receiver_id', friendId);
-          // @ts-ignore
-          await supabase.from('friendships').delete().eq('requester_id', friendId).eq('receiver_id', user.id);
+          await client.from('friendships').delete().eq('requester_id', user.id).eq('receiver_id', friendId);
+          await client.from('friendships').delete().eq('requester_id', friendId).eq('receiver_id', user.id);
       },
 
       async getFriends(): Promise<UserProfile[]> {
-          ensureSupabase();
-          // @ts-ignore
-          const { data: { user } } = await supabase.auth.getUser();
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
           if (!user) return [];
-          // @ts-ignore
-          const { data, error } = await supabase.from('friendships').select(`requester:profiles!requester_id(*), receiver:profiles!receiver_id(*)`).eq('status', 'accepted').or(`requester_id.eq.${user.id},receiver_id.eq.${user.id}`);
+          const { data, error } = await client.from('friendships').select(`requester:profiles!requester_id(*), receiver:profiles!receiver_id(*)`).eq('status', 'accepted').or(`requester_id.eq.${user.id},receiver_id.eq.${user.id}`);
           if (error) throw error;
 
           const friends: UserProfile[] = [];
@@ -493,13 +459,11 @@ export const db = {
               if (row.receiver?.id && row.receiver.id !== user.id) friends.push(row.receiver);
           });
 
-          // @ts-ignore
-          const { data: unreadData } = await supabase.from('direct_messages').select('sender_id').eq('receiver_id', user.id).is('read_at', null);
+          const { data: unreadData } = await client.from('direct_messages').select('sender_id').eq('receiver_id', user.id).is('read_at', null);
           const unreadMap = new Map();
           unreadData?.forEach((m: any) => { unreadMap.set(m.sender_id, (unreadMap.get(m.sender_id) || 0) + 1); });
 
-          // @ts-ignore
-          const { data: latestMsgs } = await supabase.from('direct_messages').select('sender_id, receiver_id, created_at').or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`).order('created_at', { ascending: false }).limit(200);
+          const { data: latestMsgs } = await client.from('direct_messages').select('sender_id, receiver_id, created_at').or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`).order('created_at', { ascending: false }).limit(200);
           const latestMap = new Map();
           latestMsgs?.forEach((m: any) => {
               const otherId = m.sender_id === user.id ? m.receiver_id : m.sender_id;
@@ -509,66 +473,60 @@ export const db = {
       },
       
       async getMessages(friendId: string): Promise<DirectMessage[]> {
-          ensureSupabase();
-          // @ts-ignore
-          const { data: { user } } = await supabase.auth.getUser();
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
           if (!user) return [];
-          // @ts-ignore
-          const { data, error } = await supabase.from('direct_messages').select('*').or(`and(sender_id.eq.${user.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${user.id})`).order('created_at', { ascending: true });
+          const { data, error } = await client.from('direct_messages').select('*').or(`and(sender_id.eq.${user.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${user.id})`).order('created_at', { ascending: true });
           if (error) throw error;
           return data || [];
       },
 
       async sendMessage(friendId: string, content: string, type: 'text'|'image'|'audio' = 'text'): Promise<DirectMessage> {
-          ensureSupabase();
-          // @ts-ignore
-          const { data: { user } } = await supabase.auth.getUser();
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
           if (!user) throw new Error("Not authenticated");
-          // @ts-ignore
-          const { data, error } = await supabase.from('direct_messages').insert({ sender_id: user.id, receiver_id: friendId, content: content, message_type: type }).select().single();
+          const { data, error } = await client.from('direct_messages').insert({ sender_id: user.id, receiver_id: friendId, content: content, message_type: type }).select().single();
           if (error) throw error;
           return data;
       },
 
       async deleteDirectMessage(messageId: string) {
-          ensureSupabase();
-          // @ts-ignore
-          await supabase.from('direct_messages').delete().eq('id', messageId);
+          const client = ensureSupabase();
+          await client.from('direct_messages').delete().eq('id', messageId);
       },
 
       async markMessagesRead(friendId: string) {
-          ensureSupabase();
-          // @ts-ignore
-          const { data: { user } } = await supabase.auth.getUser();
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
           if (!user) return;
-          // @ts-ignore
-          await supabase.from('direct_messages').update({ read_at: new Date().toISOString() }).eq('sender_id', friendId).eq('receiver_id', user.id).is('read_at', null).select('id');
+          await client.from('direct_messages').update({ read_at: new Date().toISOString() }).eq('sender_id', friendId).eq('receiver_id', user.id).is('read_at', null).select('id');
       },
 
       async uploadMedia(file: Blob, path: string): Promise<string> {
-          ensureSupabase();
-          // @ts-ignore
-          const { data, error } = await supabase.storage.from('chat-media').upload(path, file, { upsert: true, contentType: file.type || 'application/octet-stream' });
+          const client = ensureSupabase();
+          const { data, error } = await client.storage.from('chat-media').upload(path, file, { upsert: true, contentType: file.type || 'application/octet-stream' });
           if (error) throw error;
-          // @ts-ignore
-          const { data: urlData } = supabase.storage.from('chat-media').getPublicUrl(path);
+          const { data: urlData } = client.storage.from('chat-media').getPublicUrl(path);
           return `${urlData.publicUrl}?t=${Date.now()}`; 
       },
 
       async getTotalUnreadCount(): Promise<number> {
-          ensureSupabase();
-          // @ts-ignore
-          const { data: { user } } = await supabase.auth.getUser();
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
           if (!user) return 0;
-          // @ts-ignore
-          const { count } = await supabase.from('direct_messages').select('*', { count: 'exact', head: true }).eq('receiver_id', user.id).is('read_at', null);
+          const { count } = await client.from('direct_messages').select('*', { count: 'exact', head: true }).eq('receiver_id', user.id).is('read_at', null);
           return count || 0;
       },
 
       async uploadGraffiti(friendId: string, blob: Blob): Promise<string> {
-          ensureSupabase();
-          // @ts-ignore
-          const { data: { user } } = await supabase.auth.getUser();
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
+          if (!user) throw new Error("Not authenticated");
           const ids = [user.id, friendId].sort();
           const friendshipFileId = `${ids[0]}_${ids[1]}`;
           const path = `graffiti/${friendshipFileId}_${Date.now()}.png`;
@@ -576,16 +534,15 @@ export const db = {
       },
 
       async getGraffitiUrl(friendId: string): Promise<string | null> {
-          ensureSupabase();
-          // @ts-ignore
-          const { data: { user } } = await supabase.auth.getUser();
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
+          if (!user) return null;
           const ids = [user.id, friendId].sort();
           const friendshipFileId = `${ids[0]}_${ids[1]}`;
-          // @ts-ignore
-          const { data: list } = await supabase.storage.from('chat-media').list('graffiti', { limit: 1, sortBy: { column: 'created_at', order: 'desc' }, search: friendshipFileId });
+          const { data: list } = await client.storage.from('chat-media').list('graffiti', { limit: 1, sortBy: { column: 'created_at', order: 'desc' }, search: friendshipFileId });
           if (!list || list.length === 0) return null;
-          // @ts-ignore
-          const { data: urlData } = supabase.storage.from('chat-media').getPublicUrl(`graffiti/${list[0].name}`);
+          const { data: urlData } = client.storage.from('chat-media').getPublicUrl(`graffiti/${list[0].name}`);
           return `${urlData.publicUrl}?t=${Date.now()}`;
       }
   }
