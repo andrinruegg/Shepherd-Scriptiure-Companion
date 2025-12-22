@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../services/supabase';
+import { supabase } from '../services/supabase.ts';
 import { ArrowRight, Mail, Lock, AlertCircle, CheckCircle2, Moon, Sun, Eye, EyeOff, User, Globe } from 'lucide-react';
-import ShepherdLogo from './ShepherdLogo';
-import { translations } from '../utils/translations';
+import ShepherdLogo from './ShepherdLogo.tsx';
+import { translations } from '../utils/translations.ts';
 
 interface LoginProps {
     isDarkMode: boolean;
@@ -27,15 +26,6 @@ const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language, onS
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const t = translations[language]?.login || translations['English'].login;
-
-  useEffect(() => {
-      // Check if user just arrived from a confirmation link or password recovery
-      if (typeof window !== 'undefined' && window.location.hash) {
-           if (window.location.hash.includes('type=recovery')) {
-               // This is handled by onAuthStateChange in App.tsx
-           }
-      }
-  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,11 +78,9 @@ const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language, onS
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4 transition-colors relative overflow-hidden">
-        {/* Background Effects */}
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/10 blur-3xl animate-pulse"></div>
         <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-emerald-500/10 blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
 
-        {/* Top Actions */}
         <div className="absolute top-6 right-6 flex gap-2 z-30">
             <div className="relative">
                 <button 

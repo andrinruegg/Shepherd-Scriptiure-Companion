@@ -1,16 +1,15 @@
-
 import React, { useState } from 'react';
 import { X, Share2, Copy, Calendar, Check, Image } from 'lucide-react';
-import { getDailyVerse } from '../services/dailyVerseService';
-import ShepherdLogo from './ShepherdLogo';
-import { translations } from '../utils/translations';
+import { getDailyVerse } from '../services/dailyVerseService.ts';
+import ShepherdLogo from './ShepherdLogo.tsx';
+import { translations } from '../utils/translations.ts';
 
 interface DailyVerseModalProps {
   isOpen: boolean;
   onClose: () => void;
   isDarkMode: boolean;
   language: string;
-  onOpenComposer: (text: string, ref: string) => void; // New prop
+  onOpenComposer: (text: string, ref: string) => void; 
 }
 
 const DailyVerseModal: React.FC<DailyVerseModalProps> = ({ isOpen, onClose, isDarkMode, language, onOpenComposer }) => {
@@ -18,7 +17,6 @@ const DailyVerseModal: React.FC<DailyVerseModalProps> = ({ isOpen, onClose, isDa
 
   if (!isOpen) return null;
 
-  // Pass language to service to get correct translation
   const verse = getDailyVerse(language);
   const t = translations[language]?.dailyVerse || translations['English'].dailyVerse;
 
@@ -30,16 +28,11 @@ const DailyVerseModal: React.FC<DailyVerseModalProps> = ({ isOpen, onClose, isDa
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-fade-in"
         onClick={onClose}
       />
-
-      {/* Modal */}
       <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden animate-scale-in border border-slate-100 dark:border-slate-800">
-        
-        {/* Header Image/Pattern */}
         <div className="h-32 bg-emerald-600 relative overflow-hidden flex items-center justify-center">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-emerald-500/50 to-emerald-700/80"></div>
@@ -48,7 +41,6 @@ const DailyVerseModal: React.FC<DailyVerseModalProps> = ({ isOpen, onClose, isDa
                 <h2 className="text-xl font-bold font-serif-text tracking-wide">{t.title}</h2>
                 <div className="w-12 h-1 bg-white/30 rounded-full mt-2"></div>
             </div>
-            
             <button 
                 onClick={onClose}
                 className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/30 text-white rounded-full transition-colors backdrop-blur-sm"
@@ -56,8 +48,6 @@ const DailyVerseModal: React.FC<DailyVerseModalProps> = ({ isOpen, onClose, isDa
                 <X size={18} />
             </button>
         </div>
-
-        {/* Content */}
         <div className="p-8 text-center">
             <div className="mb-6">
                 <ShepherdLogo className="mx-auto text-emerald-600 dark:text-emerald-400 mb-4 opacity-50" size={32} />
@@ -68,8 +58,6 @@ const DailyVerseModal: React.FC<DailyVerseModalProps> = ({ isOpen, onClose, isDa
                     {verse.reference}
                 </p>
             </div>
-
-            {/* Actions */}
             <div className="flex items-center justify-center gap-3">
                 <button 
                     onClick={handleCopy}
@@ -78,7 +66,6 @@ const DailyVerseModal: React.FC<DailyVerseModalProps> = ({ isOpen, onClose, isDa
                     {copied ? <Check size={16} /> : <Copy size={16} />}
                     <span>{copied ? t.copied : t.copy}</span>
                 </button>
-
                 <button 
                     onClick={() => { onOpenComposer(verse.text, verse.reference); onClose(); }}
                     className="flex items-center gap-2 px-5 py-2.5 rounded-full font-medium transition-colors text-sm bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/30"

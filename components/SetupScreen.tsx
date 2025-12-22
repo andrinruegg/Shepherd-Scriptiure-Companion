@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Database, ArrowRight, AlertCircle, Info } from 'lucide-react';
-import { saveSupabaseConfig } from '../services/supabase';
+import { saveSupabaseConfig } from '../services/supabase.ts';
 
 const SetupScreen: React.FC = () => {
   const [url, setUrl] = useState('');
@@ -34,8 +34,6 @@ const SetupScreen: React.FC = () => {
         </div>
 
         <div className="p-8">
-          
-          {/* Developer Note */}
           <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900 rounded-lg p-3 flex items-start gap-3">
              <Info className="text-blue-500 mt-0.5 flex-shrink-0" size={16} />
              <div className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
