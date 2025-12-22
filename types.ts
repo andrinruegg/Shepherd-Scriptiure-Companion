@@ -98,7 +98,7 @@ export type SocialTab = 'inbox' | 'friends' | 'add' | 'profile';
 
 // --- NEW TYPES FOR BIBLE READER & SAVED ITEMS ---
 
-export type AppView = 'home' | 'chat' | 'bible' | 'saved' | 'prayer' | 'quiz';
+export type AppView = 'home' | 'chat' | 'bible' | 'saved' | 'prayer' | 'quiz' | 'stories';
 
 export interface BibleBook {
   id: string;   // e.g. 'GEN'

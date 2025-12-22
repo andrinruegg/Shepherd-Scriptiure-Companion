@@ -14,6 +14,7 @@ import WinterOverlay from './components/WinterOverlay';
 import PrincessOverlay from './components/PrincessOverlay';
 import SocialModal from './components/SocialModal';
 import QuizMode from './components/QuizMode';
+import RoleplayView from './components/StoriesTab'; // Renamed to keep import path stable
 import PasswordResetModal from './components/PasswordResetModal';
 import VisualComposerModal from './components/VisualComposerModal'; 
 import HomeView from './components/HomeView'; 
@@ -57,7 +58,6 @@ const App: React.FC = () => {
   const [shareId, setShareId] = useState<string>('');
   const [totalNotifications, setTotalNotifications] = useState(0);
 
-  // Hardcoded to NIV for AI as requested
   const bibleTranslation = 'NIV';
 
   const [language, setLanguage] = useState<string>(() => {
@@ -500,7 +500,6 @@ const App: React.FC = () => {
       (error) => {
         const rawMsg = error?.message || "Unknown Error";
         let friendlyMessage = rawMsg;
-        // Fix: Removed missing key error template handling to align with process.env.API_KEY logic
         if (rawMsg.includes("PERMISSION_DENIED")) {
              friendlyMessage = "⚠️ **Permission Denied**\n\nPlease check that your API Key is correctly configured in the environment.";
         } else if (rawMsg.includes('429') || rawMsg.includes('Quota')) {
@@ -669,6 +668,11 @@ const App: React.FC = () => {
           {currentView === 'quiz' && ( 
               <div className="flex-1 w-full h-full">
                   <QuizMode language={language} onMenuClick={() => setCurrentView('home')} />
+              </div>
+          )}
+          {currentView === 'stories' && ( 
+              <div className="flex-1 w-full h-full">
+                  <RoleplayView language={language} onMenuClick={() => setCurrentView('home')} />
               </div>
           )}
           <Sanctuary isOpen={isSanctuaryOpen} onClose={() => setIsSanctuaryOpen(false)} language={language} />
