@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Download, Palette, Type, AlignLeft, AlignCenter, AlignRight, Check, ChevronDown } from 'lucide-react';
 import html2canvas from 'html2canvas';
@@ -53,7 +54,8 @@ const TEXT_COLORS = [
 ];
 
 const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClose, initialText, initialReference, language }) => {
-  const t = translations[language]?.composer || translations['English'].composer;
+  // Fix: Safe access to translations
+  const t = translations[language]?.composer || translations['English']?.composer || { presets: [], themes: {} };
   const presets = t.presets || [];
 
   const [text, setText] = useState(initialText);
@@ -96,7 +98,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
       link.click();
     } catch (e) {
       console.error("Download failed", e);
-      alert(t.securityWarning);
+      alert(t.securityWarning || "Download failed. Please try again.");
     } finally {
       setIsDownloading(false);
     }
@@ -180,7 +182,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
         {/* CONTROLS AREA */}
         <div className="w-full md:w-80 bg-slate-900 border-t md:border-t-0 md:border-l border-slate-800 flex flex-col shrink-0 h-auto md:h-full">
             <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-                <h3 className="text-white font-bold font-serif-text">{t.title}</h3>
+                <h3 className="text-white font-bold font-serif-text">{t.title || 'Composer'}</h3>
                 <button onClick={onClose} className="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800 transition-colors"><X size={20}/></button>
             </div>
 
@@ -190,13 +192,13 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                         onClick={() => setActiveTab('theme')} 
                         className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${activeTab === 'theme' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
                     >
-                        {t.theme}
+                        {t.theme || 'Theme'}
                     </button>
                     <button 
                         onClick={() => setActiveTab('text')} 
                         className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${activeTab === 'text' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
                     >
-                        {t.content}
+                        {t.content || 'Text'}
                     </button>
                 </div>
 
@@ -204,7 +206,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                     <div className="space-y-6 animate-slide-up">
                         <div>
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 block flex items-center gap-2">
-                                <Palette size={14} /> {t.background}
+                                <Palette size={14} /> {t.background || 'Background'}
                             </label>
                             <div className="grid grid-cols-3 gap-2">
                                 {THEMES.map(th => (
@@ -238,7 +240,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
 
                         <div>
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 block flex items-center gap-2">
-                                <Type size={14} /> {t.typography}
+                                <Type size={14} /> {t.typography || 'Font'}
                             </label>
                             
                             <div className="flex gap-2 mb-4">
@@ -257,7 +259,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                             </div>
                             
                             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 block">
-                                {t.textColor}
+                                {t.textColor || 'Text Color'}
                             </label>
                             <div className="flex gap-2 mb-4 flex-wrap">
                                 {TEXT_COLORS.map(c => (
@@ -293,27 +295,29 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
 
                 {activeTab === 'text' && (
                     <div className="space-y-4 animate-slide-up">
-                        <div>
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">{t.quickSelect}</label>
-                            <div className="relative">
-                                <select 
-                                    onChange={handlePresetSelect}
-                                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 outline-none appearance-none cursor-pointer"
-                                    defaultValue=""
-                                >
-                                    <option value="" disabled>{t.selectPlaceholder}</option>
-                                    {presets.map((v: any, i: number) => (
-                                        <option key={i} value={i}>{v.ref} - {v.text.substring(0, 30)}...</option>
-                                    ))}
-                                </select>
-                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+                        {presets.length > 0 && (
+                            <div>
+                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">{t.quickSelect || 'Quick Select'}</label>
+                                <div className="relative">
+                                    <select 
+                                        onChange={handlePresetSelect}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 outline-none appearance-none cursor-pointer"
+                                        defaultValue=""
+                                    >
+                                        <option value="" disabled>{t.selectPlaceholder || 'Select a verse...'}</option>
+                                        {presets.map((v: any, i: number) => (
+                                            <option key={i} value={i}>{v.ref} - {v.text.substring(0, 30)}...</option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         <div className="w-full h-px bg-slate-800 my-2"></div>
 
                         <div>
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">{t.message}</label>
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">{t.message || 'Text'}</label>
                             <textarea
                                 value={text}
                                 onChange={(e) => setText(e.target.value)}
@@ -322,7 +326,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                             />
                         </div>
                         <div>
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">{t.reference}</label>
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">{t.reference || 'Reference'}</label>
                             <input
                                 type="text"
                                 value={reference}
@@ -342,10 +346,10 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                     className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 transition-all transform active:scale-95 disabled:opacity-50"
                 >
                     {isDownloading ? (
-                        <>{t.processing}</>
+                        <>{t.processing || 'Processing...'}</>
                     ) : (
                         <>
-                            <Download size={20} /> {t.download}
+                            <Download size={20} /> {t.download || 'Download Image'}
                         </>
                     )}
                 </button>

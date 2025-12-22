@@ -3,7 +3,6 @@ import { BibleBook, BibleChapter } from '../types';
 import { getBibleChapterFromAI } from './geminiService';
 
 // Static list of all 66 Bible books with metadata and translations
-// ORDER IS CRITICAL: Matches Standard Protestant Canon (Genesis=0, Revelation=65)
 export const BIBLE_BOOKS: (BibleBook & { names: { en: string, ro: string, de: string } })[] = [
   // OLD TESTAMENT
   { id: 'GEN', name: 'Genesis', names: { en: 'Genesis', ro: 'Geneza', de: '1. Mose' }, chapters: 50, testament: 'OT' },
@@ -75,9 +74,6 @@ export const BIBLE_BOOKS: (BibleBook & { names: { en: string, ro: string, de: st
   { id: 'REV', name: 'Revelation', names: { en: 'Revelation', ro: 'Apocalipsa', de: 'Offenbarung' }, chapters: 22, testament: 'NT' },
 ];
 
-/**
- * CACHE: Holds the full Cornilescu Bible JSON in memory after first load.
- */
 let cornilescuCache: any = null;
 
 async function fetchWithMultiProxy(url: string): Promise<Response> {
@@ -95,38 +91,24 @@ async function fetchWithMultiProxy(url: string): Promise<Response> {
     throw new Error(`Failed to fetch ${url}`);
 }
 
-/**
- * Downloads the ENTIRE Cornilescu Bible JSON
- * Source: thiagobodruk/bible via JsDelivr
- */
 async function getCornilescuData() {
     if (cornilescuCache) return cornilescuCache;
-    
-    console.log("Downloading full Cornilescu Bible...");
     const url = "https://cdn.jsdelivr.net/gh/thiagobodruk/bible@master/json/ro_cornilescu.json";
-    
     try {
         const response = await fetchWithMultiProxy(url);
         const data = await response.json();
         cornilescuCache = data;
         return data;
     } catch (e) {
-        console.error("JsDelivr failed, trying Raw GitHub fallback...");
-        const rawUrl = "https://raw.githubusercontent.com/thiagobodruk/bible/master/json/ro_cornilescu.json";
-        const response = await fetchWithMultiProxy(rawUrl);
-        const data = await response.json();
-        cornilescuCache = data;
-        return data;
+        console.warn("Failed to download Romanian Bible JSON. Fallback to AI.");
+        return null;
     }
 }
 
-/**
- * Super-Aggressive Normalizer for Fuzzy Search
- */
 const superNormalize = (str: string) => {
     return str.toLowerCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove diacritics
-        .replace(/[^a-z0-9]/g, ''); // Remove EVERYTHING except letters and numbers
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
+        .replace(/[^a-z0-9]/g, ''); 
 };
 
 export const fetchChapter = async (
@@ -134,77 +116,32 @@ export const fetchChapter = async (
     chapter: number, 
     language: string
 ): Promise<BibleChapter | null> => {
-    
-    // Find the internal book index (0-65)
     const bookIndex = BIBLE_BOOKS.findIndex(b => b.name === bookName || b.names.en === bookName || b.names.de === bookName || b.names.ro === bookName);
-    
-    if (bookIndex === -1) {
-        console.error("Book not found in internal BIBLE_BOOKS list:", bookName);
-        return null;
-    }
+    if (bookIndex === -1) return null;
     
     const bookData = BIBLE_BOOKS[bookIndex];
     let mappedVerses: { verse: number, text: string }[] = [];
     let translationId = 'NIV';
 
-    // --- ROMANIAN FETCH STRATEGY ---
     if (language === 'Romanian') {
         translationId = 'Cornilescu'; 
-        
         try {
             const fullBible = await getCornilescuData();
-            
-            if (Array.isArray(fullBible)) {
-                let bookObj = null;
-
-                // STRATEGY 1: INDEX MATCH (Best)
-                // If the JSON has exactly 66 books, assume standard Protestant order
-                if (fullBible.length === 66) {
-                    bookObj = fullBible[bookIndex];
-                    console.log(`[Bible] Matched by Index ${bookIndex}:`, bookObj?.name);
-                }
-
-                // STRATEGY 2: FUZZY NAME SEARCH (Fallback)
+            if (fullBible && Array.isArray(fullBible)) {
+                let bookObj = fullBible.length === 66 ? fullBible[bookIndex] : null;
                 if (!bookObj) {
-                    console.log(`[Bible] Index match unsure, trying fuzzy search for: ${bookData.names.ro}`);
-                    const targets = [
-                        superNormalize(bookData.names.ro), 
-                        superNormalize(bookData.names.en),
-                        superNormalize(bookData.name)
-                    ];
-                    
-                    bookObj = fullBible.find((b: any) => {
-                        const n = superNormalize(b.name);
-                        return targets.includes(n);
-                    });
+                    const targets = [superNormalize(bookData.names.ro), superNormalize(bookData.names.en), superNormalize(bookData.name)];
+                    bookObj = fullBible.find((b: any) => targets.includes(superNormalize(b.name)));
                 }
-
                 if (bookObj && bookObj.chapters) {
-                    // Chapters are 0-indexed in the array (Chapter 1 is at index 0)
-                    const chapterIndex = chapter - 1;
-                    if (chapterIndex >= 0 && chapterIndex < bookObj.chapters.length) {
-                        const chapterData = bookObj.chapters[chapterIndex];
-                        
-                        if (Array.isArray(chapterData)) {
-                            mappedVerses = chapterData.map((text: string, idx: number) => ({
-                                verse: idx + 1,
-                                text: text
-                            }));
-                        }
-                    } else {
-                        console.warn(`[Bible] Chapter ${chapter} out of range for ${bookObj.name}`);
+                    const chapterData = bookObj.chapters[chapter - 1];
+                    if (Array.isArray(chapterData)) {
+                        mappedVerses = chapterData.map((text: string, idx: number) => ({ verse: idx + 1, text }));
                     }
-                } else {
-                    console.warn(`[Bible] Book object not found or invalid structure.`);
                 }
             }
-
-        } catch (e) {
-            console.error("Critical Failure fetching Romanian Bible JSON", e);
-        }
-    } 
-    // --- GERMAN FETCH STRATEGY ---
-    else if (language === 'German') {
+        } catch (e) { console.warn("Bible JSON parse failure", e); }
+    } else if (language === 'German') {
         translationId = 'LUT';
         try {
             const encodedBook = encodeURIComponent(bookData.names.en);
@@ -212,35 +149,24 @@ export const fetchChapter = async (
             let response = await fetchWithMultiProxy(url);
             const data = await response.json();
             if (typeof data === 'object') {
-                 Object.keys(data).forEach(key => {
-                     mappedVerses.push({ verse: parseInt(key), text: data[key] });
-                 });
+                 Object.keys(data).forEach(key => { mappedVerses.push({ verse: parseInt(key), text: data[key] }); });
                  mappedVerses.sort((a,b) => a.verse - b.verse);
             }
         } catch (e) {}
-        
         if (mappedVerses.length === 0) mappedVerses = await fetchFromBolls('LUT', bookIndex + 1, chapter);
-    } 
-    // --- ENGLISH/DEFAULT FETCH STRATEGY ---
-    else {
+    } else {
         translationId = 'NIV';
         mappedVerses = await fetchFromBolls('NIV', bookIndex + 1, chapter);
-        if (mappedVerses.length === 0) mappedVerses = await fetchFromBibleApiCom(bookData.names.en, chapter, 'web');
     }
 
-    // FINAL FALLBACK: AI GENERATION
-    // Only if array is empty AND language is NOT Romanian (respecting user wish)
-    if (mappedVerses.length === 0 && language !== 'Romanian') { 
+    if (mappedVerses.length === 0) { 
         try {
             mappedVerses = await getBibleChapterFromAI(bookData.names.en, chapter, translationId, language);
-        } catch (aiError) {}
+        } catch (aiError) { console.error("AI Bible fetch failed", aiError); }
     }
 
     if (mappedVerses.length > 0) {
-        let displayBookName = bookData.names.en;
-        if (language === 'German') displayBookName = bookData.names.de;
-        if (language === 'Romanian') displayBookName = bookData.names.ro;
-
+        let displayBookName = language === 'German' ? bookData.names.de : language === 'Romanian' ? bookData.names.ro : bookData.names.en;
         return {
             reference: `${displayBookName} ${chapter}`,
             translation_id: translationId,
@@ -253,11 +179,8 @@ export const fetchChapter = async (
             }))
         };
     }
-
     return null;
 }
-
-// --- HELPER FETCHERS ---
 
 async function fetchFromBolls(translationId: string, bookId: number, chapter: number): Promise<any[]> {
     try {
@@ -269,19 +192,6 @@ async function fetchFromBolls(translationId: string, bookId: number, chapter: nu
                 verse: v.verse,
                 text: v.text.replace(/<[^>]*>/g, '').replace(/^\d+\s*/, '').trim()
             }));
-        }
-    } catch (e) { }
-    return [];
-}
-
-async function fetchFromBibleApiCom(bookName: string, chapter: number, translation: string): Promise<any[]> {
-    try {
-        const query = encodeURIComponent(`${bookName} ${chapter}`);
-        const url = `https://bible-api.com/${query}?translation=${translation}`;
-        const response = await fetchWithMultiProxy(url);
-        const data = await response.json();
-        if (data.verses && Array.isArray(data.verses)) {
-            return data.verses.map((v: any) => ({ verse: v.verse, text: v.text.trim().replace(/\n/g, ' ') }));
         }
     } catch (e) { }
     return [];

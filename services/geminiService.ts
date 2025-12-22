@@ -2,7 +2,6 @@
 import { GoogleGenAI, GenerateContentResponse, Content, Type, Modality } from "@google/genai";
 import { Message, QuizQuestion } from "../types";
 
-// Fix: Strictly use process.env.API_KEY as per initialization guidelines
 const getAi = (): GoogleGenAI => {
     return new GoogleGenAI({ apiKey: process.env.API_KEY });
 };
@@ -70,7 +69,6 @@ const cleanJson = (text: string): string => {
 export const generateChatTitle = async (userMessage: string, language: string = 'English'): Promise<string> => {
   try {
     const response = await makeRequestWithRetry(async (ai) => {
-        // Fix: Use ai.models.generateContent directly
         return await ai.models.generateContent({
           model: 'gemini-3-flash-preview',
           contents: `Summarize this user request into a short, elegant 3-5 word title for a journal entry (no quotes).
@@ -96,14 +94,16 @@ export const sendMessageStream = async (
   displayName: string | undefined,
   onChunk: (text: string) => void,
   onComplete: () => void,
-  onError: (error: any) => void
+  onError: (error: any) => void,
+  systemOverride?: string // Added parameter to bypass standard Shepherd rules
 ) => {
   try {
     const recentHistory = history.length > 10 ? history.slice(history.length - 10) : history;
     const formattedHistory = mapHistoryToContent(recentHistory);
     const userLanguage = language || "English";
 
-    const dynamicInstruction = `${BASE_SYSTEM_INSTRUCTION}
+    // If override is provided (for Petrus), we ignore all Shepherd rules
+    const finalSystemInstruction = systemOverride ? systemOverride : `${BASE_SYSTEM_INSTRUCTION}
     
     IMPORTANT PREFERENCES:
     1. Unless the user explicitly asks for a different version, YOU MUST QUOTE ALL SCRIPTURE USING THE ${bibleTranslation} TRANSLATION. Label the verses accordingly.
@@ -116,13 +116,12 @@ export const sendMessageStream = async (
         : newMessage;
 
     await makeRequestWithRetry(async (ai) => {
-        // Fix: Create chat from ai instance
         const chat = ai.chats.create({
             model: 'gemini-3-flash-preview',
             history: formattedHistory,
             config: {
-                systemInstruction: dynamicInstruction,
-                temperature: 1.0, 
+                systemInstruction: finalSystemInstruction,
+                temperature: systemOverride ? 0.9 : 1.0, // Slightly more stable for roleplay
             },
         });
         

@@ -1,6 +1,11 @@
 
 export const translations: Record<string, any> = {
   English: {
+    welcomeMessages: [
+      "Welcome back, {name}. How can I help you find peace in the Word today? ✨",
+      "Peace be with you, {name}. Is there a specific situation you'd like to find a verse for? 📖",
+      "Hello {name}! I'm here to guide you through the scriptures. What's on your heart? 🌿"
+    ],
     home: {
         goodMorning: "Good Morning",
         goodAfternoon: "Good Afternoon",
@@ -10,11 +15,11 @@ export const translations: Record<string, any> = {
         dailyVerse: "Verse of the Day",
         readVerse: "Read Verse",
         streak: "Day Streak",
-        jumpTo: "Jump to...",
+        jumpTo: "Library",
         chatTitle: "Ask Shepherd",
         chatDesc: "Get spiritual guidance",
         roleplayTitle: "Walk with Petrus",
-        roleplayDesc: "Historical Roleplay",
+        roleplayDesc: "First Century Roleplay",
         bibleTitle: "Read Bible",
         bibleDesc: "Explore the scriptures",
         prayerTitle: "Prayer Journal",
@@ -111,6 +116,11 @@ export const translations: Record<string, any> = {
     }
   },
   Romanian: {
+    welcomeMessages: [
+      "Bine ai revenit, {name}. Cum te pot ajuta să găsești pacea în Cuvânt astăzi? ✨",
+      "Pacea să fie cu tine, {name}. Există un context anume pentru care cauți un verset? 📖",
+      "Salut {name}! Sunt aici să te ghidez prin scripturi. Ce ai pe inimă? 🌿"
+    ],
     home: {
         goodMorning: "Bună Dimineața",
         goodAfternoon: "Bună Ziua",
@@ -120,7 +130,7 @@ export const translations: Record<string, any> = {
         dailyVerse: "Versetul Zilei",
         readVerse: "Citește Versetul",
         streak: "Serie",
-        jumpTo: "Mergi la...",
+        jumpTo: "Librărie",
         chatTitle: "Întreabă Păstorul",
         chatDesc: "Ghidare spirituală",
         roleplayTitle: "Mergi cu Petru",
@@ -190,7 +200,7 @@ export const translations: Record<string, any> = {
     prayer: { title: "Rugăciuni", tabs: { journal: "Jurnal", community: "Zid" }, newPrayer: "Nou", placeholder: "Ce ai pe inimă?", markAnswered: "Răspuns", answered: "Răspuns", empty: "Gol.", active: "Active", privacy: { label: "Confidențialitate", private: "Privat", friends: "Prieteni", specific: "Specific", public: "Public", selectFriends: "Selectează", anonymous: "Anonim" }, amen: "Amin" },
     sanctuary: { title: "Sanctuar", rain: "Ploaie", fire: "Foc", stream: "Râu", volume: "Volum" },
     quiz: { title: "Trivia", start: "Start", difficulty: "Dificultate", easy: "Ușor", medium: "Mediu", hard: "Greu", score: "Scor", next: "Următorul", correct: "Corect!", incorrect: "Incorect", explanation: "Explicație", results: "Rezultate", time: "Timp", accuracy: "Acuratețe", playAgain: "Din nou", home: "Acasă", mode: "Mod", question: "Întrebare" },
-    topics: { title: "Subiecte", anxiety: { label: "Anxietate", query: "Ajutor anxietate." }, love: { label: "Dragoste", query: "Despre dragoste." }, hope: { label: "Speranță", query: "Am nevoie de speranță." }, sadness: { label: "Tristețe", query: "Sunt trist." }, gratitude: { label: "Recunoștință", query: "Mulțumire." }, strength: { label: "Putere", query: "Fii tare." }, joy: { label: "Bucurie", query: "Bucurie." }, forgiveness: { label: "Iertare", query: "Iertare." } },
+    topics: { title: "Subiecte", anxiety: { label: "Anxietate", query: "Ajutor anxietate." }, love: { label: "Love", query: "Despre dragoste." }, hope: { label: "Speranță", query: "Am nevoie de speranță." }, sadness: { label: "Tristețe", query: "Sunt trist." }, gratitude: { label: "Recunoștință", query: "Mulțumire." }, strength: { label: "Putere", query: "Fii tare." }, joy: { label: "Bucurie", query: "Bucurie." }, forgiveness: { label: "Iertare", query: "Iertare." } },
     settings: { title: "Setări", preferences: "Preferințe", language: "Limbă", appearance: "Aspect", light: "Luminos", dark: "Întunecat", winter: { title: "Iarnă", desc: "Zăpadă", snow: "Zăpadă", lights: "Lumini", icicles: "Țurțuri" }, princess: { title: "Prințesă", desc: "Magic", hearts: "Inimi", aurora: "Aurora" }, account: "Cont", loggedIn: "Autentificat", signOut: "Deconectare", about: "Despre", aboutText: "Shepherd Companion.", displayName: "Nume", bio: "Bio", noBio: "Fără descriere." },
     social: { title: "Social", tabs: { inbox: "Mesaje", friends: "Prieteni", add: "Adaugă", me: "Eu" }, inbox: { title: "Notificări", requests: "Cereri", noRequests: "Nicio cerere", updates: "Noutăți" }, friends: { title: "Prieteni", loading: "Se încarcă...", empty: "Gol.", streak: "Serie" }, add: { title: "Adaugă", yourId: "ID-ul tău", shareText: "Partajează", enterId: "Introdu ID", search: "Caută" }, profile: { title: "Profil", streak: "Serie", achievements: "Insigne", locked: "Blocat", about: "Despre", message: "Mesaj", unfriend: "Șterge", addFriend: "Adaugă" }, status: { online: "Online", offline: "Offline", activeNow: "Activ", lastSeen: "Văzut", ago: "în urmă" }, updatesList: [], achievementList: {} },
     feedback: { title: "Feedback", desc: "Îmbunătățește aplicația.", type: "Tip", bug: "Eroare", feature: "Funcție", suggestion: "Sugestie", other: "Altul", subject: "Subiect", subjectPlaceholder: "Titlu", message: "Mesaj", messagePlaceholder: "Text", submit: "Trimite", success: "Trimis!", error: "Eroare.", targetEmail: "andrinruegg732@gmail.com", requiredField: "Obligatoriu" },
@@ -213,6 +223,11 @@ export const translations: Record<string, any> = {
     }
   },
   German: {
+    welcomeMessages: [
+      "Willkommen zurück, {name}. Wie kann ich dir helfen, heute Frieden im Wort zu finden? ✨",
+      "Friede sei mit dir, {name}. Gibt es eine bestimmte Situation, für die du einen Vers suchst? 📖",
+      "Hallo {name}! Ich bin hier, um dich durch die heiligen Schriften zu führen. Was liegt dir auf dem Herzen? 🌿"
+    ],
     home: {
         goodMorning: "Guten Morgen",
         goodAfternoon: "Guten Tag",
@@ -222,7 +237,7 @@ export const translations: Record<string, any> = {
         dailyVerse: "Tagesvers",
         readVerse: "Lesen",
         streak: "Serie",
-        jumpTo: "Springe zu...",
+        jumpTo: "Bibliothek",
         chatTitle: "Frag Hirte",
         chatDesc: "Geistliche Führung",
         roleplayTitle: "Mit Petrus gehen",
