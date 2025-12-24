@@ -21,11 +21,11 @@ const PrincessOverlay: React.FC<PrincessOverlayProps> = ({
       return {
         id: i,
         left: Math.random() * 100, 
-        delay: Math.random() * 5, 
-        duration: 8 + Math.random() * 10,
+        delay: Math.random() * 8, 
+        duration: 10 + Math.random() * 15,
         size: 15 + Math.random() * 25,
         colorClass,
-        opacity: 0.2 + Math.random() * 0.3 
+        opacity: 0.3 + Math.random() * 0.4 
       };
     });
   }, []);
@@ -35,7 +35,7 @@ const PrincessOverlay: React.FC<PrincessOverlayProps> = ({
       
       {/* 1. Sparkly Aurora Background */}
       {showSparkles && (
-          <div className="absolute inset-0 animate-sparkly-aurora pointer-events-none"></div>
+          <div className="absolute inset-0 animate-sparkly-aurora pointer-events-none opacity-50"></div>
       )}
 
       {/* 2. Floating Hearts */}
@@ -47,9 +47,9 @@ const PrincessOverlay: React.FC<PrincessOverlayProps> = ({
             left: `${heart.left}%`,
             animationDelay: `${heart.delay}s`,
             animationDuration: `${heart.duration}s`,
-            opacity: heart.opacity,
+            '--tw-heart-opacity': heart.opacity,
             zIndex: 60
-          }}
+          } as React.CSSProperties}
         >
           <Heart size={heart.size} fill="currentColor" />
         </div>

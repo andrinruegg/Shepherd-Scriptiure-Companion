@@ -144,7 +144,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                         onClick={() => onNavigate('chat')}
                         className="p-1 rounded-[2.5rem] bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-xl shadow-indigo-500/10 group hover:shadow-2xl transition-all animate-slide-up"
                     >
-                        <div className="bg-white/95 dark:bg-slate-900/95 h-full rounded-[2.1rem] p-8 flex items-center justify-between backdrop-blur-2xl transition-colors group-hover:bg-white/80 dark:group-hover:bg-opacity-80">
+                        <div className="bg-white/95 dark:bg-slate-900/95 h-full rounded-[2.1rem] p-8 flex items-center justify-between backdrop-blur-2xl transition-all group-hover:bg-white/80 dark:group-hover:bg-slate-800">
                             <div className="flex items-center gap-6">
                                 <div className="w-16 h-16 rounded-3xl bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
                                     <MessageCircle size={32} />
@@ -164,7 +164,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                         onClick={() => onNavigate('stories')}
                         className="p-1 rounded-[2.5rem] bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 shadow-xl shadow-amber-500/10 group hover:shadow-2xl transition-all animate-slide-up"
                     >
-                        <div className="bg-white/95 dark:bg-slate-900/95 h-full rounded-[2.1rem] p-8 flex items-center justify-between backdrop-blur-2xl transition-colors group-hover:bg-white/80 dark:group-hover:bg-opacity-80">
+                        <div className="bg-white/95 dark:bg-slate-900/95 h-full rounded-[2.1rem] p-8 flex items-center justify-between backdrop-blur-2xl transition-all group-hover:bg-white/80 dark:group-hover:bg-slate-800">
                             <div className="flex items-center gap-6">
                                 <div className="w-16 h-16 rounded-3xl bg-amber-50 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
                                     <Scroll size={32} className="animate-pulse" />
