@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import ChatInterface from './components/ChatInterface';
 import Sidebar from './components/Sidebar';
@@ -440,7 +439,7 @@ const App: React.FC = () => {
   const activeMessages = activeChat ? activeChat.messages.map(m => ({ ...m, timestamp: new Date(m.timestamp) })) : [];
 
   return (
-    <div className={`${isDarkMode ? 'dark' : ''} animate-fade-in ${session ? 'h-screen overflow-hidden' : 'min-h-screen'}`}>
+    <div className={`${isDarkMode ? 'dark' : ''} animate-fade-in ${session ? 'h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'}`}>
       
       {/* --- RESTORED SPLASH SCREEN OVERLAY --- */}
       <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-black transition-all duration-1000 ease-[cubic-bezier(0.76,0,0.24,1)] ${!showSplash ? 'opacity-0 scale-110 pointer-events-none blur-2xl' : 'opacity-100 scale-100 blur-0'}`}>
@@ -463,15 +462,15 @@ const App: React.FC = () => {
             </div>
          </div>
          <div className="relative z-20 text-center flex flex-col items-center -mt-4">
-             <h1 className="text-6xl md:text-8xl font-bold text-white font-serif-text tracking-tight drop-shadow-[0_0_20px_rgba(255,215,0,0.4)] flex gap-1 justify-center mb-2">
+             <h1 className="text-5xl md:text-8xl font-bold text-white font-serif-text tracking-tight drop-shadow-[0_0_20px_rgba(255,215,0,0.4)] flex gap-1 justify-center mb-2">
                 {['S','h','e','p','h','e','r','d'].map((char, i) => (
                     <span key={i} className="animate-letter-reveal" style={{ animationDelay: `${0.3 + i * 0.08}s` }}>{char}</span>
                 ))}
              </h1>
              <div className="flex items-center justify-center gap-4 animate-tracking-expand opacity-0" style={{ animationDelay: '1.2s', animationFillMode: 'forwards' }}>
-                <div className="h-[2px] w-12 md:w-24 bg-gradient-to-r from-transparent via-amber-200 to-transparent shadow-[0_0_8px_rgba(253,230,138,0.6)]"></div>
-                <p className="text-amber-100 text-lg md:text-2xl font-semibold uppercase tracking-[0.25em] font-sans drop-shadow-md whitespace-nowrap">Scripture Companion</p>
-                <div className="h-[2px] w-12 md:w-24 bg-gradient-to-r from-transparent via-amber-200 to-transparent shadow-[0_0_8px_rgba(253,230,138,0.6)]"></div>
+                <div className="h-[2px] w-8 md:w-24 bg-gradient-to-r from-transparent via-amber-200 to-transparent shadow-[0_0_8px_rgba(253,230,138,0.6)]"></div>
+                <p className="text-amber-100 text-base md:text-2xl font-semibold uppercase tracking-[0.25em] font-sans drop-shadow-md whitespace-nowrap">Scripture Companion</p>
+                <div className="h-[2px] w-8 md:w-24 bg-gradient-to-r from-transparent via-amber-200 to-transparent shadow-[0_0_8px_rgba(253,230,138,0.6)]"></div>
              </div>
          </div>
          <div className="absolute bottom-0 left-0 right-0 h-56 overflow-hidden z-30 pointer-events-none">
@@ -502,7 +501,7 @@ const App: React.FC = () => {
       ) : !session ? ( 
           <Login isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} language={language} onSetLanguage={(lang) => handleUpdatePreference('language', lang)} /> 
       ) : (
-        <div className="flex h-screen overflow-hidden relative z-0">
+        <div className="flex h-full overflow-hidden relative z-0">
           {currentView === 'home' && (
               <div className="flex-1 w-full h-full">
                   <HomeView 
@@ -521,7 +520,7 @@ const App: React.FC = () => {
                     isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} chats={chats}
                     activeChatId={activeChatId} onSelectChat={(id) => { setActiveChatId(id); if(window.innerWidth < 768) setIsSidebarOpen(false); }}
                     onNewChat={() => createNewChat(true)} onDeleteChat={(id) => handleDeleteChat(id)}
-                    onRenameChat={handleRenameChat} language={language} onNavigateHome={() => setCurrentView('home')}
+                    onRenameChat={handleRenameChat} language={language} onNavigateHome={() => { setCurrentView('home'); setIsSidebarOpen(false); }}
                   />
                   <div className="flex-1 h-full w-full relative">
                       <ChatInterface 
@@ -531,6 +530,7 @@ const App: React.FC = () => {
                           onNewChat={() => createNewChat(true)} language={language} userAvatar={avatar}
                           onSaveMessage={handleSaveMessage} onOpenComposer={(text) => setComposerData({ text })}
                           onOpenSettings={() => setIsSettingsOpen(true)} 
+                          onNavigateHome={() => setCurrentView('home')}
                       />
                   </div>
               </div>
@@ -557,7 +557,6 @@ const App: React.FC = () => {
           <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} language={language} />
           <VisualComposerModal isOpen={!!composerData} onClose={() => setComposerData(null)} initialText={composerData?.text || ''} initialReference={composerData?.reference} language={language} />
           <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} preferences={{ bibleTranslation, theme: isDarkMode ? 'dark' : 'light', winterTheme: isWinterMode, winterSnow: isWinterSnow, winterLights: isWinterLights, winterIcicles: isWinterIcicles, princessTheme: isPrincessMode, princessHearts: isPrincessHearts, princessSparkles: isPrincessSparkles, language, displayName, avatar, bio }} onUpdatePreference={handleUpdatePreference} userEmail={session.user.email} userId={session.user.id} onLogout={handleLogout} />
-          <DailyVerseModal isOpen={isDailyVerseOpen} onClose={() => setIsDailyVerseOpen(false)} isDarkMode={isDarkMode} language={language} onOpenComposer={(text, ref) => setComposerData({ text, reference: ref })} />
           <DailyVerseModal isOpen={isDailyVerseOpen} onClose={() => setIsDailyVerseOpen(false)} isDarkMode={isDarkMode} language={language} onOpenComposer={(text, ref) => setComposerData({ text, reference: ref })} />
           <SocialModal isOpen={isSocialOpen} onClose={() => setIsSocialOpen(false)} initialTab={socialInitialTab} currentUserShareId={shareId} isDarkMode={isDarkMode} onUpdateNotifications={loadSocialNotifications} language={language} />
           <PasswordResetModal isOpen={isPasswordResetOpen} onClose={() => setIsPasswordResetOpen(false)} />

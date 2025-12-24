@@ -1,6 +1,5 @@
-
 import React, { useRef, useEffect, useState } from 'react';
-import { Send, Menu, Trash2, Plus } from 'lucide-react';
+import { Send, Menu, Trash2, Plus, ArrowLeft } from 'lucide-react';
 import { Message } from '../types';
 import ChatMessage from './ChatMessage';
 import TopicSelector from './TopicSelector';
@@ -20,6 +19,7 @@ interface ChatInterfaceProps {
   onSaveMessage: (message: Message) => void;
   onOpenComposer: (text: string) => void; 
   onOpenSettings: () => void; 
+  onNavigateHome: () => void;
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ 
@@ -34,7 +34,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   userAvatar,
   onSaveMessage,
   onOpenComposer,
-  onOpenSettings
+  onOpenSettings,
+  onNavigateHome
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -87,29 +88,33 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   return (
     <div className="flex flex-col h-full relative overflow-hidden bg-transparent">
-      {/* Header with Enhanced Glass Effect */}
-      <header className="glass-header p-4 flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.03)] bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl border-b border-white/80 dark:border-white/5 relative z-40">
-        <div className="flex items-center gap-3">
-          <button onClick={onMenuClick} className="md:hidden p-2 -ml-2 text-slate-600 dark:text-slate-400 hover:bg-black/5 rounded-xl transition-colors">
+      {/* Header */}
+      <header className="glass-header p-4 pt-safe flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.03)] bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl border-b border-white/80 dark:border-white/5 relative z-40">
+        <div className="flex items-center gap-1">
+          {/* Hamburger Menu - ONLY on mobile */}
+          <button 
+            onClick={onMenuClick} 
+            className="p-2 -ml-2 text-slate-600 dark:text-slate-400 hover:bg-black/5 rounded-xl transition-colors md:hidden"
+          >
             <Menu size={24} />
           </button>
           
-          <div className="flex items-center gap-3 select-none">
-              <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-xl text-white hidden md:block shadow-lg shadow-indigo-500/20 transform hover:scale-105 transition-transform">
+          <div className="flex items-center gap-3 select-none ml-1 md:ml-2">
+              <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-xl text-white shadow-lg shadow-indigo-500/20 transform hover:scale-105 transition-transform">
                 <ShepherdLogo size={24} />
               </div>
               <div className="hidden md:block">
                 <h1 className="text-xl font-bold text-slate-800 dark:text-white font-serif-text leading-tight">Shepherd</h1>
                 <p className="text-[10px] text-slate-500 dark:text-slate-400 font-black uppercase tracking-[0.2em]">{t.subtitle}</p>
               </div>
-              <div className="md:hidden font-serif-text font-bold text-xl text-slate-800 dark:text-white">Shepherd</div>
+              <div className="md:hidden font-serif-text font-bold text-lg text-slate-800 dark:text-white truncate max-w-[100px]">Shepherd</div>
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 md:gap-2">
             <button 
                 onClick={onNewChat}
-                className="p-2.5 text-indigo-600 bg-indigo-50/80 dark:bg-indigo-900/30 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 rounded-xl transition-all flex items-center gap-2 border border-indigo-100/50 dark:border-indigo-800/50 shadow-sm active:scale-95"
+                className="p-2 md:p-2.5 text-indigo-600 bg-indigo-50/80 dark:bg-indigo-900/30 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 rounded-xl transition-all flex items-center gap-2 border border-indigo-100/50 dark:border-indigo-800/50 shadow-sm active:scale-95"
                 title={commonT.newChat}
             >
                 <Plus size={20} strokeWidth={2.5} />
@@ -119,7 +124,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             {onDeleteCurrentChat && (
                 <button 
                     onClick={onDeleteCurrentChat}
-                    className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
+                    className="p-2 md:p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
                     title="Delete Conversation"
                 >
                     <Trash2 size={20} />
@@ -131,7 +136,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       {/* Messages Area */}
       <main 
          ref={messagesContainerRef}
-         className="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth"
+         className="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth pb-10"
       >
         <div ref={messagesTopRef} /> 
         <div className="max-w-3xl mx-auto h-full flex flex-col">
@@ -152,7 +157,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           ))}
           
           {isInitialState && !isLoading && (
-            <div className="flex-1 flex flex-col justify-center py-10">
+            <div className="flex-1 flex flex-col justify-center py-6 md:py-10">
                <TopicSelector onSelectTopic={onSendMessage} language={language} />
             </div>
           )}
@@ -161,8 +166,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         </div>
       </main>
 
-      {/* Input Area - Hovering Glass Floating Effect */}
-      <footer className="p-4 md:p-8 pb-8 bg-transparent">
+      {/* Input Area */}
+      <footer className="p-4 md:p-8 pb-8 pb-safe bg-transparent">
         <div className="max-w-3xl mx-auto relative">
           <form 
             onSubmit={handleSubmit} 

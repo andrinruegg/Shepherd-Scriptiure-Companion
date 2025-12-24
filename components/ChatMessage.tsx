@@ -1,4 +1,3 @@
-
 import React, { memo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Message } from '../types';
@@ -78,11 +77,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 
   return (
     <div className={`flex w-full mb-8 ${isUser ? 'justify-end' : 'justify-start'} animate-pop-in group`}>
-      <div className={`flex gap-3 md:gap-4 max-w-[90%] md:max-w-[80%] items-end`}>
+      <div className={`flex gap-3 md:gap-4 max-w-[92%] md:max-w-[85%] items-start`}>
         
         {!isUser && (
           <div className={`
-            flex-shrink-0 w-9 h-9 rounded-2xl flex items-center justify-center shadow-lg mb-2
+            flex-shrink-0 w-9 h-9 rounded-2xl flex items-center justify-center shadow-lg mt-1
             bg-gradient-to-br from-indigo-500 to-indigo-600 text-white transform transition-transform hover:scale-110
           `}>
             <ShepherdLogo size={18} />
@@ -187,7 +186,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
         </div>
 
         {isUser && (
-           <div className="flex-shrink-0 w-9 h-9 rounded-2xl mb-2 shadow-md overflow-hidden border-2 border-white dark:border-slate-700 bg-slate-200">
+           <div className="flex-shrink-0 w-9 h-9 rounded-2xl mt-1 shadow-md overflow-hidden border-2 border-white dark:border-slate-700 bg-slate-200">
               {userAvatar ? (
                   <img src={userAvatar} alt="User" className="w-full h-full object-cover" />
               ) : (

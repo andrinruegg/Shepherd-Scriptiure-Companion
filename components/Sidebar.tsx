@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Plus, MessageSquare, Trash2, X, Edit2, Check, ArrowLeft } from 'lucide-react';
 import { ChatSession } from '../types';
@@ -83,32 +82,32 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile Overlay */}
       {isOpen && (
         <div 
-          className="absolute inset-0 bg-black/40 backdrop-blur-sm z-20 md:hidden transition-opacity"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden transition-opacity"
           onClick={onClose}
         />
       )}
 
-      {/* Sidebar Content - Uses CSS Variables for glass effect */}
+      {/* Sidebar Content */}
       <div className={`
-        absolute md:relative inset-y-0 left-0 z-30
-        w-72 flex flex-col
+        fixed md:relative inset-y-0 left-0 z-50
+        w-72 flex flex-col h-full
         glass-panel border-r-0 md:border-r rounded-r-3xl md:rounded-none
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         md:flex-shrink-0
       `}>
-        {/* Header */}
-        <div className="p-5 border-b border-black/5 dark:border-white/5">
-          <div className="flex items-center justify-between mb-5">
+        {/* Header - Fixed area at the top */}
+        <div className="p-5 border-b border-black/5 dark:border-white/5 pt-safe flex-shrink-0">
+          <div className="flex items-center justify-between mb-6">
              <button 
                 onClick={onNavigateHome}
-                className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors text-sm font-semibold"
+                className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors text-sm font-bold"
              >
-                 <ArrowLeft size={18} />
+                 <ArrowLeft size={18} strokeWidth={2.5} />
                  {t.home}
              </button>
-             <button onClick={onClose} className="md:hidden text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
-                <X size={20} />
+             <button onClick={onClose} className="md:hidden text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white p-2 -mr-2">
+                <X size={24} />
              </button>
           </div>
 
@@ -117,21 +116,21 @@ const Sidebar: React.FC<SidebarProps> = ({
                   onNewChat();
                   if (window.innerWidth < 768) onClose();
               }}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white p-3.5 rounded-xl transition-all font-semibold shadow-lg shadow-indigo-500/20 active:scale-95 active:shadow-none"
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white p-4 rounded-2xl transition-all font-bold shadow-lg shadow-indigo-500/20 active:scale-95 active:shadow-none"
           >
-              <Plus size={20} />
+              <Plus size={20} strokeWidth={2.5} />
               <span>{commonT.newChat}</span>
           </button>
         </div>
 
-        {/* Chat List */}
-        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-            <h3 className="px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
+        {/* Chat List - Scrollable area */}
+        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1 custom-scrollbar">
+            <h3 className="px-3 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">
                 {t.history}
             </h3>
             
             {chats.length === 0 ? (
-            <div className="px-4 py-8 text-center text-slate-400 dark:text-slate-600 text-sm italic">
+            <div className="px-4 py-8 text-center text-slate-400 dark:text-slate-600 text-sm italic font-medium">
                 {t.noChats}
             </div>
             ) : (
@@ -147,7 +146,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 className={`
                     group flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all relative border
                     ${activeChatId === chat.id 
-                    ? 'bg-indigo-50 dark:bg-white/10 border-indigo-100 dark:border-white/10 text-indigo-900 dark:text-white font-semibold shadow-sm' 
+                    ? 'bg-indigo-50 dark:bg-white/10 border-indigo-100 dark:border-white/10 text-indigo-900 dark:text-white font-bold shadow-sm' 
                     : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-200'}
                 `}
                 >
@@ -171,13 +170,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                         <button type="button" onClick={cancelEdit} className="text-red-500 hover:text-red-600 p-0.5"><X size={14}/></button>
                     </form>
                     ) : deleteConfirmId === chat.id ? (
-                        <div className="text-sm font-medium text-red-500">{t.deleteConfirm}</div>
+                        <div className="text-sm font-bold text-red-500">{t.deleteConfirm}</div>
                     ) : (
                     <>
-                        <p className="truncate text-sm pr-14">
+                        <p className="truncate text-sm pr-14 font-medium">
                         {chat.title}
                         </p>
-                        <p className="text-[10px] opacity-60">
+                        <p className="text-[10px] font-black opacity-60 uppercase tracking-tighter">
                         {new Date(chat.createdAt).toLocaleDateString()}
                         </p>
                     </>
