@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import ChatInterface from './components/ChatInterface';
 import Sidebar from './components/Sidebar';
@@ -76,26 +77,43 @@ const App: React.FC = () => {
 
   // Verify API Key on start and periodically
   const verifyKey = async () => {
+    // 1. Check manual storage first
+    const manualKey = localStorage.getItem('shepherd_api_key');
+    if (manualKey && manualKey.trim().length > 10) {
+        setHasApiKey(true);
+        return true;
+    }
+
+    // 2. Check platform aistudio state
     if (window.aistudio) {
       const hasKey = await window.aistudio.hasSelectedApiKey();
       setHasApiKey(hasKey);
       return hasKey;
     }
+    
+    setHasApiKey(false);
     return false;
   };
 
   useEffect(() => {
     verifyKey();
-    // Poll occasionally to stay synced with external dialog state
+    // Poll occasionally to stay synced with external dialog or storage changes
     const interval = setInterval(verifyKey, 5000);
     return () => clearInterval(interval);
   }, []);
 
   const handleSelectApiKey = async () => {
-    if (window.aistudio) {
-      await window.aistudio.openSelectKey();
-      // Fix: Mitigate race condition by assuming success after triggering the selection dialog.
+    // We prioritize the manual selector now to fulfill user request
+    setIsSettingsOpen(true);
+  };
+
+  const handleUpdateManualKey = (key: string) => {
+    if (key.trim()) {
+      localStorage.setItem('shepherd_api_key', key.trim());
       setHasApiKey(true);
+    } else {
+      localStorage.removeItem('shepherd_api_key');
+      verifyKey();
     }
   };
 
@@ -410,8 +428,7 @@ const App: React.FC = () => {
   const handleSendMessage = async (text: string, hiddenContext?: string) => {
     if (!activeChatId) return;
 
-    // Fix: Rely on hasApiKey state which is maintained by polling and assumption logic
-    // to avoid race conditions described in the Gemini API integration guidelines.
+    // Strict verified check before sending
     if (!hasApiKey) {
       handleSelectApiKey();
       return;
@@ -447,14 +464,13 @@ const App: React.FC = () => {
       console.error(e);
       setIsLoading(false);
       // Reset API key state if error was about key
-      if (e.message === 'API_KEY_INVALID' || e.message === 'NO_API_KEY_SELECTED') setHasApiKey(false);
+      if (e.message === 'API_KEY_INVALID' || e.message === 'NO_API_KEY_SELECTED' || e.message === 'NO_API_KEY_PROVIDED') setHasApiKey(false);
     }
   };
 
   const handleRegenerate = async () => {
     if (!activeChatId) return;
 
-    // Fix: Rely on state variable to avoid blocking due to race conditions during selection.
     if (!hasApiKey) {
       handleSelectApiKey();
       return;
@@ -499,7 +515,7 @@ const App: React.FC = () => {
       },
       (error) => {
         setIsLoading(false);
-        if (error.message === 'API_KEY_INVALID' || error.message === 'NO_API_KEY_SELECTED') setHasApiKey(false);
+        if (error.message === 'API_KEY_INVALID' || error.message === 'NO_API_KEY_SELECTED' || error.message === 'NO_API_KEY_PROVIDED') setHasApiKey(false);
       }
     );
   };
@@ -520,7 +536,7 @@ const App: React.FC = () => {
   return (
     <div className={`${isDarkMode ? 'dark' : ''} animate-fade-in ${session ? 'h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'}`}>
       
-      {/* --- RESTORED SPLASH SCREEN OVERLAY --- */}
+      {/* --- SPLASH SCREEN OVERLAY --- */}
       <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-black transition-all duration-1000 ease-[cubic-bezier(0.76,0,0.24,1)] ${!showSplash ? 'opacity-0 scale-110 pointer-events-none blur-2xl' : 'opacity-100 scale-100 blur-0'}`}>
          <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 animate-aurora opacity-90"></div>
          <div className="absolute inset-0 opacity-60">
@@ -612,6 +628,7 @@ const App: React.FC = () => {
                           onNavigateHome={() => setCurrentView('home')}
                           hasApiKey={hasApiKey}
                           onSelectApiKey={handleSelectApiKey}
+                          onUpdateManualKey={handleUpdateManualKey}
                       />
                   </div>
               </div>
@@ -664,6 +681,7 @@ const App: React.FC = () => {
             onLogout={handleLogout} 
             hasApiKey={hasApiKey}
             onSelectApiKey={handleSelectApiKey}
+            onUpdateManualKey={handleUpdateManualKey}
           />
           <DailyVerseModal isOpen={isDailyVerseOpen} onClose={() => setIsDailyVerseOpen(false)} isDarkMode={isDarkMode} language={language} onOpenComposer={(text, ref) => setComposerData({ text, reference: ref })} />
           <SocialModal isOpen={isSocialOpen} onClose={() => setIsSocialOpen(false)} initialTab={socialInitialTab} currentUserShareId={shareId} isDarkMode={isDarkMode} onUpdateNotifications={loadSocialNotifications} language={language} />

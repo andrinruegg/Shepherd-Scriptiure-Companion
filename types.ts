@@ -1,9 +1,4 @@
 
-
-
-
-
-
 export interface Message {
   id: string;
   role: 'user' | 'model';
@@ -187,7 +182,7 @@ declare global {
 
   interface Window {
     // Fix: All declarations of 'aistudio' must have identical modifiers. 
-    // Match the host environment's declaration to avoid TypeScript conflicts.
-    aistudio: AIStudio;
+    // Match the host environment's declaration to avoid TypeScript conflicts by making it optional.
+    aistudio?: AIStudio;
   }
 }

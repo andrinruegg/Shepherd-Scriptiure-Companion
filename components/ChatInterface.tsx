@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Send, Menu, Trash2, Plus, ArrowLeft, Key, ExternalLink, ShieldCheck, Sparkles } from 'lucide-react';
+import { Send, Menu, Trash2, Plus, ArrowLeft, Key, ExternalLink, ShieldCheck, Sparkles, BookOpen, Lock, Check, AlertCircle } from 'lucide-react';
 import { Message } from '../types';
 import ChatMessage from './ChatMessage';
 import TopicSelector from './TopicSelector';
@@ -22,6 +22,7 @@ interface ChatInterfaceProps {
   onNavigateHome: () => void;
   hasApiKey: boolean;
   onSelectApiKey: () => void;
+  onUpdateManualKey: (key: string) => void;
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ 
@@ -39,9 +40,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   onOpenSettings,
   onNavigateHome,
   hasApiKey,
-  onSelectApiKey
+  onSelectApiKey,
+  onUpdateManualKey
 }) => {
   const [inputValue, setInputValue] = useState('');
+  const [keyInputValue, setKeyInputValue] = useState('');
+  const [validationError, setValidationError] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesTopRef = useRef<HTMLDivElement>(null);
@@ -50,7 +54,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   
   const t = translations[language]?.chat || translations['English'].chat;
   const commonT = translations[language]?.common || translations['English'].common;
-  const settingsT = translations[language]?.settings || translations['English'].settings;
 
   useEffect(() => {
     const handleResize = () => { setIsMobile(window.innerWidth < 768); };
@@ -65,6 +68,22 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages.length, isLoading]); 
+
+  const handleSaveKey = (e: React.FormEvent) => {
+    e.preventDefault();
+    const key = keyInputValue.trim();
+    
+    // Pattern Validation for Gemini Keys (AIzaSy...)
+    const isValidPattern = key.startsWith('AIzaSy') && key.length >= 38;
+    
+    if (!isValidPattern) {
+        setValidationError(t.invalidKey);
+        return;
+    }
+
+    setValidationError(null);
+    onUpdateManualKey(key);
+  };
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -150,49 +169,80 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <div className="max-w-3xl mx-auto h-full flex flex-col">
           
           {!hasApiKey ? (
-              <div className="flex-1 flex flex-col items-center justify-center py-10 animate-fade-in">
-                  <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl max-w-lg w-full text-center relative overflow-hidden">
-                      <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
-                      
-                      <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/30 rounded-3xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 mx-auto mb-6">
-                          <Key size={32} />
-                      </div>
+              <div className="flex-1 flex flex-col items-center justify-center py-6 animate-fade-in">
+                  <div className="bg-white/80 dark:bg-slate-900/90 backdrop-blur-3xl p-8 md:p-12 rounded-[3rem] border border-white dark:border-slate-800 shadow-[0_40px_100px_-20px_rgba(79,70,229,0.1)] max-w-xl w-full text-center relative overflow-hidden group">
+                      <div className="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/10 blur-[80px] rounded-full group-hover:bg-indigo-500/20 transition-all duration-700"></div>
+                      <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/10 blur-[80px] rounded-full group-hover:bg-purple-500/20 transition-all duration-700"></div>
 
-                      <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-3 font-serif-text">
-                        {t.missingKeyTitle || "Unlimited Access Required"}
-                      </h2>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
-                        {t.missingKeyDesc || "To chat with Shepherd at high speed without limits, you need to provide your own free Google Gemini API key."}
-                      </p>
+                      <div className="relative z-10">
+                          <div className="w-16 h-16 bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/30 dark:to-indigo-800/20 rounded-[2rem] flex items-center justify-center text-indigo-600 dark:text-indigo-400 mx-auto mb-6 shadow-inner border border-indigo-100/50 dark:border-white/5 animate-float">
+                              <Key size={28} strokeWidth={1.5} />
+                          </div>
 
-                      <div className="space-y-4 text-left mb-8">
-                          <div className="flex gap-4 items-start">
-                              <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-black text-slate-500 shrink-0 mt-0.5">1</div>
-                              <div className="text-xs text-slate-600 dark:text-slate-300">
-                                  {settingsT.apiKey.step1} <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline inline-flex items-center gap-1">AI Studio <ExternalLink size={10}/></a>
+                          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-2 font-serif-text tracking-tight">
+                            {t.missingKeyTitle}
+                          </h2>
+                          <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 leading-relaxed font-medium">
+                            {t.missingKeyDesc}
+                          </p>
+
+                          {/* Simplified Instructions */}
+                          <div className="bg-slate-50/50 dark:bg-slate-800/50 rounded-2xl p-6 mb-8 border border-slate-100 dark:border-slate-700 text-left">
+                             <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2">
+                                <Sparkles size={12} className="text-indigo-400" />
+                                {t.instructions}
+                             </h4>
+                             <ul className="space-y-4">
+                                <li className="flex gap-4">
+                                    <span className="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-black">1</span>
+                                    <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noreferrer" className="text-sm text-slate-600 dark:text-slate-300 font-bold hover:text-indigo-600 hover:underline transition-colors flex items-center gap-1.5">
+                                        {t.howTo.step1} <ExternalLink size={14} className="opacity-50" />
+                                    </a>
+                                </li>
+                                <li className="flex gap-4">
+                                    <span className="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-black">2</span>
+                                    <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">{t.howTo.step2}</p>
+                                </li>
+                                <li className="flex gap-4">
+                                    <span className="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-black">3</span>
+                                    <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">{t.howTo.step3}</p>
+                                </li>
+                             </ul>
+                          </div>
+
+                          <form onSubmit={handleSaveKey} className="space-y-4 mb-10">
+                              <div className="relative">
+                                  <input 
+                                    type="password"
+                                    value={keyInputValue}
+                                    onChange={(e) => { setKeyInputValue(e.target.value); if(validationError) setValidationError(null); }}
+                                    placeholder="AIzaSy..."
+                                    className={`w-full p-4 bg-white dark:bg-slate-800 border rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 dark:text-white transition-all text-center font-mono shadow-sm ${validationError ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-200 dark:border-slate-700'}`}
+                                  />
+                                  {validationError && (
+                                      <div className="absolute top-full mt-2 left-0 right-0 flex items-center justify-center gap-1.5 text-red-500 text-xs font-bold animate-slide-up">
+                                          <AlertCircle size={14} />
+                                          {validationError}
+                                      </div>
+                                  )}
                               </div>
-                          </div>
-                          <div className="flex gap-4 items-start">
-                              <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-black text-slate-500 shrink-0 mt-0.5">2</div>
-                              <div className="text-xs text-slate-600 dark:text-slate-300">{settingsT.apiKey.step2}</div>
-                          </div>
-                          <div className="flex gap-4 items-start">
-                              <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-black text-slate-500 shrink-0 mt-0.5">3</div>
-                              <div className="text-xs text-slate-600 dark:text-slate-300">{settingsT.apiKey.step3}</div>
+                              <button 
+                                type="submit"
+                                disabled={!keyInputValue.trim()}
+                                className="w-full py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white rounded-2xl font-bold shadow-[0_20px_40px_-10px_rgba(79,70,229,0.3)] transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50 disabled:transform-none mt-6"
+                              >
+                                  <Check size={20} strokeWidth={2.5} />
+                                  <span className="text-base tracking-tight">{t.activateBtn}</span>
+                              </button>
+                          </form>
+                          
+                          <div className="flex items-center justify-center gap-2 text-slate-400">
+                            <Lock size={12} />
+                            <p className="text-[10px] uppercase font-black tracking-widest italic opacity-60">
+                                {t.disclaimer}
+                            </p>
                           </div>
                       </div>
-
-                      <button 
-                        onClick={onSelectApiKey}
-                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-500/20 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3"
-                      >
-                          <ShieldCheck size={20} />
-                          {t.setupKey || "Setup API Key"}
-                      </button>
-                      
-                      <p className="mt-4 text-[10px] text-slate-400 italic">
-                          {t.disclaimer}
-                      </p>
                   </div>
               </div>
           ) : (
@@ -226,7 +276,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       {/* Input Area */}
       <footer className="p-4 md:p-8 pb-8 pb-safe bg-transparent">
-        <div className="max-w-3xl mx-auto relative">
+        <div className="max-w-3xl auto relative">
           <form 
             onSubmit={handleSubmit} 
             className="relative flex items-end gap-3 bg-white/70 dark:bg-slate-900/80 backdrop-blur-3xl border border-white/90 dark:border-white/10 rounded-[2.25rem] p-2.5 shadow-[0_20px_60px_-15px_rgba(79,70,229,0.12)] dark:shadow-none focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all duration-500 focus-within:bg-white dark:focus-within:bg-slate-900"

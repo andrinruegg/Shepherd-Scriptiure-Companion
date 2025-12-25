@@ -13,6 +13,7 @@ interface SettingsModalProps {
   onLogout: () => void;
   hasApiKey: boolean;
   onSelectApiKey: () => void;
+  onUpdateManualKey: (key: string) => void;
 }
 
 const LANGUAGES = [
@@ -30,24 +31,30 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   userId,
   onLogout,
   hasApiKey,
-  onSelectApiKey
+  onSelectApiKey,
+  onUpdateManualKey
 }) => {
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(preferences.displayName || '');
   const [tempBio, setTempBio] = useState(preferences.bio || '');
   const [isEditingBio, setIsEditingBio] = useState(false);
+  const [manualKeyInput, setManualKeyInput] = useState(localStorage.getItem('shepherd_api_key') || '');
+  const [validationError, setValidationError] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
       if (isOpen) {
           setTempBio(preferences.bio || '');
+          setManualKeyInput(localStorage.getItem('shepherd_api_key') || '');
+          setValidationError(null);
       }
   }, [isOpen, preferences.bio]);
 
   if (!isOpen) return null;
 
   const t = translations[preferences.language]?.settings || translations['English'].settings;
+  const chatT = translations[preferences.language]?.chat || translations['English'].chat;
 
   const handleSaveName = () => {
     onUpdatePreference('displayName', tempName);
@@ -58,6 +65,22 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       onUpdatePreference('bio', tempBio);
       setIsEditingBio(false);
   }
+
+  const handleUpdateKey = (e: React.FormEvent) => {
+      e.preventDefault();
+      const key = manualKeyInput.trim();
+      
+      // Pattern Validation
+      const isValidPattern = key.startsWith('AIzaSy') && key.length >= 38;
+      
+      if (!isValidPattern && key.length > 0) {
+          setValidationError(chatT.invalidKey);
+          return;
+      }
+
+      setValidationError(null);
+      onUpdateManualKey(key);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -191,42 +214,62 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     <Key size={16} className="text-indigo-500" />
                     {t.apiKey.title}
                 </label>
-                <div className={`p-4 rounded-xl border ${hasApiKey ? 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/50' : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800'}`}>
-                    <div className="flex items-start justify-between mb-3">
-                        <div>
-                            <p className={`text-xs font-bold ${hasApiKey ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500'}`}>
-                                {hasApiKey ? t.apiKey.custom : t.apiKey.shared}
-                            </p>
-                            <p className="text-[10px] text-slate-400 mt-0.5 leading-relaxed pr-4">
-                                {hasApiKey ? "Your individual API key is currently in use for all AI features." : t.apiKey.desc}
-                            </p>
-                        </div>
-                        {hasApiKey ? (
-                            <div className="bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-400 p-1.5 rounded-full">
-                                <ShieldCheck size={14} />
+                <div className={`p-4 rounded-2xl border transition-all ${hasApiKey ? 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800/50 shadow-sm' : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800'}`}>
+                    <form onSubmit={handleUpdateKey} className="space-y-4">
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <p className={`text-[10px] font-black uppercase tracking-widest ${hasApiKey ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500'}`}>
+                                    {hasApiKey ? chatT.statusActive : chatT.statusMissing}
+                                </p>
                             </div>
-                        ) : (
-                            <AlertCircle size={14} className="text-slate-300 mt-1" />
-                        )}
-                    </div>
+                            {hasApiKey && (
+                                <div className="bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-400 p-1 rounded-full">
+                                    <ShieldCheck size={14} />
+                                </div>
+                            )}
+                        </div>
 
-                    <button
-                        onClick={onSelectApiKey}
-                        className={`w-full py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${hasApiKey ? 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md'}`}
-                    >
-                        {hasApiKey ? t.apiKey.change : t.apiKey.add}
-                    </button>
-                    
-                    {!hasApiKey && (
-                        <a 
-                            href="https://ai.google.dev/gemini-api/docs/billing" 
-                            target="_blank" 
-                            rel="noreferrer"
-                            className="mt-3 text-[10px] text-slate-400 flex items-center gap-1 hover:text-indigo-500 transition-colors mx-auto w-fit"
-                        >
-                            {t.apiKey.billing} <ExternalLink size={10} />
-                        </a>
-                    )}
+                        <div className="space-y-2 relative">
+                            <input 
+                                type="password"
+                                value={manualKeyInput}
+                                onChange={(e) => { setManualKeyInput(e.target.value); if(validationError) setValidationError(null); }}
+                                placeholder="AIzaSy..."
+                                className={`w-full p-2.5 bg-white dark:bg-slate-800 border rounded-xl text-xs font-mono focus:ring-2 focus:ring-indigo-500 outline-none transition-all ${validationError ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`}
+                            />
+                            {validationError && (
+                                <p className="text-[9px] text-red-500 font-bold mt-1 animate-slide-up flex items-center gap-1">
+                                    <AlertCircle size={10} />
+                                    {validationError}
+                                </p>
+                            )}
+                            <button
+                                type="submit"
+                                className="w-full py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all shadow-sm"
+                            >
+                                {hasApiKey ? t.apiKey.change : t.apiKey.add}
+                            </button>
+                        </div>
+
+                        {/* Step by step Help */}
+                        <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">{t.apiKey.howTo}</p>
+                             <ul className="space-y-1.5">
+                                <li className="text-[10px] text-slate-600 dark:text-slate-400 leading-tight">{t.apiKey.step1}</li>
+                                <li className="text-[10px] text-slate-600 dark:text-slate-400 leading-tight">{t.apiKey.step2}</li>
+                                <li className="text-[10px] text-slate-600 dark:text-slate-400 leading-tight">{t.apiKey.step3}</li>
+                                <li className="text-[10px] text-slate-600 dark:text-slate-400 leading-tight">{t.apiKey.step4}</li>
+                             </ul>
+                             <a 
+                                href="https://aistudio.google.com/api-keys" 
+                                target="_blank" 
+                                rel="noreferrer"
+                                className="mt-3 text-[10px] text-indigo-600 dark:text-indigo-400 font-bold flex items-center gap-1 hover:underline"
+                            >
+                                {chatT.openStudio} <ExternalLink size={10} />
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
 
@@ -266,7 +309,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                                 type="checkbox" 
                                 checked={preferences.winterSnow ?? true} 
                                 onChange={(e) => onUpdatePreference('winterSnow', e.target.checked)}
-                                className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 cursor-pointer"
+                                className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 cursor-pointer"
                             />
                         </div>
                         <div className="flex items-center justify-between">
@@ -333,7 +376,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                                 type="checkbox" 
                                 checked={preferences.princessHearts ?? true} 
                                 onChange={(e) => onUpdatePreference('princessHearts', e.target.checked)}
-                                className="w-4 h-4 rounded text-pink-600 focus:ring-pink-500 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 accent-pink-500 cursor-pointer"
+                                className="w-4 h-4 rounded text-pink-600 focus:ring-pink-500 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 accent-pink-500 cursor-pointer"
                             />
                         </div>
                         <div className="flex items-center justify-between">
@@ -345,7 +388,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                                 type="checkbox" 
                                 checked={preferences.princessSparkles ?? true} 
                                 onChange={(e) => onUpdatePreference('princessSparkles', e.target.checked)}
-                                className="w-4 h-4 rounded text-pink-600 focus:ring-pink-500 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 accent-pink-500 cursor-pointer"
+                                className="w-4 h-4 rounded text-pink-600 focus:ring-pink-500 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 accent-pink-500 cursor-pointer"
                             />
                         </div>
                     </div>

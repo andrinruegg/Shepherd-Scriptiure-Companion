@@ -34,34 +34,40 @@ const mapHistoryToContent = (messages: Message[]): Content[] => {
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+const getActiveApiKey = (): string => {
+    const manualKey = localStorage.getItem('shepherd_api_key');
+    if (manualKey && manualKey.trim().length > 10) return manualKey.trim();
+    return process.env.API_KEY || '';
+};
+
 const makeRequestWithRetry = async <T>(
     operation: (ai: GoogleGenAI) => Promise<T>, 
     retries = 3, 
     initialDelay = 1500
 ): Promise<T> => {
-    // CRITICAL: Ensure the user has actually selected a key before proceeding.
-    // If hasSelectedApiKey returns false, we should NOT make the request with the default key.
-    if (window.aistudio) {
-        const hasKey = await window.aistudio.hasSelectedApiKey();
-        if (!hasKey) {
-            throw new Error("NO_API_KEY_SELECTED");
+    const apiKey = getActiveApiKey();
+    
+    if (!apiKey) {
+        // Fallback to platform selector if no manual key is present
+        if (window.aistudio) {
+            const hasKey = await window.aistudio.hasSelectedApiKey();
+            if (!hasKey) throw new Error("NO_API_KEY_SELECTED");
+        } else {
+            throw new Error("NO_API_KEY_PROVIDED");
         }
     }
 
     try {
         // ALWAYS create a new instance right before making an API call
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const ai = new GoogleGenAI({ apiKey: apiKey });
         return await operation(ai);
     } catch (error: any) {
         const errorMessage = error?.message || "";
         const status = error?.status;
         const code = error?.code;
 
-        // If the request fails with this specific message, reset key state
-        if (errorMessage.includes("Requested entity was not found.")) {
-            if (window.aistudio) {
-                await window.aistudio.openSelectKey();
-            }
+        // If the request fails with this specific message, it might be an invalid key
+        if (errorMessage.includes("Requested entity was not found.") || errorMessage.includes("API key not valid")) {
             throw new Error("API_KEY_INVALID");
         }
 
