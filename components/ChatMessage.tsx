@@ -1,7 +1,7 @@
 import React, { memo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Message } from '../types';
-import { User, RotateCw, Heart, Languages, Image } from 'lucide-react';
+import { User, RotateCw, Heart, Languages, Image, Quote } from 'lucide-react';
 import ShepherdLogo from './ShepherdLogo';
 import { translateContent } from '../services/geminiService';
 import { translations } from '../utils/translations';
@@ -109,9 +109,12 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                    components={{
                       blockquote: ({node, ...props}) => (
                         <blockquote 
-                           className="border-l-4 border-indigo-400 dark:border-indigo-500 pl-4 py-2 my-4 bg-indigo-50/40 dark:bg-indigo-900/20 italic rounded-r-xl font-serif-text"
+                           className="border-l-4 border-indigo-400 dark:border-indigo-500 pl-6 py-3 my-4 bg-indigo-50/40 dark:bg-indigo-900/20 italic rounded-r-2xl font-serif-text relative"
                            {...props} 
-                        />
+                        >
+                            <Quote size={12} className="absolute left-2 top-2 text-indigo-300 dark:text-indigo-600 opacity-50" />
+                            {props.children}
+                        </blockquote>
                       ),
                       p: ({node, ...props}) => <p className="mb-4 last:mb-0" {...props} />,
                       strong: ({node, ...props}) => <strong className="font-bold opacity-100" {...props} />,

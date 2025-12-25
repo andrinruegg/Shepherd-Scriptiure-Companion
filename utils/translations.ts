@@ -320,7 +320,7 @@ export const translations: Record<string, any> = {
       about: "About",
       aboutText: "Shepherd Scripture Companion was developed with the mission to help people grow closer to God through His Word. It was built as a labor of love and faith, designed to provide a peaceful space for spiritual guidance and encouragement for everyone on their journey with Christ.",
       displayName: "Display Name",
-      description: "Bio / Description",
+      bio: "Bio / Description",
       noBio: "No description yet.",
       apiKey: {
           title: "Google Gemini API Key",
@@ -440,7 +440,7 @@ export const translations: Record<string, any> = {
         prayerTitle: "Jurnal Rugăciune",
         prayerDesc: "Scrie & partajează",
         storiesTitle: "Povești Biblice",
-        storiesDesc: "Vieți de credință",
+        storiesDesc: "Vieți de crednță",
         quizTitle: "Trivia Biblică",
         quizDesc: "Testează cunoștințele",
         friendsTitle: "Prieteni",
@@ -593,6 +593,48 @@ export const translations: Record<string, any> = {
         step3: "Copiază codul lung și lipește-l mai jos"
       }
     },
+    bible: {
+        selectBook: "Selectează Cartea",
+        chapter: "Capitol",
+        oldTestament: "Vechiul Testament",
+        newTestament: "Noul Testament",
+        searchBooks: "Caută cărți...",
+        loading: "Se încarcă Scriptura...",
+        error: "Nu s-a putut încărca capitolul.",
+        highlight: "Evidențiază",
+        colors: {
+            yellow: "Galben",
+            green: "Verde",
+            blue: "Albastru",
+            pink: "Roz",
+            remove: "Șterge Culoarea"
+        },
+        save: "Salvează la Favorite",
+        read: "Citește",
+        prev: "Înapoi",
+        next: "Înainte",
+        audio: {
+            play: "Ascultă",
+            pause: "Pauză"
+        },
+        needKey: "Pentru a folosi vocea AI, te rugăm să configurezi cheia API în Setări sau Chat."
+    },
+    stories: {
+        title: "Martori Biblici",
+        subtitle: "Povești de Credință",
+        readMore: "Citește Povestea",
+        back: "Înapoi la Listă",
+        newEncounter: "Conversație Nouă",
+        startRoleplay: "Începe Conversația",
+        deleteEncounter: "Ștergi această întâlnire?",
+        disclaimer: "Vorbești cu o reprezentare AI a acestei figuri biblice.",
+        history: "Biografie",
+        pastConversations: "Conversații Anterioare",
+        viewDetails: "Vezi Detalii",
+        encounterLabel: "Întâlnire",
+        inputPlaceholder: "Vorbește cu martorul...",
+        needKey: "Pentru a discuta cu martorii, te rugăm să configurezi cheia API în Setări sau Chat."
+    },
     settings: {
       title: "Setări",
       preferences: "Preferințe",
@@ -625,7 +667,7 @@ export const translations: Record<string, any> = {
       about: "Despre",
       aboutText: "Shepherd Scripture Companion a fost dezvoltat cu misiunea de a ajuta oamenii să se apropie de Dumnezeu prin Cuvântul Său. A fost creat ca o lucrare din dragoste și credință, menită să ofere un spațiu liniștit pentru îndrumare spirituală și încurajare pentru toți cei aflați în călătoria lor cu Hristos.",
       displayName: "Nume Afișat",
-      description: "Bio / Descriere",
+      bio: "Bio / Descriere",
       noBio: "Nicio descriere.",
       apiKey: {
           title: "Cheie Google Gemini API",
@@ -705,6 +747,48 @@ export const translations: Record<string, any> = {
         step3: "Kopieren Sie den Code und fügen Sie ihn unten ein"
       }
     },
+    stories: {
+        title: "Biblische Zeugen",
+        subtitle: "Geschichten des Glaubens",
+        readMore: "Geschichte lesen",
+        back: "Zurück zur Liste",
+        newEncounter: "Neues Gespräch",
+        startRoleplay: "Gespräch beginnen",
+        deleteEncounter: "Diese Begegnung löschen?",
+        disclaimer: "Sie sprechen mit einer KI-Darstellung dieser biblischen Figur.",
+        history: "Biografie",
+        pastConversations: "Frühere Gespräche",
+        viewDetails: "Details anzeigen",
+        encounterLabel: "Begegnung",
+        inputPlaceholder: "Sprich mit dem Zeugen...",
+        needKey: "Um mit Zeugen zu chatten, richte bitte deinen API-Schlüssel in den Einstellungen oder im Chat ein."
+    },
+    bible: {
+        selectBook: "Buch wählen",
+        chapter: "Kapitel",
+        oldTestament: "Altes Testament",
+        newTestament: "Neues Testament",
+        searchBooks: "Bücher suchen...",
+        loading: "Schrift wird geladen...",
+        error: "Kapitel konnte nicht geladen werden.",
+        highlight: "Hervorheben",
+        colors: {
+            yellow: "Gelb",
+            green: "Grün",
+            blue: "Blau",
+            pink: "Rosa",
+            remove: "Farbe entfernen"
+        },
+        save: "Zu Favoriten hinzufügen",
+        read: "Lesen",
+        prev: "Zurück",
+        next: "Weiter",
+        audio: {
+            play: "Anhören",
+            pause: "Pause"
+        },
+        needKey: "Um die KI-Stimme zu nutzen, richte bitte deinen API-Schlüssel in den Einstellungen oder im Chat ein."
+    },
     settings: {
       title: "Einstellungen",
       preferences: "Präferenzen",
@@ -735,7 +819,7 @@ export const translations: Record<string, any> = {
       about: "Über",
       aboutText: "Shepherd Scripture Companion wurde mit der Mission entwickelt, Menschen zu helfen, Gott durch Sein Wort näher zu kommen.",
       displayName: "Anzeigename",
-      description: "Bio / Beschreibung",
+      bio: "Bio / Beschreibung",
       noBio: "Noch keine Beschreibung.",
       apiKey: {
           title: "Google Gemini API-Schlüssel",

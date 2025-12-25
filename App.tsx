@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import ChatInterface from './components/ChatInterface';
 import Sidebar from './components/Sidebar';
@@ -103,7 +102,6 @@ const App: React.FC = () => {
   }, []);
 
   const handleSelectApiKey = async () => {
-    // We prioritize the manual selector now to fulfill user request
     setIsSettingsOpen(true);
   };
 
@@ -350,6 +348,17 @@ const App: React.FC = () => {
       setDisplayName(value as string);
       localStorage.setItem('displayName', value as string);
       updateCloudPreference('full_name', value as string);
+      db.social.upsertProfile(shareId, value as string, avatar, bio);
+    } else if (key === 'avatar') {
+      setAvatar(value as string);
+      localStorage.setItem('userAvatar', value as string);
+      updateCloudPreference('avatar', value as string);
+      db.social.upsertProfile(shareId, displayName, value as string, bio);
+    } else if (key === 'bio') {
+      setBio(value as string);
+      localStorage.setItem('userBio', value as string);
+      updateCloudPreference('bio', value as string);
+      db.social.upsertProfile(shareId, displayName, avatar, value as string);
     }
   };
 
@@ -415,7 +424,10 @@ const App: React.FC = () => {
   };
 
   const handleRenameChat = async (chatId: string, newTitle: string) => {
-    setChats(prev => prev.map(c => c.id === chatId ? { ...c, title: newTitle } : c));
+    setChats(prev => prev.map(c => {
+        if (c.id === chatId) return { ...c, title: newTitle, isTemp: false };
+        return c;
+    }));
     try { await db.updateChatTitle(chatId, newTitle); } catch (e) { console.error(e); }
   };
 
@@ -428,7 +440,6 @@ const App: React.FC = () => {
   const handleSendMessage = async (text: string, hiddenContext?: string) => {
     if (!activeChatId) return;
 
-    // Strict verified check before sending
     if (!hasApiKey) {
       handleSelectApiKey();
       return;
@@ -463,7 +474,6 @@ const App: React.FC = () => {
     } catch (e: any) { 
       console.error(e);
       setIsLoading(false);
-      // Reset API key state if error was about key
       if (e.message === 'API_KEY_INVALID' || e.message === 'NO_API_KEY_SELECTED' || e.message === 'NO_API_KEY_PROVIDED') setHasApiKey(false);
     }
   };
@@ -536,7 +546,7 @@ const App: React.FC = () => {
   return (
     <div className={`${isDarkMode ? 'dark' : ''} animate-fade-in ${session ? 'h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'}`}>
       
-      {/* --- SPLASH SCREEN OVERLAY --- */}
+      {/* SPLASH SCREEN OVERLAY */}
       <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-black transition-all duration-1000 ease-[cubic-bezier(0.76,0,0.24,1)] ${!showSplash ? 'opacity-0 scale-110 pointer-events-none blur-2xl' : 'opacity-100 scale-100 blur-0'}`}>
          <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 animate-aurora opacity-90"></div>
          <div className="absolute inset-0 opacity-60">
@@ -566,19 +576,6 @@ const App: React.FC = () => {
                 <div className="h-[2px] w-8 md:w-24 bg-gradient-to-r from-transparent via-amber-200 to-transparent shadow-[0_0_8px_rgba(253,230,138,0.6)]"></div>
                 <p className="text-amber-100 text-base md:text-2xl font-semibold uppercase tracking-[0.25em] font-sans drop-shadow-md whitespace-nowrap">Scripture Companion</p>
                 <div className="h-[2px] w-8 md:w-24 bg-gradient-to-r from-transparent via-amber-200 to-transparent shadow-[0_0_8px_rgba(253,230,138,0.6)]"></div>
-             </div>
-         </div>
-         <div className="absolute bottom-0 left-0 right-0 h-56 overflow-hidden z-30 pointer-events-none">
-             <div className="absolute bottom-[-20px] left-[-10%] right-[-10%] h-28 bg-gradient-to-t from-black via-slate-900 to-transparent opacity-60 blur-sm rounded-[100%] scale-110"></div>
-             <div className="absolute bottom-10 animate-sheep-run" style={{ animationDuration: '4.5s' }}>
-                <div className="animate-sheep-bounce">
-                    <svg width="100" height="75" viewBox="0 0 40 30" fill="white" className="drop-shadow-lg opacity-90"><rect x="5" y="8" width="25" height="15" rx="8" /><circle cx="32" cy="12" r="6" /><path d="M36 10 L40 12 L36 14 Z" /><rect x="8" y="20" width="3" height="8" rx="1.5" /><rect x="22" y="20" width="3" height="8" rx="1.5" /></svg>
-                </div>
-             </div>
-             <div className="absolute bottom-8 animate-sheep-run" style={{ animationDuration: '4.5s', animationDelay: '0.4s' }}>
-                <div className="animate-sheep-bounce" style={{ animationDelay: '0.1s' }}>
-                    <svg width="80" height="60" viewBox="0 0 40 30" fill="white" className="drop-shadow-lg opacity-80"><rect x="5" y="8" width="25" height="15" rx="8" /><circle cx="32" cy="12" r="6" /><rect x="8" y="20" width="3" height="8" rx="1.5" /><rect x="22" y="20" width="3" height="8" rx="1.5" /></svg>
-                </div>
              </div>
          </div>
       </div>
