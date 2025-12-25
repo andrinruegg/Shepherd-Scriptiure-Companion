@@ -3,24 +3,22 @@ import { GoogleGenAI, GenerateContentResponse, Content, Type, Modality } from "@
 import { Message, QuizQuestion } from "../types";
 
 const BASE_SYSTEM_INSTRUCTION = `
-You are "Shepherd", a warm, friendly, and encouraging Scripture Companion.
-Your visual identity is a Shepherd's Staff and a Book.
+You are "Shepherd", a dedicated Bible Verse AI Assistant. Your primary goal is to provide relevant scripture, comfort, and spiritual wisdom.
 
-Core Purpose:
-To guide users—especially younger believers or those new to faith—to the peace and wisdom found in the Bible.
+Core Directives:
+1. **Scripture First:** Every single response MUST include at least one Bible verse. 
+2. **Context:** Briefly explain the meaning or context of the verse provided to help the user understand it.
+3. **Thematic Matches:** If a user expresses an emotion (sad, happy, anxious), find a verse that directly speaks to that feeling.
+4. **Formatting:** 
+   - Always use blockquotes (>) for the Bible verse.
+   - Use bold for the reference (e.g., **Psalm 23:1**).
+   - Use Markdown for clear, readable structure.
+5. **Persona:** Warm, encouraging, and pastoral. Speak like a kind mentor.
 
-Tone & Style:
-1. **Simple & Clear:** Use easy-to-understand words. Avoid overly complex theological jargon unless you explain it simply.
-2. **Warm & Relatable:** Talk like a kind older brother or a wise youth leader. Be encouraging, not judgmental.
-3. **Engaging:** Use emojis occasionally (like 🌿, ✨, 📖) to keep the text visually friendly, but don't overdo it.
-
-Standard Rules:
-1. **Prioritize Scripture**: Always include at least one relevant Bible verse.
-2. **Format**: 
-   - Use Markdown.
-   - Use blockquotes (>) for verses.
-   - Bold references (**John 3:16**).
-3. **Variety**: Don't always use the same verses. If asked about "Love", look beyond 1 Corinthians 13.
+Avoid:
+- Giving purely secular advice without a biblical foundation.
+- Long-winded theological debates unless specifically asked.
+- Failing to provide a verse.
 `;
 
 const mapHistoryToContent = (messages: Message[]): Content[] => {
@@ -48,7 +46,6 @@ const makeRequestWithRetry = async <T>(
     const apiKey = getActiveApiKey();
     
     if (!apiKey) {
-        // Fallback to platform selector if no manual key is present
         if (window.aistudio) {
             const hasKey = await window.aistudio.hasSelectedApiKey();
             if (!hasKey) throw new Error("NO_API_KEY_SELECTED");
@@ -58,7 +55,6 @@ const makeRequestWithRetry = async <T>(
     }
 
     try {
-        // ALWAYS create a new instance right before making an API call
         const ai = new GoogleGenAI({ apiKey: apiKey });
         return await operation(ai);
     } catch (error: any) {
@@ -66,7 +62,6 @@ const makeRequestWithRetry = async <T>(
         const status = error?.status;
         const code = error?.code;
 
-        // If the request fails with this specific message, it might be an invalid key
         if (errorMessage.includes("Requested entity was not found.") || errorMessage.includes("API key not valid")) {
             throw new Error("API_KEY_INVALID");
         }
@@ -126,9 +121,9 @@ export const sendMessageStream = async (
     const finalSystemInstruction = systemOverride ? systemOverride : `${BASE_SYSTEM_INSTRUCTION}
     
     IMPORTANT PREFERENCES:
-    1. Unless the user explicitly asks for a different version, YOU MUST QUOTE ALL SCRIPTURE USING THE ${bibleTranslation} TRANSLATION. Label the verses accordingly.
-    2. LANGUAGE RULE: The user has set their app language to "${userLanguage}". YOU MUST RESPOND IN ${userLanguage}, even if they type in a different language.
-    ${displayName ? `3. USER IDENTITY: The user's name is "${displayName}". Address them by name occasionally to build a connection.` : ''}
+    1. QUOTE ALL SCRIPTURE USING THE ${bibleTranslation} TRANSLATION.
+    2. RESPONSE LANGUAGE: You must respond in "${userLanguage}".
+    ${displayName ? `3. GREETING: Address the user as "${displayName}" naturally.` : ''}
     `;
 
     const promptToSend = hiddenContext 
@@ -141,7 +136,7 @@ export const sendMessageStream = async (
             history: formattedHistory,
             config: {
                 systemInstruction: finalSystemInstruction,
-                temperature: systemOverride ? 0.9 : 1.0, 
+                temperature: systemOverride ? 0.9 : 0.8, 
             },
         });
         
@@ -205,8 +200,7 @@ export const generateQuizQuestion = async (
         Difficulty: ${difficulty}
         Language: ${language}
         Format: JSON Object { question, options: string[], correctIndex: number, explanation: string, reference: string }
-        Ensure the options array has exactly 4 items. The explanation should be encouraging.
-        CRITICAL: Ensure the question is UNIQUE and DIFFERENT from previous ones.
+        Ensure the options array has exactly 4 items.
         ${historyContext}`;
 
         const response = await ai.models.generateContent({
@@ -244,10 +238,9 @@ export const getBibleChapterFromAI = async (
     return await makeRequestWithRetry(async (ai) => {
         const prompt = `Generate the full text of the Bible chapter: ${bookName} Chapter ${chapter}.
         Language: ${language}
-        Translation Version: ${translation} (e.g. Cornilescu for Romanian, Luther for German, NIV for English)
+        Translation Version: ${translation}
         Output Format:
-        A strictly valid JSON array of objects. Each object must have a 'verse' (number) and 'text' (string).
-        Do NOT include any introduction, markdown formatting, or notes. ONLY the JSON array.`;
+        A strictly valid JSON array of objects. Each object must have a 'verse' (number) and 'text' (string).`;
 
         const response = await ai.models.generateContent({
             model: 'gemini-3-flash-preview',

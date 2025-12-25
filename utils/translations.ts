@@ -148,6 +148,22 @@ export const translations: Record<string, any> = {
       },
       sanctuary: "Sanctuary"
     },
+    stories: {
+        title: "Biblical Witnesses",
+        subtitle: "Stories of Faith",
+        readMore: "Read Story",
+        back: "Back to List",
+        newEncounter: "New Conversation",
+        startRoleplay: "Start Conversation",
+        deleteEncounter: "Delete this encounter?",
+        disclaimer: "You are speaking with an AI representation of this Biblical figure.",
+        history: "Biography",
+        pastConversations: "Past Conversations",
+        viewDetails: "View Details",
+        encounterLabel: "Encounter",
+        inputPlaceholder: "Speak to the witness...",
+        needKey: "To chat with witnesses, please setup your API key in Settings or Chat."
+    },
     chat: {
       subtitle: "Scripture Companion",
       placeholder: "Ask Shepherd for a verse, topic, or guidance...",
@@ -162,7 +178,7 @@ export const translations: Record<string, any> = {
       instructions: "Instructions",
       activateBtn: "Activate Shepherd",
       openStudio: "Open AI Studio",
-      invalidKey: "Invalid API Key. Please check the code.",
+      invalidKey: "Invalid API Key. Keys start with AIzaSy...",
       statusActive: "Status: Active",
       statusMissing: "Status: Missing",
       howTo: {
@@ -170,6 +186,109 @@ export const translations: Record<string, any> = {
         step2: "Sign in and click 'Get API Key'",
         step3: "Copy the long code and paste it below"
       }
+    },
+    bible: {
+        selectBook: "Select Book",
+        chapter: "Chapter",
+        oldTestament: "Old Testament",
+        newTestament: "New Testament",
+        searchBooks: "Search books...",
+        loading: "Loading Scripture...",
+        error: "Could not load chapter.",
+        highlight: "Highlight",
+        colors: {
+            yellow: "Yellow",
+            green: "Green",
+            blue: "Blue",
+            pink: "Pink",
+            remove: "Remove Color"
+        },
+        save: "Save to Favorites",
+        read: "Read",
+        prev: "Prev",
+        next: "Next",
+        audio: {
+            play: "Listen",
+            pause: "Pause"
+        },
+        needKey: "To use the AI voice, please setup your API key in Settings or Chat."
+    },
+    saved: {
+        title: "Saved Favorites",
+        empty: "No saved items yet.",
+        filterAll: "All",
+        filterVerse: "Verses",
+        filterChat: "Chat",
+        filterPrayer: "Prayers",
+        remove: "Remove",
+        bibleVerse: "Bible Verse",
+        chatMessage: "Chat Message",
+        prayerItem: "Prayer",
+        date: "Date"
+    },
+    prayer: {
+        title: "Prayer Journal",
+        tabs: {
+            journal: "My Journal",
+            community: "Prayer Wall"
+        },
+        newPrayer: "New Prayer",
+        placeholder: "What's on your heart?",
+        markAnswered: "Mark Answered",
+        answered: "Answered",
+        empty: "No prayers recorded yet.",
+        active: "Active",
+        privacy: {
+            label: "Visibility",
+            private: "Only Me",
+            friends: "Friends Only",
+            specific: "Specific People",
+            public: "Public Wall",
+            selectFriends: "Select Friends",
+            anonymous: "Anonymous",
+            publicId: "Public ID"
+        },
+        amen: "Amen"
+    },
+    sanctuary: {
+        title: "Sanctuary",
+        rain: "Rain",
+        fire: "Fire",
+        stream: "Stream",
+        night: "Night",
+        volume: "Volume"
+    },
+    quiz: {
+        title: "Bible Trivia",
+        start: "Start Quiz",
+        difficulty: "Select Difficulty",
+        easy: "Easy",
+        medium: "Medium",
+        hard: "Hard",
+        score: "Score",
+        next: "Next Question",
+        correct: "Correct!",
+        incorrect: "Incorrect",
+        explanation: "Explanation",
+        loading: "Generating question...",
+        results: "Results",
+        time: "Time Taken",
+        accuracy: "Accuracy",
+        playAgain: "Play Again",
+        home: "Home",
+        mode: "Mode",
+        question: "Question"
+    },
+    topics: {
+      title: "Explore a Topic",
+      anxiety: { label: "Anxiety", query: "I am feeling anxious. Please give me a comforting Bible verse about peace." },
+      love: { label: "Love", query: "What does the Bible say about love? Give me a beautiful verse." },
+      hope: { label: "Hope", query: "I need some hope today. Please share a scripture about hope and future." },
+      sadness: { label: "Sadness", query: "I am feeling sad. Please provide a comforting verse for a heavy heart." },
+      gratitude: { label: "Gratitude", query: "I want to be thankful. Give me a verse about gratitude." },
+      strength: { label: "Strength", query: "I feel weak. Please share a Bible verse about God giving us strength." },
+      joy: { label: "Joy", query: "I want to rejoice! Give me a joyful Bible verse." },
+      forgiveness: { label: "Forgiveness", query: "What does the Bible say about forgiveness? Please give me a verse on this topic." },
     },
     settings: {
       title: "Settings",
@@ -199,7 +318,7 @@ export const translations: Record<string, any> = {
       loggedIn: "Logged in via Supabase",
       signOut: "Sign Out",
       about: "About",
-      aboutText: "Shepherd Scripture Companion was developed with the mission to help people grow closer to God through His Word.",
+      aboutText: "Shepherd Scripture Companion was developed with the mission to help people grow closer to God through His Word. It was built as a labor of love and faith, designed to provide a peaceful space for spiritual guidance and encouragement for everyone on their journey with Christ.",
       displayName: "Display Name",
       description: "Bio / Description",
       noBio: "No description yet.",
@@ -220,10 +339,88 @@ export const translations: Record<string, any> = {
     },
     social: {
         title: "Social & Updates",
-        tabs: { inbox: "Inbox", friends: "Friends", add: "Add", me: "Me" },
-        status: { online: "Online", offline: "Offline", activeNow: "Active now", lastSeen: "Last seen", ago: "ago" }
+        tabs: {
+            inbox: "Inbox",
+            friends: "Friends",
+            add: "Add",
+            me: "Me"
+        },
+        inbox: {
+            title: "Notifications",
+            requests: "Friend Requests",
+            noRequests: "No pending requests",
+            updates: "System Updates"
+        },
+        friends: {
+            title: "My Friends",
+            loading: "Loading friends...",
+            empty: "You haven't added any friends yet.",
+            streak: "Streak"
+        },
+        add: {
+            title: "Add Friend",
+            yourId: "Your Share ID",
+            shareText: "Share this ID with friends so they can add you.",
+            enterId: "Enter Friend's ID",
+            search: "Search"
+        },
+        profile: {
+            title: "My Profile",
+            streak: "Daily Streak",
+            achievements: "Achievements",
+            locked: "Locked",
+            about: "About",
+            message: "Message",
+            unfriend: "Unfriend",
+            addFriend: "Add Friend"
+        },
+        chat: {
+            placeholder: "Message...",
+            paintMode: "Paint Mode"
+        },
+        status: {
+            online: "Online",
+            offline: "Offline",
+            activeNow: "Active now",
+            lastSeen: "Last seen",
+            ago: "ago"
+        },
+        updatesList: [
+            { version: "1.7.0", date: "2025-12-14", title: "New Dashboard", changes: ["Added Home View", "Improved Navigation"] },
+            { version: "1.6.0", date: "2025-12-12", title: "Bible Reader Upgrade", changes: ["Fixed Romanian Bible (Cornilescu) loading", "Instant chapter switching", "Offline-ready Bible text"] },
+            { version: "1.5.0", date: "2025-12-11", title: "Quiz & Achievements", changes: ["Added Bible Trivia mode", "Earn achievements for perfect scores", "View friend's streaks and badges", "Global progress tracking"] },
+            { version: "1.4.0", date: "2025-12-10", title: "Graffiti Perfection", changes: ["Fixed Graffiti Mode saving issues", "Smoother drawing experience", "Improved upload reliability"] },
+            { version: "1.3.0", date: "2025-12-09", title: "Social Chat", changes: ["Real-time messaging with friends", "Photo sharing", "Voice messages", "Online Status & Read Receipts"] },
+            { version: "1.2.0", date: "2025-12-09", title: "Winter Update", changes: ["Added festive Winter Mode", "Improved splash screen visuals", "Bug fixes for API connectivity"] },
+            { version: "1.1.0", date: "2025-12-08", title: "Bible Reader", changes: ["Added full Bible reader", "Highlighting support", "Save verses to collection"] },
+            { version: "1.0.0", date: "2025-12-08", title: "Initial Launch", changes: ["Shepherd AI Chat", "Supabase Integration"] }
+        ],
+        achievementList: {
+            'perfect-easy': { title: "Bible Scholar", description: "Score 100% on Easy Quiz" },
+            'perfect-medium': { title: "Disciple", description: "Score 100% on Medium Quiz" },
+            'perfect-hard': { title: "Theologian", description: "Score 100% on Hard Quiz" }
+        }
+    },
+    feedback: {
+        title: "Feedback",
+        desc: "Found a bug or have a suggestion? Let us know!",
+        type: "Feedback Type",
+        bug: "Bug Report",
+        feature: "Feature Request",
+        suggestion: "General Suggestion",
+        other: "Other",
+        subject: "Subject",
+        subjectPlaceholder: "What is it about?",
+        message: "Message",
+        messagePlaceholder: "Please describe in detail...",
+        submit: "Submit Feedback",
+        success: "Thank you! Your feedback has been received.",
+        error: "Something went wrong. Please try again later.",
+        requiredField: "Please fill in all fields.",
+        targetEmail: "Sends to: andrinruegg732@gmail.com"
     }
   },
+  
   Romanian: {
     home: {
         goodMorning: "Bună Dimineața",
@@ -387,7 +584,7 @@ export const translations: Record<string, any> = {
       instructions: "Instrucțiuni",
       activateBtn: "Activează Păstorul",
       openStudio: "Deschide AI Studio",
-      invalidKey: "Cheie API invalidă. Verifică codul.",
+      invalidKey: "Cheie invalidă. Cheile încep cu AIzaSy...",
       statusActive: "Status: Activă",
       statusMissing: "Status: Lipsă",
       howTo: {
@@ -405,6 +602,7 @@ export const translations: Record<string, any> = {
       appearance: "Aspect",
       light: "Luminos",
       dark: "Întunecat",
+      
       winter: {
           title: "Mod Iarnă",
           desc: "Animații festive",
@@ -420,11 +618,12 @@ export const translations: Record<string, any> = {
           lightOnly: "Disponibil doar în Modul Luminos",
           activateHint: "Activarea acestui mod va trece la Modul Luminos"
       },
+
       account: "Cont",
       loggedIn: "Autentificat prin Supabase",
       signOut: "Deconectare",
       about: "Despre",
-      aboutText: "Shepherd a fost creat cu misiunea de a ajuta oamenii să se apropie de Dumnezeu.",
+      aboutText: "Shepherd Scripture Companion a fost dezvoltat cu misiunea de a ajuta oamenii să se apropie de Dumnezeu prin Cuvântul Său. A fost creat ca o lucrare din dragoste și credință, menită să ofere un spațiu liniștit pentru îndrumare spirituală și încurajare pentru toți cei aflați în călătoria lor cu Hristos.",
       displayName: "Nume Afișat",
       description: "Bio / Descriere",
       noBio: "Nicio descriere.",
@@ -442,13 +641,9 @@ export const translations: Record<string, any> = {
           step3: "3. Apasă 'Get API Key' apoi 'Create API Key'",
           step4: "4. Copiază cheia și lipește-o aici"
       }
-    },
-    social: {
-        title: "Social & Noutăți",
-        tabs: { inbox: "Inbox", friends: "Prieteni", add: "Adaugă", me: "Eu" },
-        status: { online: "Online", offline: "Offline", activeNow: "Activ acum", lastSeen: "Văzut ultima dată", ago: "în urmă" }
     }
   },
+
   German: {
     home: {
         goodMorning: "Guten Morgen",
@@ -487,117 +682,6 @@ export const translations: Record<string, any> = {
         newChat: "Neuer Chat",
         warning: "Warnung"
     },
-    composer: {
-        title: "Visueller Komponist",
-        theme: "Thema",
-        content: "Inhalt",
-        background: "Hintergrund",
-        typography: "Typografie",
-        textColor: "Textfarbe",
-        quickSelect: "Schnellauswahl",
-        selectPlaceholder: "Wähle einen Vers...",
-        message: "Nachricht",
-        reference: "Referenz / Author",
-        download: "Bild herunterladen",
-        processing: "Verarbeite...",
-        securityWarning: "Bild konnte nicht erstellt werden.",
-        themes: {
-            midnight: "Mitternacht",
-            sunset: "Morgendämmerung",
-            forest: "Wald",
-            paper: "Papier",
-            clean: "Sauber",
-            mountains: "Gipfel",
-            mist: "Nebel",
-            valley: "Tal",
-            canyon: "Schlucht",
-            desert: "Dünen",
-            field: "Golden",
-            ocean: "Ozean",
-            waterfall: "Wasserfall",
-            rain: "Regen",
-            coast: "Küste",
-            stars: "Galaxie",
-            aurora: "Aurora",
-            clouds: "Bewölkt",
-            dusk: "Dämmerung",
-            nebula: "Nebel",
-            bloom: "Blüte",
-            lavender: "Lavendel",
-            winter: "Winter",
-            autumn: "Herbst",
-            leaves: "Farne",
-            palm: "Blätter",
-            cross: "Bibel"
-        }
-    },
-    dailyVerse: {
-        title: "Tagesvers",
-        copy: "Kopieren",
-        copied: "Kopiert!",
-        createImage: "Bild erstellen"
-    },
-    welcomeMessages: [
-      "Friede sei mit dir, {name}. Ich bin Hirte. Wie kann ich dich heute führen?",
-      "Hallo, {name}. Ich bin hier, um Gottes Wort mit dir zu erkunden.",
-      "Grüße, {name}. Lass uns Ermutigung in der Bibel finden.",
-      "Hi {name}! Ich bin bereit, die Schriften mit dir zu durchsuchen."
-    ],
-    login: {
-      welcomeBack: "Willkommen zurück",
-      createAccount: "Konto erstellen",
-      signInText: "Melde dich an, um auf dein geistliches Tagebuch zuzugreifen.",
-      signUpText: "Registriere dich, um deine Gespräche zu speichern.",
-      emailPlaceholder: "E-Mail-Adresse",
-      emailPlaceholderExample: "name@beispiel.de",
-      passwordPlaceholder: "Passwort",
-      passwordPlaceholderExample: "••••••••",
-      namePlaceholder: "Dein Name",
-      displayName: "Anzeigename",
-      rememberMe: "Angemeldet bleiben",
-      signInBtn: "Anmelden",
-      signUpBtn: "Registrieren",
-      noAccount: "Kein Konto? Registrieren",
-      hasAccount: "Bereits ein Konto? Anmelden",
-      errorMissing: "Bitte gib E-Mail und Passwort ein.",
-      successCreated: "Konto erstellt! Bitte überprüfe deine E-Mail.",
-      forgotPassword: "Passwort vergessen?",
-      sendReset: "Reset-Link senden",
-      resetText: "Gib deine E-Mail ein, um einen Reset-Link zu erhalten.",
-      setNewPassword: "Neues Passwort setzen",
-      newPassword: "Neues Passwort",
-      confirmPassword: "Passwort bestätigen",
-      updatePassword: "Passwort aktualisieren",
-      passwordUpdated: "Passwort aktualisiert!",
-      loggingOut: "Du wirst abgemeldet..."
-    },
-    sidebar: {
-      home: "Startseite",
-      newChat: "Neue Unterhaltung",
-      dailyVerse: "Tagesvers",
-      history: "Verlauf",
-      noChats: "Noch keine Unterhaltungen.",
-      settings: "Einstellungen",
-      deleteConfirm: "Chat löschen?",
-      rename: "Umbenennen",
-      delete: "Löschen",
-      tooltips: {
-          inbox: "Benachrichtigungen",
-          sanctuary: "Ruheort",
-          profile: "Profil",
-          settings: "Einstellungen"
-      },
-      tabs: {
-          home: "Startseite",
-          chat: "Chat",
-          bible: "Bibel",
-          saved: "Gespeichert",
-          prayer: "Gebete",
-          quiz: "Trivia",
-          stories: "Geschichten"
-      },
-      sanctuary: "Ruheort"
-    },
     chat: {
       subtitle: "Schriftbegleiter",
       placeholder: "Frag Hirte nach einem Vers, Thema oder Rat...",
@@ -607,12 +691,12 @@ export const translations: Record<string, any> = {
       placeholderShort: "Frag Hirte...",
       missingKeyTitle: "API-Schlüssel erforderlich",
       missingKeyDesc: "Um mit Hirte zu chatten, benötigen Sie einen kostenlosen Google Gemini API-Schlüssel.",
-      disclaimer: "Dein Schlüssel bleibt sicher auf deinem Gerät.",
+      disclaimer: "Dein Schlüssel bleibt sicher auf deinem Gerät und wird nur für Gespräche mit Hirte verwendet.",
       setupKey: "API-Schlüssel einrichten",
       instructions: "Anleitung",
       activateBtn: "Hirte aktivieren",
       openStudio: "KI Studio öffnen",
-      invalidKey: "Ungültiger API-Schlüssel. Bitte prüfen.",
+      invalidKey: "Ungültiger Schlüssel. Beginnt mit AIzaSy...",
       statusActive: "Status: Aktiv",
       statusMissing: "Status: Fehlt",
       howTo: {
@@ -649,7 +733,7 @@ export const translations: Record<string, any> = {
       loggedIn: "Eingeloggt über Supabase",
       signOut: "Abmelden",
       about: "Über",
-      aboutText: "Hirte hilft Menschen, Gott näher zu kommen.",
+      aboutText: "Shepherd Scripture Companion wurde mit der Mission entwickelt, Menschen zu helfen, Gott durch Sein Wort näher zu kommen.",
       displayName: "Anzeigename",
       description: "Bio / Beschreibung",
       noBio: "Noch keine Beschreibung.",
@@ -667,11 +751,6 @@ export const translations: Record<string, any> = {
           step3: "3. Klicken Sie auf 'Get API Key' und dann auf 'Create API Key'",
           step4: "4. Kopieren Sie den Schlüssel und fügen Sie ihn hier ein"
       }
-    },
-    social: {
-        title: "Soziales & Updates",
-        tabs: { inbox: "Posteingang", friends: "Freunde", add: "Hinzufügen", me: "Ich" },
-        status: { online: "Online", offline: "Offline", activeNow: "Jetzt aktiv", lastSeen: "Zuletzt gesehen", ago: "vor" }
     }
   }
 };
