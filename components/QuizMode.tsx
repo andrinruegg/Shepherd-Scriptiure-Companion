@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { Brain, Sparkles, CheckCircle, XCircle, ArrowRight, Trophy, Menu, Flame, RotateCw, Award, CheckCircle2, Timer, ArrowLeft } from 'lucide-react';
+import { Brain, Sparkles, CheckCircle, XCircle, ArrowRight, Trophy, Flame, RotateCw, Award, CheckCircle2, Timer, ArrowLeft } from 'lucide-react';
 import { STATIC_QUIZ_DATA } from '../data/staticQuizData';
 import { QuizQuestion, Achievement } from '../types';
-import { translations } from '../utils/translations';
+import { useTranslation } from 'react-i18next';
 import { db } from '../services/db';
 import ShepherdLogo from './ShepherdLogo';
 
@@ -13,6 +13,7 @@ interface QuizModeProps {
 }
 
 const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
+    const { t, i18n } = useTranslation();
     const [gameState, setGameState] = useState<'menu' | 'playing' | 'result' | 'complete'>('menu');
     const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard'>('Easy');
     
@@ -29,8 +30,6 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
     
     const [earnedAchievement, setEarnedAchievement] = useState<Achievement | null>(null);
     const [myAchievements, setMyAchievements] = useState<Set<string>>(new Set());
-
-    const t = translations[language]?.quiz || translations['English'].quiz;
 
     useEffect(() => {
         const fetchAchievements = async () => {
@@ -57,7 +56,11 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
     const startQuiz = (diff: 'Easy' | 'Medium' | 'Hard') => {
         setDifficulty(diff);
         
-        const langData = STATIC_QUIZ_DATA[language] || STATIC_QUIZ_DATA['English'];
+        // Map language code to data key (en -> English, de -> German, ro -> Romanian)
+        const langMap: Record<string, string> = { en: 'English', de: 'German', ro: 'Romanian' };
+        const dataKey = langMap[i18n.language] || 'English';
+        const langData = STATIC_QUIZ_DATA[dataKey] || STATIC_QUIZ_DATA['English'];
+        
         const allQuestions = [...langData[diff]];
         
         const shuffledQuestions = allQuestions.sort(() => 0.5 - Math.random());
@@ -162,8 +165,8 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
                         <Brain size={20} />
                     </div>
                     <div>
-                        <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100 font-serif-text">{t.title}</h1>
-                        {gameState === 'playing' && <span className="text-xs text-slate-400 font-medium tracking-wider uppercase">{difficulty} {t.mode}</span>}
+                        <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100 font-serif-text">{t('quiz.title')}</h1>
+                        {gameState === 'playing' && <span className="text-xs text-slate-400 font-medium tracking-wider uppercase">{difficulty} {t('quiz.mode')}</span>}
                     </div>
                 </div>
             </header>
@@ -179,8 +182,8 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
                             </div>
                             
                             <div>
-                                <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{t.start}</h2>
-                                <p className="text-slate-500 dark:text-slate-400">{t.difficulty}</p>
+                                <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{t('quiz.start')}</h2>
+                                <p className="text-slate-500 dark:text-slate-400">{t('quiz.difficulty')}</p>
                             </div>
 
                             <div className="grid gap-3">
@@ -188,14 +191,14 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
                                     <div className="flex items-center gap-3">
                                         <div className="text-left">
                                             <div className="flex items-center gap-2">
-                                                <span className="block font-bold">🌱 {t.easy}</span>
+                                                <span className="block font-bold">🌱 {t('quiz.easy')}</span>
                                                 {myAchievements.has('perfect-easy') && (
                                                     <CheckCircle2 size={18} className="text-emerald-500 fill-emerald-100 dark:fill-emerald-900/30" />
                                                 )}
                                             </div>
                                         </div>
                                     </div>
-                                    <span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full text-slate-500">{(STATIC_QUIZ_DATA[language]?.Easy || STATIC_QUIZ_DATA['English'].Easy).length} Qs</span>
+                                    <span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full text-slate-500">{(STATIC_QUIZ_DATA[language === 'German' ? 'German' : language === 'Romanian' ? 'Romanian' : 'English']?.Easy || []).length} Qs</span>
                                     <ArrowRight className="opacity-0 group-hover:opacity-100 transition-opacity text-purple-500" size={18} />
                                 </button>
                                 
@@ -203,14 +206,14 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
                                     <div className="flex items-center gap-3">
                                         <div className="text-left">
                                             <div className="flex items-center gap-2">
-                                                <span className="block font-bold">📖 {t.medium}</span>
+                                                <span className="block font-bold">📖 {t('quiz.medium')}</span>
                                                 {myAchievements.has('perfect-medium') && (
                                                     <CheckCircle2 size={18} className="text-emerald-500 fill-emerald-100 dark:fill-emerald-900/30" />
                                                 )}
                                             </div>
                                         </div>
                                     </div>
-                                    <span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full text-slate-500">{(STATIC_QUIZ_DATA[language]?.Medium || STATIC_QUIZ_DATA['English'].Medium).length} Qs</span>
+                                    <span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full text-slate-500">{(STATIC_QUIZ_DATA[language === 'German' ? 'German' : language === 'Romanian' ? 'Romanian' : 'English']?.Medium || []).length} Qs</span>
                                     <ArrowRight className="opacity-0 group-hover:opacity-100 transition-opacity text-purple-500" size={18} />
                                 </button>
                                 
@@ -218,14 +221,14 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
                                     <div className="flex items-center gap-3">
                                         <div className="text-left">
                                             <div className="flex items-center gap-2">
-                                                <span className="block font-bold">🔥 {t.hard}</span>
+                                                <span className="block font-bold">🔥 {t('quiz.hard')}</span>
                                                 {myAchievements.has('perfect-hard') && (
                                                     <CheckCircle2 size={18} className="text-emerald-500 fill-emerald-100 dark:fill-emerald-900/30" />
                                                 )}
                                             </div>
                                         </div>
                                     </div>
-                                    <span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full text-slate-500">{(STATIC_QUIZ_DATA[language]?.Hard || STATIC_QUIZ_DATA['English'].Hard).length} Qs</span>
+                                    <span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full text-slate-500">{(STATIC_QUIZ_DATA[language === 'German' ? 'German' : language === 'Romanian' ? 'Romanian' : 'English']?.Hard || []).length} Qs</span>
                                     <ArrowRight className="opacity-0 group-hover:opacity-100 transition-opacity text-purple-500" size={18} />
                                 </button>
                             </div>
@@ -240,7 +243,7 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
                                 </div>
                                 
                                 <div className="flex justify-between items-center mb-4 mt-2">
-                                    <span className="text-xs font-bold text-slate-400">{t.question} {currentIndex + 1} / {sessionQuestions.length}</span>
+                                    <span className="text-xs font-bold text-slate-400">{t('quiz.question')} {currentIndex + 1} / {sessionQuestions.length}</span>
                                     {streak > 1 && !showResult && (
                                         <div className="inline-flex items-center gap-1 text-xs font-bold text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-full animate-bounce">
                                             <Flame size={12} fill="currentColor" /> {streak} Streak
@@ -284,7 +287,7 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
                                             <Sparkles className={selectedOption === currentQuestion.correctIndex ? 'text-emerald-500' : 'text-slate-400'} size={20} />
                                             <div>
                                                 <p className="font-bold text-slate-800 dark:text-slate-200 text-sm mb-1">
-                                                    {selectedOption === currentQuestion.correctIndex ? t.correct : t.incorrect}
+                                                    {selectedOption === currentQuestion.correctIndex ? t('quiz.correct') : t('quiz.incorrect')}
                                                 </p>
                                                 <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                                                     {currentQuestion.explanation}
@@ -300,7 +303,7 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
                                         onClick={nextQuestion}
                                         className="w-full py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold shadow-lg shadow-purple-500/30 transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2"
                                     >
-                                        {currentIndex < sessionQuestions.length - 1 ? t.next : t.results} <ArrowRight size={20} />
+                                        {currentIndex < sessionQuestions.length - 1 ? t('quiz.next') : t('quiz.results')} <ArrowRight size={20} />
                                     </button>
                                 </div>
                             )}
@@ -315,20 +318,20 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
                              </div>
                              
                              <div>
-                                 <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-2 font-serif-text">{t.correct}</h2>
+                                 <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-2 font-serif-text">{t('quiz.correct')}</h2>
                                  <p className="text-slate-500 dark:text-slate-400">You completed the {difficulty} Quiz</p>
                              </div>
 
                              <div className="grid grid-cols-2 gap-4">
                                  <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center">
-                                     <span className="text-xs font-bold text-slate-400 uppercase mb-1">{t.time}</span>
+                                     <span className="text-xs font-bold text-slate-400 uppercase mb-1">{t('quiz.time')}</span>
                                      <div className="flex items-center gap-2">
                                         <Timer size={18} className="text-purple-500"/>
                                         <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">{formatTime(endTime - startTime)}</span>
                                      </div>
                                  </div>
                                  <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center">
-                                     <span className="text-xs font-bold text-slate-400 uppercase mb-1">{t.accuracy}</span>
+                                     <span className="text-xs font-bold text-slate-400 uppercase mb-1">{t('quiz.accuracy')}</span>
                                      <div className="flex items-center gap-2">
                                         <CheckCircle2 size={18} className="text-emerald-500"/>
                                         <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{correctCount}/{sessionQuestions.length}</span>
@@ -351,10 +354,10 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick }) => {
 
                              <div className="flex gap-3 pt-4">
                                 <button onClick={() => setGameState('menu')} className="flex-1 py-3 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
-                                    {t.home}
+                                    {t('quiz.home')}
                                 </button>
                                 <button onClick={() => startQuiz(difficulty)} className="flex-1 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors flex items-center justify-center gap-2">
-                                    <RotateCw size={18} /> {t.playAgain}
+                                    <RotateCw size={18} /> {t('quiz.playAgain')}
                                 </button>
                              </div>
                          </div>

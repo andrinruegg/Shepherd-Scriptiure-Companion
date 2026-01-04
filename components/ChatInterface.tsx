@@ -1,10 +1,11 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import { Send, Menu, Trash2, Plus, ArrowLeft, Key, ExternalLink, ShieldCheck, Sparkles, BookOpen, Lock, Check, AlertCircle } from 'lucide-react';
 import { Message } from '../types';
 import ChatMessage from './ChatMessage';
 import TopicSelector from './TopicSelector';
 import ShepherdLogo from './ShepherdLogo';
-import { translations } from '../utils/translations';
+import { useTranslation } from 'react-i18next';
 
 interface ChatInterfaceProps {
   messages: Message[];
@@ -43,6 +44,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   onSelectApiKey,
   onUpdateManualKey
 }) => {
+  const { t } = useTranslation();
   const [inputValue, setInputValue] = useState('');
   const [keyInputValue, setKeyInputValue] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -52,9 +54,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   
-  const t = translations[language]?.chat || translations['English'].chat;
-  const commonT = translations[language]?.common || translations['English'].common;
-
   useEffect(() => {
     const handleResize = () => { setIsMobile(window.innerWidth < 768); };
     window.addEventListener('resize', handleResize);
@@ -72,12 +71,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const handleSaveKey = (e: React.FormEvent) => {
     e.preventDefault();
     const key = keyInputValue.trim();
-    
-    // Pattern Validation for Gemini Keys (AIzaSy...)
-    const isValidPattern = key.startsWith('AIzaSy') && key.length >= 38;
+    const isValidPattern = key.length >= 30;
     
     if (!isValidPattern) {
-        setValidationError(t.invalidKey);
+        setValidationError(t('chat.invalidKey'));
         return;
     }
 
@@ -112,7 +109,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   const safeMessages = messages || [];
   const isInitialState = safeMessages.length === 1 && safeMessages[0].role === 'model';
-  const placeholderText = isMobile ? (t.placeholderShort || "Ask Shepherd...") : t.placeholder;
+  const placeholderText = isMobile ? t('chat.placeholderShort') : t('chat.placeholder');
+  
+  // FIX: Brand name should always be 'Shepherd' as requested
+  const brandName = "Shepherd";
 
   return (
     <div className="flex flex-col h-full relative overflow-hidden bg-transparent">
@@ -131,10 +131,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 <ShepherdLogo size={24} />
               </div>
               <div className="hidden md:block">
-                <h1 className="text-xl font-bold text-slate-800 dark:text-white font-serif-text leading-tight">Shepherd</h1>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-black uppercase tracking-[0.2em]">{t.subtitle}</p>
+                <h1 className="text-xl font-bold text-slate-800 dark:text-white font-serif-text leading-tight">{brandName}</h1>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-black uppercase tracking-[0.2em]">{t('chat.subtitle')}</p>
               </div>
-              <div className="md:hidden font-serif-text font-bold text-lg text-slate-800 dark:text-white truncate max-w-[100px]">Shepherd</div>
+              <div className="md:hidden font-serif-text font-bold text-lg text-slate-800 dark:text-white truncate max-w-[100px]">{brandName}</div>
           </div>
         </div>
         
@@ -142,17 +142,17 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             <button 
                 onClick={onNewChat}
                 className="p-2 md:p-2.5 text-indigo-600 bg-indigo-50/80 dark:bg-indigo-900/30 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 rounded-xl transition-all flex items-center gap-2 border border-indigo-100/50 dark:border-indigo-800/50 shadow-sm active:scale-95"
-                title={commonT.newChat}
+                title={t('common.newChat')}
             >
                 <Plus size={20} strokeWidth={2.5} />
-                <span className="text-sm font-bold hidden md:inline">{commonT.newChat}</span>
+                <span className="text-sm font-bold hidden md:inline">{t('common.newChat')}</span>
             </button>
             
             {onDeleteCurrentChat && (
                 <button 
                     onClick={onDeleteCurrentChat}
                     className="p-2 md:p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
-                    title="Delete Conversation"
+                    title={t('sidebar.delete')}
                 >
                     <Trash2 size={20} />
                 </button>
@@ -180,32 +180,32 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                           </div>
 
                           <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-2 font-serif-text tracking-tight">
-                            {t.missingKeyTitle}
+                            {t('chat.missingKeyTitle')}
                           </h2>
                           <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 leading-relaxed font-medium">
-                            {t.missingKeyDesc}
+                            {t('chat.missingKeyDesc')}
                           </p>
 
                           {/* Simplified Instructions */}
                           <div className="bg-slate-50/50 dark:bg-slate-800/50 rounded-2xl p-6 mb-8 border border-slate-100 dark:border-slate-700 text-left">
                              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2">
                                 <Sparkles size={12} className="text-indigo-400" />
-                                {t.instructions}
+                                {t('chat.instructions')}
                              </h4>
                              <ul className="space-y-4">
                                 <li className="flex gap-4">
                                     <span className="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-black">1</span>
                                     <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noreferrer" className="text-sm text-slate-600 dark:text-slate-300 font-bold hover:text-indigo-600 hover:underline transition-colors flex items-center gap-1.5">
-                                        {t.howTo.step1} <ExternalLink size={14} className="opacity-50" />
+                                        {t('chat.howTo.step1')} <ExternalLink size={14} className="opacity-50" />
                                     </a>
                                 </li>
                                 <li className="flex gap-4">
                                     <span className="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-black">2</span>
-                                    <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">{t.howTo.step2}</p>
+                                    <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">{t('chat.howTo.step2')}</p>
                                 </li>
                                 <li className="flex gap-4">
                                     <span className="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-black">3</span>
-                                    <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">{t.howTo.step3}</p>
+                                    <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">{t('chat.howTo.step3')}</p>
                                 </li>
                              </ul>
                           </div>
@@ -232,14 +232,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                                 className="w-full py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white rounded-2xl font-bold shadow-[0_20px_40px_-10px_rgba(79,70,229,0.3)] transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50 disabled:transform-none mt-6"
                               >
                                   <Check size={20} strokeWidth={2.5} />
-                                  <span className="text-base tracking-tight">{t.activateBtn}</span>
+                                  <span className="text-base tracking-tight">{t('chat.activateBtn')}</span>
                               </button>
                           </form>
                           
                           <div className="flex items-center justify-center gap-2 text-slate-400">
                             <Lock size={12} />
                             <p className="text-[10px] uppercase font-black tracking-widest italic opacity-60">
-                                {t.disclaimer}
+                                {t('chat.disclaimer')}
                             </p>
                           </div>
                       </div>
@@ -276,7 +276,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       {/* Input Area */}
       <footer className="p-4 md:p-8 pb-8 pb-safe bg-transparent">
-        <div className="max-w-3xl auto relative">
+        <div className="max-w-3xl mx-auto relative">
           <form 
             onSubmit={handleSubmit} 
             className="relative flex items-end gap-3 bg-white/70 dark:bg-slate-900/80 backdrop-blur-3xl border border-white/90 dark:border-white/10 rounded-[2.25rem] p-2.5 shadow-[0_20px_60px_-15px_rgba(79,70,229,0.12)] dark:shadow-none focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all duration-500 focus-within:bg-white dark:focus-within:bg-slate-900"

@@ -5,7 +5,7 @@ import { UserProfile, DirectMessage } from '../types';
 import { db } from '../services/db';
 import DrawingCanvas from './DrawingCanvas';
 import { translateContent } from '../services/geminiService';
-import { translations } from '../utils/translations';
+import { useTranslation } from 'react-i18next';
 
 interface FriendChatProps {
   friend: UserProfile;
@@ -15,6 +15,7 @@ interface FriendChatProps {
 }
 
 const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShareId, onMessagesRead }) => {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<DirectMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -22,16 +23,13 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
   const [requestingMic, setRequestingMic] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
-  // Translation State
   const [translationsMap, setTranslationsMap] = useState<Record<string, string>>({});
   const [translatingIds, setTranslatingIds] = useState<Set<string>>(new Set());
   
-  // Graffiti State
   const [showGraffitiCanvas, setShowGraffitiCanvas] = useState(false);
   const [graffitiUrl, setGraffitiUrl] = useState<string | null>(null);
   const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 });
   
-  // Refs for logic
   const isDrawingRef = useRef(false);
   const lastUploadTimeRef = useRef(0);
 
@@ -50,10 +48,6 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
   const timerRef = useRef<any>(null);
 
   const safeShareId = currentUserShareId || 'unknown';
-
-  // Get current language from local storage to select translations
-  const currentLang = localStorage.getItem('language') || 'English';
-  const t = translations[currentLang]?.social || translations['English'].social;
 
   const markAsRead = async () => {
       try {
@@ -182,7 +176,6 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
 
   const handleTranslate = async (id: string, text: string) => {
     if (translationsMap[id]) {
-        // Toggle off
         const newMap = { ...translationsMap };
         delete newMap[id];
         setTranslationsMap(newMap);
@@ -355,14 +348,14 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
   const handleBack = async () => { await markAsRead(); onBack(); };
 
   const getStatusText = () => {
-      if (!friendStatus || !friendStatus.last_seen) return t.status.offline;
+      if (!friendStatus || !friendStatus.last_seen) return t('social.status.offline');
       const last = new Date(friendStatus.last_seen).getTime();
       const diff = Date.now() - last;
-      if (diff < 5 * 60 * 1000) return t.status.online;
-      if (diff < 60 * 60 * 1000) return `${t.status.lastSeen} ${Math.floor(diff / 60000)}m ${t.status.ago}`;
-      return t.status.offline;
+      if (diff < 5 * 60 * 1000) return t('social.status.online');
+      if (diff < 60 * 60 * 1000) return `${t('social.status.lastSeen')} ${Math.floor(diff / 60000)}m ${t('social.status.ago')}`;
+      return t('social.status.offline');
   };
-  const isOnline = getStatusText() === t.status.online;
+  const isOnline = getStatusText() === t('social.status.online');
 
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 overflow-hidden relative">
@@ -388,7 +381,7 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
              <h3 className="font-bold text-slate-800 dark:text-white leading-tight">{friend.display_name}</h3>
              <div className="flex items-center gap-1.5">
                 <p className={`text-xs ${isOnline ? 'text-emerald-600 font-medium' : 'text-slate-500'}`}>
-                    {isOnline ? t.status.activeNow : getStatusText()}
+                    {isOnline ? t('social.status.activeNow') : getStatusText()}
                 </p>
              </div>
          </div>
@@ -452,13 +445,12 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
                         <div className={`text-[10px] mt-1 flex items-center gap-2 ${isMe ? 'justify-end text-indigo-200' : 'justify-start text-slate-400'}`}>
                             <span>{new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                             
-                            {/* Translate Button for Text Messages */}
                             {!isMe && msg.message_type === 'text' && (
                                 <button
                                     onClick={() => handleTranslate(msg.id, msg.content)}
                                     disabled={isTranslating}
                                     className="p-1 hover:text-indigo-500 transition-colors"
-                                    title="Translate"
+                                    title={t('common.translate')}
                                 >
                                     {isTranslating ? <Loader2 size={10} className="animate-spin" /> : <Languages size={10} />}
                                 </button>
@@ -516,7 +508,7 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
                  <button 
                     onClick={startGraffiti}
                     className="p-2.5 bg-pink-100 dark:bg-pink-900/30 text-pink-500 hover:bg-pink-200 dark:hover:bg-pink-900/50 rounded-full transition-colors"
-                    title={t.chat.paintMode}
+                    title={t('social.chat.paintMode')}
                  >
                      <Palette size={20} />
                  </button>
@@ -531,7 +523,7 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
                         type="text" 
                         value={inputText}
                         onChange={(e) => setInputText(e.target.value)}
-                        placeholder={t.chat.placeholder}
+                        placeholder={t('social.chat.placeholder')}
                         className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-full px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
                         onKeyDown={(e) => e.key === 'Enter' && handleSendText()}
                     />

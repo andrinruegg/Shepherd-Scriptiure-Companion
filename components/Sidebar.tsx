@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, MessageSquare, Trash2, X, Edit2, Check, ArrowLeft } from 'lucide-react';
 import { ChatSession } from '../types';
-import { translations } from '../utils/translations';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -28,12 +28,10 @@ const Sidebar: React.FC<SidebarProps> = ({
   language,
   onNavigateHome
 }) => {
+  const { t } = useTranslation();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-
-  const t = translations[language]?.sidebar || translations['English'].sidebar;
-  const commonT = translations[language]?.common || translations['English'].common;
 
   const startEditing = (chat: ChatSession, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -104,7 +102,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors text-sm font-bold"
              >
                  <ArrowLeft size={18} strokeWidth={2.5} />
-                 {t.home}
+                 {t('sidebar.home')}
              </button>
              <button onClick={onClose} className="md:hidden text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white p-2 -mr-2">
                 <X size={24} />
@@ -119,19 +117,19 @@ const Sidebar: React.FC<SidebarProps> = ({
               className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white p-4 rounded-2xl transition-all font-bold shadow-lg shadow-indigo-500/20 active:scale-95 active:shadow-none"
           >
               <Plus size={20} strokeWidth={2.5} />
-              <span>{commonT.newChat}</span>
+              <span>{t('common.newChat')}</span>
           </button>
         </div>
 
         {/* Chat List - Scrollable area */}
         <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1 custom-scrollbar">
             <h3 className="px-3 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">
-                {t.history}
+                {t('sidebar.history')}
             </h3>
             
             {chats.length === 0 ? (
             <div className="px-4 py-8 text-center text-slate-400 dark:text-slate-600 text-sm italic font-medium">
-                {t.noChats}
+                {t('sidebar.noChats')}
             </div>
             ) : (
             chats.map((chat) => (
@@ -170,7 +168,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         <button type="button" onClick={cancelEdit} className="text-red-500 hover:text-red-600 p-0.5"><X size={14}/></button>
                     </form>
                     ) : deleteConfirmId === chat.id ? (
-                        <div className="text-sm font-bold text-red-500">{t.deleteConfirm}</div>
+                        <div className="text-sm font-bold text-red-500">{t('sidebar.deleteConfirm')}</div>
                     ) : (
                     <>
                         <p className="truncate text-sm pr-14 font-medium">
@@ -193,7 +191,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                             <button
                                 onClick={(e) => onConfirmDelete(chat.id, e)}
                                 className="p-1.5 bg-red-500 hover:bg-red-600 text-white rounded transition-colors shadow-sm"
-                                title={t.delete}
+                                title={t('sidebar.delete')}
                             >
                                 <Check size={13} />
                             </button>
@@ -210,14 +208,14 @@ const Sidebar: React.FC<SidebarProps> = ({
                             <button
                                 onClick={(e) => startEditing(chat, e)}
                                 className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-indigo-500 rounded transition-colors text-slate-400"
-                                title={t.rename}
+                                title={t('sidebar.rename')}
                             >
                                 <Edit2 size={13} />
                             </button>
                             <button
                                 onClick={(e) => onRequestDelete(chat.id, e)}
                                 className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 rounded transition-colors text-slate-400"
-                                title={t.delete}
+                                title={t('sidebar.delete')}
                             >
                                 <Trash2 size={13} />
                             </button>

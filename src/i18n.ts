@@ -1,0 +1,29 @@
+
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import Backend from 'i18next-http-backend';
+import LanguageDetector from 'i18next-browser-languagedetector';
+
+i18n
+  .use(Backend)
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    fallbackLng: 'en',
+    debug: false,
+    
+    // Supported ISO codes for the UI
+    supportedLngs: ['en', 'de', 'ro', 'es', 'fr', 'pt', 'it', 'zh', 'ja', 'ko'],
+    
+    interpolation: {
+      escapeValue: false, 
+    },
+    
+    backend: {
+      loadPath: '/locales/{{lng}}/translation.json',
+    },
+    
+    nonExplicitSupportedLngs: true
+  });
+
+export default i18n;

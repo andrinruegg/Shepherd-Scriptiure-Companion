@@ -2,7 +2,7 @@
 import React from 'react';
 import { Heart, CloudRain, Sun, Smile, Shield, HeartHandshake, Anchor, Sparkles } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { translations } from '../utils/translations';
+import { useTranslation } from 'react-i18next';
 
 interface TopicSelectorProps {
   onSelectTopic: (topic: string, hiddenContext?: string) => void;
@@ -10,11 +10,9 @@ interface TopicSelectorProps {
 }
 
 const TopicSelector: React.FC<TopicSelectorProps> = ({ onSelectTopic, language }) => {
-  // Fallback to English if language not found
-  const t = translations[language]?.topics || translations['English'].topics;
+  const { t } = useTranslation();
 
   // SUB-TOPIC ENGINE
-  // Instead of sending the same prompt every time, we randomly select a specific angle.
   const subTopics: Record<string, string[]> = {
     anxiety: [
       "peace that transcends understanding",
@@ -82,29 +80,21 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onSelectTopic, language }
   };
 
   const topics = [
-    { id: 'anxiety', label: t.anxiety.label, icon: CloudRain, color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300' },
-    { id: 'love', label: t.love.label, icon: Heart, color: 'bg-rose-100 text-rose-600 dark:bg-rose-900/50 dark:text-rose-300' },
-    { id: 'hope', label: t.hope.label, icon: Sun, color: 'bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-300' },
-    { id: 'sadness', label: t.sadness.label, icon: Anchor, color: 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300' },
-    { id: 'gratitude', label: t.gratitude.label, icon: HeartHandshake, color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-300' },
-    { id: 'strength', label: t.strength.label, icon: Shield, color: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-300' },
-    { id: 'joy', label: t.joy.label, icon: Smile, color: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/50 dark:text-yellow-300' },
-    { id: 'forgiveness', label: t.forgiveness.label, icon: Sparkles, color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/50 dark:text-purple-300' },
+    { id: 'anxiety', label: t('topics.anxiety.label'), icon: CloudRain, color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300' },
+    { id: 'love', label: t('topics.love.label'), icon: Heart, color: 'bg-rose-100 text-rose-600 dark:bg-rose-900/50 dark:text-rose-300' },
+    { id: 'hope', label: t('topics.hope.label'), icon: Sun, color: 'bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-300' },
+    { id: 'sadness', label: t('topics.sadness.label'), icon: Anchor, color: 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300' },
+    { id: 'gratitude', label: t('topics.gratitude.label'), icon: HeartHandshake, color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-300' },
+    { id: 'strength', label: t('topics.strength.label'), icon: Shield, color: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-300' },
+    { id: 'joy', label: t('topics.joy.label'), icon: Smile, color: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/50 dark:text-yellow-300' },
+    { id: 'forgiveness', label: t('topics.forgiveness.label'), icon: Sparkles, color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/50 dark:text-purple-300' },
   ];
 
   const handleSelect = (topicId: string) => {
-      // 1. Get the translation query base (e.g., "Ich brauche Hoffnung...")
-      const baseQuery = translations[language]?.topics[topicId]?.query || translations['English'].topics[topicId].query;
-      
-      // 2. Randomly select a sub-topic angle (e.g., "hope during suffering")
+      const baseQuery = t(`topics.${topicId}.query`);
       const specificAngles = subTopics[topicId] || [];
       const randomAngle = specificAngles[Math.floor(Math.random() * specificAngles.length)];
-
-      // 3. Construct visible prompt (Pure language)
       const visiblePrompt = baseQuery;
-
-      // 4. Construct HIDDEN context with specific instructions (English/Logic)
-      // This tells the AI: "Even though they asked generally, please focus on X"
       const hiddenContext = `Context-Seed-${uuidv4()}. The user specifically needs a verse regarding: "${randomAngle}". Ensure this is different from previous generic answers.`;
       
       onSelectTopic(visiblePrompt, hiddenContext);
@@ -113,7 +103,7 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onSelectTopic, language }
   return (
     <div className="w-full max-w-2xl mx-auto mt-8 px-4">
       <h2 className="text-center text-slate-500 dark:text-slate-400 text-sm uppercase tracking-widest font-semibold mb-6">
-        {t.title}
+        {t('topics.title')}
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {topics.map((topic) => (

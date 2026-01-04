@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, UserPlus, Users, Bell, Search, Check, AlertCircle, Copy, User, MessageCircle, ArrowLeft, Trash2, Shield, Info, Circle, Flame, Award, Book, Scroll, Trophy } from 'lucide-react';
-import { UserProfile, FriendRequest, AppUpdate, Achievement, SocialTab } from '../types';
+import { X, UserPlus, Users, Bell, Search, Check, AlertCircle, Copy, User, MessageCircle, ArrowLeft, Trash2, Circle, Flame, Award, Book, Scroll, Trophy, Info } from 'lucide-react';
+import { UserProfile, FriendRequest, Achievement, SocialTab } from '../types';
 import { db } from '../services/db';
 import FriendChat from './FriendChat';
-import { translations } from '../utils/translations';
+import { useTranslation } from 'react-i18next';
 
 interface SocialModalProps {
   isOpen: boolean;
@@ -16,40 +16,37 @@ interface SocialModalProps {
   language: string;
 }
 
-// Master list of all possible achievements structure (Icons/IDs)
 const ACHIEVEMENT_STRUCTURE = [
     { id: 'perfect-easy', icon: 'Book' },
     { id: 'perfect-medium', icon: 'Scroll' },
     { id: 'perfect-hard', icon: 'Trophy' }
 ];
 
-const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab = 'inbox', currentUserShareId, isDarkMode, onUpdateNotifications, language }) => {
+const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab = 'inbox', currentUserShareId, onUpdateNotifications }) => {
+  const { t } = useTranslation();
   const [currentView, setCurrentView] = useState<SocialTab>(initialTab);
   
-  // Navigation States
   const [activeChatFriend, setActiveChatFriend] = useState<UserProfile | null>(null);
   const [viewingProfile, setViewingProfile] = useState<UserProfile | null>(null);
 
-  // Search States
   const [searchId, setSearchId] = useState('');
   const [searchResult, setSearchResult] = useState<UserProfile | null>(null);
   const [searchError, setSearchError] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [requestSent, setRequestSent] = useState(false);
   
-  // Data Lists
   const [requests, setRequests] = useState<FriendRequest[]>([]);
   const [friends, setFriends] = useState<UserProfile[]>([]);
   const [currentUserProfile, setCurrentUserProfile] = useState<UserProfile | null>(null);
   const [loadingData, setLoadingData] = useState(false);
   const [totalUnreadMessages, setTotalUnreadMessages] = useState(0);
 
-  // Get translations based on prop
-  const t = translations[language]?.social || translations['English'].social;
-  const commonT = translations[language]?.common || translations['English'].common;
-  const updatesLog = t.updatesList || []; 
+  // Note: AppUpdate type was removed from usage here, assuming static updates list or handled differently
+  const updatesLog = [
+      { version: "1.7.0", date: "2025-12-14", title: "New Dashboard", changes: ["Added Home View", "Improved Navigation"] },
+      { version: "1.6.0", date: "2025-12-12", title: "Bible Reader Upgrade", changes: ["Fixed Romanian Bible (Cornilescu) loading", "Instant chapter switching", "Offline-ready Bible text"] }
+  ];
 
-  // Reset tab when modal opens or initialTab changes
   useEffect(() => {
       if (isOpen) {
           setCurrentView(initialTab);
@@ -62,7 +59,6 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
       }
   }, [isOpen, currentView, activeChatFriend, viewingProfile]);
 
-  // Force refresh when switching to Profile tab
   useEffect(() => {
       if (isOpen && currentView === 'profile') {
           db.social.getCurrentUser().then(p => {
@@ -198,14 +194,16 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
       loadSocialData();
   };
 
-  // HELPER: Renders the full achievement grid
   const renderAchievementGrid = (userAchievements: Achievement[] = []) => {
       const unlockedIds = new Set(userAchievements.map(a => a.id));
       const unlockedList = ACHIEVEMENT_STRUCTURE.filter(a => unlockedIds.has(a.id));
       const lockedList = ACHIEVEMENT_STRUCTURE.filter(a => !unlockedIds.has(a.id));
 
       const renderItem = (achStruct: typeof ACHIEVEMENT_STRUCTURE[0], isUnlocked: boolean) => {
-          const localized = t.achievementList[achStruct.id] || { title: achStruct.id, description: "..." };
+          // Fallback title/desc if key missing
+          const title = t(`social.achievementList.${achStruct.id}.title`) || achStruct.id;
+          const description = t(`social.achievementList.${achStruct.id}.description`) || "...";
+          
           return (
               <div key={achStruct.id} className={`flex flex-col items-center gap-1 text-center group relative cursor-help ${isUnlocked ? '' : 'opacity-50 grayscale'}`}>
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center border transition-transform group-hover:scale-110 ${isUnlocked ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800' : 'bg-slate-200 dark:bg-slate-800 text-slate-400 border-slate-300 dark:border-slate-700'}`}>
@@ -214,9 +212,9 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
                       {achStruct.icon === 'Trophy' && <Trophy size={18} />}
                       {achStruct.icon === 'Award' && <Award size={18} />}
                   </div>
-                  <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400 leading-tight">{localized.title}</span>
+                  <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400 leading-tight">{title}</span>
                   <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30 w-32 shadow-xl border border-slate-700">
-                      {localized.description}
+                      {description}
                       <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
                   </div>
               </div>
@@ -226,12 +224,12 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
       return (
           <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-100 dark:border-slate-800 text-left shadow-sm">
               <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1">
-                  <Trophy size={12} /> {t.profile.achievements}
+                  <Trophy size={12} /> {t('social.profile.achievements')}
               </h4>
               {unlockedList.length > 0 && <div className="grid grid-cols-4 gap-2 mb-4">{unlockedList.map(ach => renderItem(ach, true))}</div>}
               {lockedList.length > 0 && (
                   <>
-                    <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 opacity-70">{t.profile.locked}</h5>
+                    <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 opacity-70">{t('social.profile.locked')}</h5>
                     <div className="grid grid-cols-4 gap-2">{lockedList.map(ach => renderItem(ach, false))}</div>
                   </>
               )}
@@ -242,7 +240,6 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
 
   if (!isOpen) return null;
 
-  // --- SUB-VIEW: CHAT ---
   if (activeChatFriend) {
       return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -259,7 +256,6 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
       );
   }
 
-  // --- SUB-VIEW: PROFILE DETAILS ---
   if (viewingProfile) {
       const isFriend = friends.some(f => f.id === viewingProfile.id);
       return (
@@ -285,18 +281,18 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
                             <p className="text-sm text-indigo-600 dark:text-indigo-400 font-mono font-semibold tracking-wide">{viewingProfile.share_id || "ID-ERROR"}</p>
                          </div>
                          <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 mb-4 border border-slate-100 dark:border-slate-800 text-left shadow-sm">
-                             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t.profile.about}</h4>
-                             {viewingProfile.bio ? <p className="text-sm text-slate-600 dark:text-slate-300 italic leading-relaxed whitespace-pre-wrap">{viewingProfile.bio}</p> : <p className="text-xs text-slate-400 italic text-center py-2">{t.noBio || "No bio available."}</p>}
+                             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t('social.profile.about')}</h4>
+                             {viewingProfile.bio ? <p className="text-sm text-slate-600 dark:text-slate-300 italic leading-relaxed whitespace-pre-wrap">{viewingProfile.bio}</p> : <p className="text-xs text-slate-400 italic text-center py-2">{t('settings.noBio') || "No bio available."}</p>}
                          </div>
                          {renderAchievementGrid(viewingProfile.achievements || [])}
                          <div className="flex gap-3 w-full mt-auto">
                              {isFriend ? (
                                  <>
-                                     <button onClick={() => { handleOpenChat(viewingProfile); setViewingProfile(null); }} className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95 hover:scale-105"><MessageCircle size={18} /> {t.profile.message}</button>
-                                     <button onClick={() => handleUnfriend(viewingProfile.id)} className="px-4 py-3.5 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-300 rounded-xl font-medium hover:bg-red-200 dark:hover:bg-red-900/60 border border-red-200 dark:border-red-800 transition-colors shadow-sm" title={t.profile.unfriend}><Trash2 size={20} /></button>
+                                     <button onClick={() => { handleOpenChat(viewingProfile); setViewingProfile(null); }} className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95 hover:scale-105"><MessageCircle size={18} /> {t('social.profile.message')}</button>
+                                     <button onClick={() => handleUnfriend(viewingProfile.id)} className="px-4 py-3.5 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-300 rounded-xl font-medium hover:bg-red-200 dark:hover:bg-red-900/60 border border-red-200 dark:border-red-800 transition-colors shadow-sm" title={t('social.profile.unfriend')}><Trash2 size={20} /></button>
                                  </>
                              ) : (
-                                 <button onClick={() => sendRequest(viewingProfile.id)} className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95 hover:scale-105"><UserPlus size={18} /> {t.profile.addFriend}</button>
+                                 <button onClick={() => sendRequest(viewingProfile.id)} className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95 hover:scale-105"><UserPlus size={18} /> {t('social.profile.addFriend')}</button>
                              )}
                          </div>
                      </div>
@@ -306,26 +302,23 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
       );
   }
 
-  // --- HEADER CONFIGURATION ---
   const getHeaderConfig = () => {
       switch(currentView) {
-          case 'inbox': return { title: t.inbox?.title || "Notifications", icon: Bell, showAdd: false, showBack: false };
-          case 'friends': return { title: t.friends?.title || "Friends", icon: Users, showAdd: true, showBack: false };
-          case 'add': return { title: t.add?.title || "Add Friend", icon: UserPlus, showAdd: false, showBack: true };
-          case 'profile': return { title: t.profile?.title || "My Profile", icon: User, showAdd: false, showBack: false };
+          case 'inbox': return { title: t('social.inbox.title'), icon: Bell, showAdd: false, showBack: false };
+          case 'friends': return { title: t('social.friends.title'), icon: Users, showAdd: true, showBack: false };
+          case 'add': return { title: t('social.add.title'), icon: UserPlus, showAdd: false, showBack: true };
+          case 'profile': return { title: t('social.profile.title'), icon: User, showAdd: false, showBack: false };
           default: return { title: "Social", icon: Circle, showAdd: false, showBack: false };
       }
   };
   const header = getHeaderConfig();
 
-  // --- MAIN MODAL ---
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={onClose} />
 
       <div className="relative w-full max-w-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] h-[85vh] animate-scale-in border border-slate-200/50 dark:border-slate-800/50">
         
-        {/* DISTINCT HEADER */}
         <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950/50 flex-shrink-0">
             <div className="flex items-center gap-3">
                 {header.showBack && (
@@ -358,21 +351,19 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
             </div>
         </div>
 
-        {/* Content */}
         <div className="flex-1 overflow-y-auto p-4">
             
-            {/* INBOX TAB */}
             {currentView === 'inbox' && (
                 <div className="space-y-6">
                     <div>
                         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-                           {t.inbox.requests}
+                           {t('social.inbox.requests')}
                            {requests.length > 0 && <span className="ml-2 bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-[10px]">{requests.length} New</span>}
                         </h3>
                         {loadingData ? (
-                            <div className="text-center py-4 text-slate-400 text-sm animate-pulse">{commonT.loading}</div>
+                            <div className="text-center py-4 text-slate-400 text-sm animate-pulse">{t('common.loading')}</div>
                         ) : requests.length === 0 ? (
-                            <div className="text-center py-8 text-slate-400 text-sm italic bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-800">{t.inbox.noRequests}</div>
+                            <div className="text-center py-8 text-slate-400 text-sm italic bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-800">{t('social.inbox.noRequests')}</div>
                         ) : (
                             <div className="space-y-2">
                                 {requests.map((req, i) => (
@@ -401,7 +392,7 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
                     </div>
 
                     <div>
-                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t.inbox.updates}</h3>
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t('social.inbox.updates')}</h3>
                         <div className="space-y-3">
                             {updatesLog.map((update: any, idx: number) => (
                                 <div key={idx} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 p-4 animate-slide-up" style={{ animationDelay: `${0.2 + (idx * 0.1)}s` }}>
@@ -420,15 +411,14 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
                 </div>
             )}
 
-            {/* FRIENDS TAB */}
             {currentView === 'friends' && (
                 <div className="space-y-3">
                      {loadingData ? (
-                        <div className="text-center py-8 text-slate-400 animate-pulse">{t.friends.loading}</div>
+                        <div className="text-center py-8 text-slate-400 animate-pulse">{t('social.friends.loading')}</div>
                      ) : friends.length === 0 ? (
                         <div className="text-center py-20 opacity-60">
                             <Users size={48} className="mx-auto mb-2 text-slate-300"/>
-                            <p className="text-slate-500">{t.friends.empty}</p>
+                            <p className="text-slate-500">{t('social.friends.empty')}</p>
                         </div>
                      ) : (
                         friends.map((friend, i) => {
@@ -495,11 +485,10 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
                 </div>
             )}
 
-            {/* ADD FRIEND TAB */}
             {currentView === 'add' && (
                 <div className="space-y-6 animate-slide-in-right">
                     <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-6 text-white shadow-lg animate-float">
-                        <div className="text-xs font-medium opacity-80 uppercase tracking-wide mb-2">{t.add.yourId}</div>
+                        <div className="text-xs font-medium opacity-80 uppercase tracking-wide mb-2">{t('social.add.yourId')}</div>
                         <div className="flex items-center justify-between bg-white/10 p-3 rounded-lg backdrop-blur-sm border border-white/10">
                             <div className="text-2xl font-bold font-mono tracking-wider">{currentUserShareId}</div>
                             <button onClick={copyMyId} className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors hover:scale-110 active:scale-95 shadow-sm">
@@ -507,12 +496,12 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
                             </button>
                         </div>
                         <div className="text-[10px] mt-3 opacity-70 flex items-center gap-1">
-                            <Info size={12}/> {t.add.shareText}
+                            <Info size={12}/> {t('social.add.shareText')}
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 ml-1">{t.add.enterId}</label>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 ml-1">{t('social.add.enterId')}</label>
                         <div className="flex gap-2">
                             <input 
                                 type="text" 
@@ -534,7 +523,6 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
                 </div>
             )}
 
-            {/* MY PROFILE TAB */}
             {currentView === 'profile' && (
                 <div className="animate-slide-up flex flex-col items-center pt-6">
                      <div className="w-28 h-28 rounded-full border-4 border-white dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden shadow-xl mb-4 relative ring-2 ring-indigo-100 dark:ring-slate-800">
@@ -558,13 +546,13 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
 
                      <div className="w-full grid grid-cols-2 gap-4 mb-8">
                          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 text-center shadow-sm">
-                             <div className="text-xs text-slate-400 font-bold uppercase mb-2 tracking-wider">{t.profile.streak}</div>
+                             <div className="text-xs text-slate-400 font-bold uppercase mb-2 tracking-wider">{t('social.profile.streak')}</div>
                              <div className="flex items-center justify-center gap-1.5 text-2xl font-bold text-amber-500">
                                  <Flame size={24} fill="currentColor" /> {currentUserProfile?.streak || 0}
                              </div>
                          </div>
                          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 text-center shadow-sm">
-                             <div className="text-xs text-slate-400 font-bold uppercase mb-2 tracking-wider">{t.profile.achievements}</div>
+                             <div className="text-xs text-slate-400 font-bold uppercase mb-2 tracking-wider">{t('social.profile.achievements')}</div>
                              <div className="flex items-center justify-center gap-1.5 text-2xl font-bold text-purple-500">
                                  <Trophy size={24} /> {(currentUserProfile?.achievements || []).length}
                              </div>

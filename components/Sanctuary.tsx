@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { X, CloudRain, Flame, Waves, Volume2, VolumeX, AlertCircle, Loader2 } from 'lucide-react';
-import { translations } from '../utils/translations';
+import { X, CloudRain, Flame, Waves, Volume2, VolumeX, AlertCircle, Loader2, ChevronUp, ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface SanctuaryProps {
     isOpen: boolean;
@@ -9,44 +8,41 @@ interface SanctuaryProps {
     language: string;
 }
 
-// DIRECT MP3 SOURCES (100% Reliable - SoundJay)
-// Removed Night as requested.
 const SOUNDS = [
     { 
         id: 'rain', 
         icon: CloudRain, 
         url: 'https://www.soundjay.com/nature/sounds/rain-01.mp3', 
-        label: 'rain' 
+        labelKey: 'rain' 
     },
     { 
         id: 'fire', 
         icon: Flame, 
         url: 'https://www.soundjay.com/nature/sounds/campfire-1.mp3', 
-        label: 'fire' 
+        labelKey: 'fire' 
     },
     { 
         id: 'stream', 
         icon: Waves, 
         url: 'https://www.soundjay.com/nature/sounds/river-1.mp3', 
-        label: 'stream' 
+        labelKey: 'stream' 
     }
 ];
 
 const Sanctuary: React.FC<SanctuaryProps> = ({ isOpen, onClose, language }) => {
+    const { t } = useTranslation();
     const [activeSoundId, setActiveSoundId] = useState<string | null>(null);
     const [volume, setVolume] = useState(0.5);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isMiniPanelExpanded, setIsMiniPanelExpanded] = useState(false);
     
     const audioRef = useRef<HTMLAudioElement | null>(null);
-    const t = translations[language]?.sanctuary || translations['English'].sanctuary;
 
-    // Effect: Handle Playback when activeSoundId changes
     useEffect(() => {
         const audio = audioRef.current;
         if (!audio) return;
 
-        // STOPPING
         if (!activeSoundId) {
             audio.pause();
             audio.currentTime = 0;
@@ -56,7 +52,6 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ isOpen, onClose, language }) => {
 
         const sound = SOUNDS.find(s => s.id === activeSoundId);
         if (sound) {
-            // If the src is already correct, don't reload (allows seamless play)
             if (audio.src === sound.url) {
                 if (audio.paused) {
                     const playPromise = audio.play();
@@ -69,7 +64,6 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ isOpen, onClose, language }) => {
                 return;
             }
 
-            // New Sound Selected
             audio.pause();
             setError(null);
             setIsLoading(true);
@@ -86,7 +80,6 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ isOpen, onClose, language }) => {
                             setIsLoading(false);
                             return;
                         }
-                        
                         console.error("Play error:", err);
                         setIsLoading(false);
                         if (err.name === 'NotAllowedError') {
@@ -99,7 +92,6 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ isOpen, onClose, language }) => {
         }
     }, [activeSoundId]);
 
-    // Effect: Handle Volume
     useEffect(() => {
         if (audioRef.current) {
             audioRef.current.volume = volume;
@@ -130,7 +122,6 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ isOpen, onClose, language }) => {
 
     return (
         <>
-            {/* PERSISTENT AUDIO PLAYER */}
             <audio 
                 ref={audioRef}
                 loop
@@ -141,7 +132,6 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ isOpen, onClose, language }) => {
                 onPlaying={() => setIsLoading(false)}
             />
 
-            {/* VIEW 1: FULL MODAL */}
             {isOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose} />
@@ -149,7 +139,7 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ isOpen, onClose, language }) => {
                         
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-serif-text font-bold flex items-center gap-2">
-                                <Volume2 className="text-emerald-400" /> {t.title}
+                                <Volume2 className="text-emerald-400" /> {t('sanctuary.title')}
                             </h2>
                             <button onClick={onClose} className="p-1 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white"><X size={20}/></button>
                         </div>
@@ -161,7 +151,6 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ isOpen, onClose, language }) => {
                             </div>
                         )}
 
-                        {/* LIST LAYOUT (Better for 3 items) */}
                         <div className="flex flex-col gap-3 mb-8">
                             {SOUNDS.map(sound => {
                                 const isActive = activeSoundId === sound.id;
@@ -176,36 +165,31 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ isOpen, onClose, language }) => {
                                                 : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-750 hover:border-slate-600'}
                                         `}
                                     >
-                                        {/* Left: Icon & Label */}
                                         <div className="flex items-center gap-4 z-10">
                                             <div className={`p-2 rounded-full ${isActive ? 'bg-emerald-500/20' : 'bg-slate-900/50'}`}>
                                                 <sound.icon size={24} className={isActive && !isLoading ? 'animate-pulse' : ''} />
                                             </div>
                                             <span className={`text-sm font-bold capitalize tracking-wide ${isActive ? 'text-white' : ''}`}>
-                                                {t[sound.label]}
+                                                {t(`sanctuary.${sound.labelKey}`)}
                                             </span>
                                         </div>
 
-                                        {/* Right: Status or Loader */}
                                         <div className="z-10">
                                             {isLoading && isActive ? (
                                                 <Loader2 className="w-5 h-5 text-emerald-400 animate-spin" />
                                             ) : isActive ? (
-                                                // Animated Equalizer Bars
                                                 <div className="flex gap-1 items-end h-4">
                                                     <div className="w-1 bg-emerald-400 rounded-full animate-[bounce_1s_infinite]"></div>
                                                     <div className="w-1 bg-emerald-400 rounded-full animate-[bounce_1.2s_infinite]"></div>
                                                     <div className="w-1 bg-emerald-400 rounded-full animate-[bounce_0.8s_infinite]"></div>
                                                 </div>
                                             ) : (
-                                                // Play Icon (Implicit)
                                                 <div className="w-8 h-8 rounded-full border border-slate-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <div className="ml-0.5 border-t-[5px] border-t-transparent border-l-[8px] border-l-slate-400 border-b-[5px] border-b-transparent"></div>
                                                 </div>
                                             )}
                                         </div>
                                         
-                                        {/* Background Fill Animation */}
                                         {isActive && (
                                             <div className="absolute inset-0 bg-emerald-500/5 pointer-events-none"></div>
                                         )}
@@ -214,11 +198,10 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ isOpen, onClose, language }) => {
                             })}
                         </div>
 
-                        {/* Volume Control */}
                         <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
                             <div className="flex items-center gap-3 text-slate-400 mb-2">
                                 {volume === 0 ? <VolumeX size={16}/> : <Volume2 size={16}/>}
-                                <span className="text-xs uppercase tracking-wider font-bold">{t.volume}</span>
+                                <span className="text-xs uppercase tracking-wider font-bold">{t('sanctuary.volume')}</span>
                             </div>
                             <input 
                                 type="range" 
@@ -234,24 +217,90 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ isOpen, onClose, language }) => {
                 </div>
             )}
 
-            {/* VIEW 2: MINI PLAYER (Bottom Right) */}
             {!isOpen && activeSoundId && (
-                <div className="fixed bottom-4 right-4 z-50 bg-slate-900 text-white p-3 rounded-full shadow-xl flex items-center gap-3 animate-slide-up border border-slate-700 hover:border-emerald-500/50 transition-colors cursor-pointer" onClick={onClose}>
-                     <div className="animate-pulse text-emerald-400">
-                        {(() => {
-                            const S = SOUNDS.find(s => s.id === activeSoundId);
-                            return S ? <S.icon size={20} /> : <Volume2 size={20}/>
-                        })()}
-                     </div>
-                     <span className="hover:text-emerald-300 font-medium text-xs pr-2">
-                         {t.title} Active
-                     </span>
-                     <button 
-                        onClick={(e) => { e.stopPropagation(); setActiveSoundId(null); }} 
-                        className="bg-slate-700 p-1.5 rounded-full hover:bg-red-500/80 hover:text-white transition-colors"
-                     >
-                         <X size={14} />
-                     </button>
+                <div 
+                    className={`
+                        fixed bottom-4 right-4 z-50 bg-slate-900 text-white rounded-[2rem] shadow-2xl border border-slate-700/50 backdrop-blur-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]
+                        ${isMiniPanelExpanded ? 'w-64 p-5' : 'w-48 p-3 flex items-center gap-3 cursor-pointer'}
+                    `}
+                    onClick={() => { if(!isMiniPanelExpanded) setIsMiniPanelExpanded(true); }}
+                >
+                     {isMiniPanelExpanded ? (
+                         <div className="animate-fade-in">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                    <div className="animate-pulse text-emerald-400">
+                                        {(() => {
+                                            const S = SOUNDS.find(s => s.id === activeSoundId);
+                                            return S ? <S.icon size={18} /> : <Volume2 size={18}/>
+                                        })()}
+                                    </div>
+                                    <span className="text-[10px] uppercase font-black tracking-widest text-emerald-400">Playing</span>
+                                </div>
+                                <button 
+                                    onClick={(e) => { e.stopPropagation(); setIsMiniPanelExpanded(false); }}
+                                    className="p-1 hover:bg-slate-800 rounded-full text-slate-500"
+                                >
+                                    <ChevronDown size={18} />
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-2 mb-5">
+                                {SOUNDS.map(s => {
+                                    const isActive = activeSoundId === s.id;
+                                    return (
+                                        <button 
+                                            key={s.id}
+                                            onClick={(e) => { e.stopPropagation(); setActiveSoundId(isActive ? null : s.id); }}
+                                            className={`p-3 rounded-xl border flex items-center justify-center transition-all ${isActive ? 'bg-emerald-600 border-emerald-500 text-white' : 'bg-slate-800 border-slate-700 text-slate-500'}`}
+                                            title={t(`sanctuary.${s.labelKey}`)}
+                                        >
+                                            <s.icon size={18} />
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-center px-1">
+                                    <span className="text-[9px] font-black uppercase text-slate-500 tracking-wider">Volume</span>
+                                    <span className="text-[9px] font-black text-slate-500">{Math.round(volume * 100)}%</span>
+                                </div>
+                                <input 
+                                    type="range" 
+                                    min="0" 
+                                    max="1" 
+                                    step="0.01" 
+                                    value={volume}
+                                    onClick={(e) => e.stopPropagation()}
+                                    onChange={(e) => setVolume(parseFloat(e.target.value))}
+                                    className="w-full h-1 bg-slate-700 rounded-full appearance-none accent-emerald-500 cursor-pointer"
+                                />
+                            </div>
+
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); setActiveSoundId(null); setIsMiniPanelExpanded(false); }}
+                                className="w-full mt-4 py-2 bg-red-900/20 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-lg border border-red-900/30 hover:bg-red-900/30 transition-all"
+                            >
+                                Stop Audio
+                            </button>
+                         </div>
+                     ) : (
+                         <>
+                            <div className="animate-pulse text-emerald-400">
+                                {(() => {
+                                    const S = SOUNDS.find(s => s.id === activeSoundId);
+                                    return S ? <S.icon size={20} /> : <Volume2 size={20}/>
+                                })()}
+                            </div>
+                            <span className="hover:text-emerald-300 font-bold text-[10px] uppercase tracking-widest flex-1">
+                                Sanctuary
+                            </span>
+                            <div className="p-1 bg-slate-800 rounded-full text-slate-400">
+                                <ChevronUp size={14} />
+                            </div>
+                         </>
+                     )}
                 </div>
             )}
         </>

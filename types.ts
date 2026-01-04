@@ -91,7 +91,7 @@ export interface DirectMessage {
 
 export type SocialTab = 'inbox' | 'friends' | 'add' | 'profile';
 
-export type AppView = 'home' | 'chat' | 'bible' | 'saved' | 'prayer' | 'quiz' | 'stories';
+export type AppView = 'home' | 'chat' | 'bible' | 'saved' | 'prayer' | 'quiz' | 'stories' | 'explorer';
 
 export interface BibleBook {
   id: string;   

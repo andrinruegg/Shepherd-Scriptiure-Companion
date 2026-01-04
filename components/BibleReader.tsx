@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { Book, ChevronLeft, ChevronRight, Heart, X, ArrowLeft, Volume2, Pause, Volume1, Image, Loader2, Info, AlertTriangle } from 'lucide-react';
+import { Book, ChevronLeft, ChevronRight, Heart, X, ArrowLeft, Pause, Volume1, Image, Loader2, AlertTriangle } from 'lucide-react';
 import { BIBLE_BOOKS, fetchChapter } from '../services/bibleService';
 import { BibleChapter, SavedItem, BibleHighlight } from '../types';
-import { translations } from '../utils/translations';
+import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import { generateSpeech } from '../services/geminiService';
 
@@ -17,7 +18,6 @@ interface BibleReaderProps {
   hasApiKey: boolean; 
 }
 
-// RAW PCM Decoding Logic for Gemini API
 function base64ToUint8Array(base64: string) {
   const binaryString = atob(base64);
   const len = binaryString.length;
@@ -28,7 +28,6 @@ function base64ToUint8Array(base64: string) {
   return bytes;
 }
 
-// --- CONFIG ---
 const VERSES_PER_CHUNK = 10;
 
 const BibleReader: React.FC<BibleReaderProps> = ({ 
@@ -41,30 +40,26 @@ const BibleReader: React.FC<BibleReaderProps> = ({
     onOpenComposer,
     hasApiKey
 }) => {
+  const { t } = useTranslation();
   const [selectedBookId, setSelectedBookId] = useState('JHN');
   const [chapter, setChapter] = useState(1);
   const [data, setData] = useState<BibleChapter | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeVerse, setActiveVerse] = useState<number | null>(null);
   
-  // Audio State
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentChunkIndex, setCurrentChunkIndex] = useState<number | null>(null);
   const [audioLoading, setAudioLoading] = useState(false);
   const [showBufferingWarning, setShowBufferingWarning] = useState(false);
   const [showNoKeyError, setShowNoKeyError] = useState(false);
   
-  // Refs for buffering logic
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
   const isPlayingRef = useRef(false);
   
-  // Audio Cache: Stores index -> AudioBuffer
   const audioCacheRef = useRef<Map<number, AudioBuffer>>(new Map());
   const pendingRequestsRef = useRef<Set<number>>(new Set());
   
-  const t = translations[language]?.bible || translations['English'].bible;
-  const commonT = translations[language]?.common || translations['English'].common;
   const selectedBook = BIBLE_BOOKS.find(b => b.id === selectedBookId) || BIBLE_BOOKS[0];
   
   const getLocalizedBookName = (book: typeof BIBLE_BOOKS[0]) => {
@@ -75,10 +70,9 @@ const BibleReader: React.FC<BibleReaderProps> = ({
 
   const displayBookName = getLocalizedBookName(selectedBook);
 
-  // Stop audio when changing chapters
   useEffect(() => {
     stopAudio();
-    audioCacheRef.current.clear(); // Clear cache on chapter change
+    audioCacheRef.current.clear();
     pendingRequestsRef.current.clear();
     
     const loadChapter = async () => {
@@ -98,7 +92,6 @@ const BibleReader: React.FC<BibleReaderProps> = ({
     };
   }, [selectedBookId, chapter, language]);
 
-  // Show "Buffering" if loading takes > 1.5s
   useEffect(() => {
       let timer: any;
       if (audioLoading) {
@@ -109,7 +102,6 @@ const BibleReader: React.FC<BibleReaderProps> = ({
       return () => clearTimeout(timer);
   }, [audioLoading]);
 
-  // Ensure AudioContext is ready
   const initAudioContext = async () => {
       if (!audioContextRef.current) {
           audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({sampleRate: 24000});
@@ -120,7 +112,6 @@ const BibleReader: React.FC<BibleReaderProps> = ({
       return audioContextRef.current;
   };
 
-  // Helper to fetch and decode a block of text
   const fetchAndDecodeChunk = async (text: string): Promise<AudioBuffer> => {
       const ctx = await initAudioContext();
       const base64Audio = await generateSpeech(text, language);
@@ -142,13 +133,11 @@ const BibleReader: React.FC<BibleReaderProps> = ({
       return chunkVerses.map(v => v.text).join(' ');
   };
 
-  // Preload logic: Fetch specific chunk if not in cache
   const preloadChunk = async (chunkIndex: number, verses: any[]) => {
       const totalChunks = Math.ceil(verses.length / VERSES_PER_CHUNK);
       if (chunkIndex >= totalChunks) return;
       if (!hasApiKey) return;
       
-      // If already cached or pending, skip
       if (audioCacheRef.current.has(chunkIndex) || pendingRequestsRef.current.has(chunkIndex)) return;
 
       try {
@@ -169,29 +158,25 @@ const BibleReader: React.FC<BibleReaderProps> = ({
 
       const totalChunks = Math.ceil(data.verses.length / VERSES_PER_CHUNK);
       if (chunkIndex >= totalChunks) {
-          stopAudio(); // End of chapter
+          stopAudio();
           return;
       }
 
       setCurrentChunkIndex(chunkIndex);
       
-      // Aggressive Preload: Start fetching next 2 chunks immediately
       preloadChunk(chunkIndex + 1, data.verses);
       preloadChunk(chunkIndex + 2, data.verses);
 
       try {
           let bufferToPlay: AudioBuffer;
 
-          // 1. Check cache
           if (audioCacheRef.current.has(chunkIndex)) {
               bufferToPlay = audioCacheRef.current.get(chunkIndex)!;
           } else {
-              // 2. Cold Start (or cache miss)
               setAudioLoading(true);
               const text = getChunkText(data.verses, chunkIndex);
               bufferToPlay = await fetchAndDecodeChunk(text);
               
-              // Cache it in case we seek back
               audioCacheRef.current.set(chunkIndex, bufferToPlay);
               
               if (!isPlayingRef.current) { setAudioLoading(false); return; }
@@ -301,7 +286,6 @@ const BibleReader: React.FC<BibleReaderProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 transition-colors">
-       {/* Bible Header */}
        <header className="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 z-10 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
            
            <div className="flex items-center gap-2 w-full md:w-auto">
@@ -322,7 +306,7 @@ const BibleReader: React.FC<BibleReaderProps> = ({
                   onClick={toggleAudio}
                   disabled={loading || !data}
                   className={`ml-2 p-2 rounded-full transition-all flex items-center justify-center ${isPlaying ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
-                  title={isPlaying ? t.audio.pause : t.audio.play}
+                  title={isPlaying ? t('bible.audio.pause') : t('bible.audio.play')}
                >
                    {audioLoading ? <Loader2 size={20} className="animate-spin" /> : isPlaying ? <Pause size={20} fill="currentColor"/> : <Volume1 size={20}/>}
                </button>
@@ -334,12 +318,12 @@ const BibleReader: React.FC<BibleReaderProps> = ({
                   onChange={(e) => { setSelectedBookId(e.target.value); setChapter(1); }}
                   className="flex-1 md:w-48 p-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg text-sm font-medium text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none"
                >
-                   <optgroup label={t.oldTestament}>
+                   <optgroup label={t('bible.oldTestament')}>
                        {BIBLE_BOOKS.filter(b => b.testament === 'OT').map(b => (
                            <option key={b.id} value={b.id}>{getLocalizedBookName(b)}</option>
                        ))}
                    </optgroup>
-                   <optgroup label={t.newTestament}>
+                   <optgroup label={t('bible.newTestament')}>
                        {BIBLE_BOOKS.filter(b => b.testament === 'NT').map(b => (
                            <option key={b.id} value={b.id}>{getLocalizedBookName(b)}</option>
                        ))}
@@ -358,18 +342,16 @@ const BibleReader: React.FC<BibleReaderProps> = ({
            </div>
        </header>
 
-       {/* Error: No Key Toast */}
        {showNoKeyError && (
            <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-red-600 text-white px-5 py-3 rounded-2xl flex items-center gap-3 shadow-2xl animate-pop-in">
                <AlertTriangle size={20} />
                <div className="flex flex-col">
-                   <span className="text-xs font-bold">{commonT.warning}</span>
-                   <span className="text-xs opacity-90">{t.needKey}</span>
+                   <span className="text-xs font-bold">{t('common.warning')}</span>
+                   <span className="text-xs opacity-90">{t('bible.needKey')}</span>
                </div>
            </div>
        )}
 
-       {/* Buffering Indicator Toast */}
        {showBufferingWarning && (
            <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 bg-indigo-900/90 text-white px-4 py-2 rounded-full flex items-center gap-3 shadow-xl backdrop-blur-sm animate-scale-in">
                <Loader2 size={16} className="animate-spin text-indigo-300" />
@@ -380,13 +362,12 @@ const BibleReader: React.FC<BibleReaderProps> = ({
            </div>
        )}
 
-       {/* Reader Area */}
        <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
            <div className="max-w-3xl mx-auto bg-white dark:bg-slate-800 rounded-xl shadow-sm p-8 min-h-[60vh] mb-10">
                {loading ? (
                    <div className="flex flex-col items-center justify-center h-64 text-slate-400">
                        <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-                       <p>{t.loading}</p>
+                       <p>{t('bible.loading')}</p>
                    </div>
                ) : data ? (
                    <div className="font-serif-text leading-loose text-lg text-slate-800 dark:text-slate-200 pb-20">
@@ -439,7 +420,7 @@ const BibleReader: React.FC<BibleReaderProps> = ({
                                               onClick={(e) => { e.stopPropagation(); saveVerse(v.text, v.verse); }}
                                               className="flex items-center gap-1 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-indigo-600 px-2 py-1 hover:bg-slate-50 dark:hover:bg-slate-800 rounded"
                                            >
-                                               <Heart size={14} /> {t.save}
+                                               <Heart size={14} /> {t('bible.save')}
                                            </button>
                                        </span>
                                    )}
@@ -449,7 +430,7 @@ const BibleReader: React.FC<BibleReaderProps> = ({
                        })}
                    </div>
                ) : (
-                   <div className="text-center text-red-400 p-8">{t.error}</div>
+                   <div className="text-center text-red-400 p-8">{t('bible.error')}</div>
                )}
            </div>
        </main>
@@ -460,7 +441,7 @@ const BibleReader: React.FC<BibleReaderProps> = ({
                 disabled={chapter <= 1}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 disabled:opacity-50 text-slate-700 dark:text-slate-300 font-medium hover:bg-indigo-50 dark:hover:bg-slate-700 transition-colors"
            >
-               <ChevronLeft size={18} /> {t.prev}
+               <ChevronLeft size={18} /> {t('bible.prev')}
            </button>
            <span className="text-sm text-slate-500 font-medium hidden md:block">{displayBookName} {chapter} / {selectedBook.chapters}</span>
            <button 
@@ -468,7 +449,7 @@ const BibleReader: React.FC<BibleReaderProps> = ({
                 disabled={chapter >= selectedBook.chapters}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 disabled:opacity-50 text-slate-700 dark:text-slate-300 font-medium hover:bg-indigo-50 dark:hover:bg-slate-700 transition-colors"
            >
-               {t.next} <ChevronRight size={18} />
+               {t('bible.next')} <ChevronRight size={18} />
            </button>
        </footer>
     </div>

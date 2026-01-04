@@ -1,15 +1,19 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  // Fix: Cast process to any to access cwd() as it might not be properly typed in this build context
-  const env = loadEnv(mode, (process as any).cwd(), '')
+  const env = loadEnv(mode, '.', '')
   
   return {
+    resolve: {
+      alias: {
+        '@': path.resolve('./')
+      }
+    },
     define: {
-      // This ensures process.env.API_KEY is available in the browser
       'process.env.API_KEY': JSON.stringify(env.API_KEY || '')
     },
     plugins: [

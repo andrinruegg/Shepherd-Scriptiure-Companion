@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ArrowRight, Scroll, MessageCircle, Send, Plus, Trash2, Edit2, Check, X, User, History, PenLine, Sparkles, BookOpen, AlertTriangle } from 'lucide-react';
 import { STORIES_DATA } from '../data/storiesData';
-import { translations } from '../utils/translations';
+import { useTranslation } from 'react-i18next';
 import { Message, BibleStory } from '../types';
 import { sendMessageStream } from '../services/geminiService';
 import { v4 as uuidv4 } from 'uuid';
@@ -22,6 +22,7 @@ interface RoleplayViewProps {
 }
 
 const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasApiKey }) => {
+  const { t, i18n } = useTranslation();
   const [encounters, setEncounters] = useState<Encounter[]>(() => {
       try {
           const saved = localStorage.getItem('figure_encounters');
@@ -45,11 +46,10 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   
-  const figures = STORIES_DATA[language] || STORIES_DATA['English'];
-  const t = translations[language]?.stories || translations['English'].stories;
-  const commonT = translations[language]?.common || translations['English'].common;
+  const langMap: Record<string, string> = { en: 'English', de: 'German', ro: 'Romanian' };
+  const dataKey = langMap[i18n.language] || 'English';
+  const figures = STORIES_DATA[dataKey] || STORIES_DATA['English'];
 
-  // Persist encounters whenever they change
   useEffect(() => {
       localStorage.setItem('figure_encounters', JSON.stringify(encounters));
   }, [encounters]);
@@ -63,7 +63,6 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
   const activeEncounter = encounters.find(e => e.id === activeEncounterId);
   const currentFigure = activeEncounter ? figures.find(f => f.id === activeEncounter.personaId) : selectedPersona;
 
-  // Determine UI Theme based on persona
   const getTheme = (id?: string) => {
       if (id === 'paul') return {
           bg: 'bg-[#f5f3ff]', 
@@ -72,7 +71,6 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
           btn: 'bg-[#6d28d9]', 
           border: 'border-[#ddd6fe]'
       };
-      // Default: Petrus theme
       return {
           bg: 'bg-[#f4ebd0]', 
           header: 'bg-[#e5d9b6]', 
@@ -94,11 +92,9 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
     const newId = uuidv4();
     let intro = "";
     
-    if (persona.id === 'peter') {
-        intro = language === 'Romanian' ? `Pacea fie cu tine, prietene. Sunt Simon, deși Învățătorul m-a numit Petrus. Tocmai îmi curățam mrejele... marea este liniștită astăzi. Ce te aduce pe aceste țărmuri? Vino, șezi.` : language === 'German' ? `Friede sei mit dir, Freund. Ich bin Simon, obwohl der Meister mich Petrus nannte. Ich habe gerade meine Netze gereinigt... die See ist heute ruhig. Was führt dich an diese Ufer? Komm, setz dich.` : `Peace be with you, friend. I am Simon, though the Master named me Petrus. I was just cleaning my nets... the sea is quiet today. What brings you to these shores? Come, sit.`;
-    } else if (persona.id === 'paul') {
-        intro = language === 'Romanian' ? `Harul Domnului nostru Isus să fie cu tine. Tocmai terminam un pergament pentru frații din Galatia. Ochii mei sunt obosiți, dar inima îmi este plină. Cine este cel care vine să discute despre Cale cu mine?` : language === 'German' ? `Die Gnade unseres Herrn Jesus sei mit dir. Ich habe gerade eine Schriftrolle für die Brüder in Galatien fertiggestellt. Meine Augen sind müde, aber mein Herz ist voll. Wer kommt, um mit mir über den Weg zu sprechen?` : `The grace of our Lord Jesus be with you. I was just finishing a scroll for the brothers in Galatia. My eyes are weary, but my heart is full. Who is it that comes to discuss the Way with me?`;
-    }
+    if (persona.id === 'peter') intro = t('stories.intro.peter');
+    else if (persona.id === 'paul') intro = t('stories.intro.paul');
+    else intro = "Peace be with you.";
 
     const firstMsg: Message = {
         id: uuidv4(),
@@ -106,10 +102,13 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
         text: intro,
         timestamp: new Date().toISOString()
     };
+    
+    const encounterTitle = `${t('stories.encounterLabel')} - ${persona.name}`;
+
     const newEncounter: Encounter = {
         id: newId,
         personaId: persona.id,
-        title: language === 'Romanian' ? `Întâlnirea cu ${persona.name} ${encounters.filter(e => e.personaId === persona.id).length + 1}` : language === 'German' ? `Begegnung mit ${persona.name} ${encounters.filter(e => e.personaId === persona.id).length + 1}` : `${persona.name} Encounter ${encounters.filter(e => e.personaId === persona.id).length + 1}`,
+        title: encounterTitle,
         messages: [firstMsg],
         timestamp: Date.now()
     };
@@ -122,7 +121,7 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
 
   const deleteEncounter = (id: string, e: React.MouseEvent) => {
       e.stopPropagation();
-      if (!confirm(t.deleteEncounter)) return;
+      if (!confirm(t('common.confirmDelete'))) return;
       setEncounters(prev => prev.filter(enc => enc.id !== id));
       if (activeEncounterId === id) {
           setActiveEncounterId(null);
@@ -165,300 +164,281 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
 
     const baseInstruction = `
         TIME: Approx 60 AD. Respond as an eyewitness of the first century.
-        NO MODERN AI BEHAVIOR: Never say "Hello Friend!", use emojis, or provide bulleted lists.
-        NO BIBLE CITATIONS: Chapters and verses do not exist. Quote from memory.
-        THE MASTER: Always refer to Jesus as "The Master", "The Lord", or "The Teacher".
-        LANGUAGE: Respond only in ${language}.
+        NO MODERN AI BEHAVIOR: Never say "Hello Friend!", use emojis, hashtags, or modern slang.
+        KNOWLEDGE LIMIT: You only know what ${currentFigure.name} would know up to that point.
+        PERSONALITY: ${currentFigure.traits.join(', ')}.
+        BIOGRAPHY CONTEXT: ${currentFigure.biography.join(' ')}.
+        LANG: ${language}
     `;
 
-    let personaSpecific = "";
-    if (currentFigure.id === 'peter') {
-        personaSpecific = `YOU ARE SIMON PETER. A rough, humble fisherman. Speak of the sea, the storm, and your personal failure and restoration. Your voice is slightly rugged but deeply warm.`;
-    } else {
-        personaSpecific = `YOU ARE PAUL OF TARSUS. Intense, scholarly, and visionary. Speak of your journey to Damascus, the "Way", and the prize of the high calling. Use metaphors of architecture, racing, or tentmaking. Your voice is passionate and intellectual.`;
-    }
+    const history = activeEncounter ? [...activeEncounter.messages, userMsg] : [userMsg];
 
     try {
-        let accumulatedText = "";
-        const history = encounters.find(e => e.id === activeEncounterId)?.messages.slice(0, -1) || [];
-        
+        let accumulated = "";
         await sendMessageStream(
-            history,
-            userText,
+            history, 
+            userText, 
             undefined, 
-            'NIV',
-            language,
-            localStorage.getItem('displayName') || 'Friend',
+            'NIV', 
+            language, 
+            t('common.guest'), 
             (chunk) => {
-                accumulatedText += chunk;
-                setEncounters(prev => prev.map(enc => enc.id === activeEncounterId ? {
-                    ...enc,
-                    messages: enc.messages.map(m => m.id === aiMsgId ? { ...m, text: accumulatedText } : m)
-                } : enc));
+                accumulated += chunk;
+                setEncounters(prev => prev.map(enc => {
+                    if (enc.id === activeEncounterId) {
+                        return { 
+                            ...enc, 
+                            messages: enc.messages.map(m => m.id === aiMsgId ? { ...m, text: accumulated } : m) 
+                        };
+                    }
+                    return enc;
+                }));
             },
-            () => {
+            () => setIsLoading(false),
+            (error) => {
+                console.error(error);
                 setIsLoading(false);
-                setEncounters(prev => [...prev]);
             },
-            (err) => {
-                setIsLoading(false);
-                setEncounters(prev => prev.map(enc => enc.id === activeEncounterId ? {
-                    ...enc,
-                    messages: enc.messages.map(m => m.id === aiMsgId ? { ...m, text: "The words fail me... let us try again.", isError: true } : m)
-                } : enc));
-            },
-            baseInstruction + personaSpecific 
+            baseInstruction
         );
-    } catch (error) {
+    } catch (e) {
         setIsLoading(false);
     }
   };
 
-  if (view === 'chat' && activeEncounter && currentFigure) {
-      return (
-          <div className={`flex flex-col h-full ${theme.bg} dark:bg-slate-950 animate-fade-in font-serif-text`}>
-              <header className={`p-4 ${theme.header} dark:bg-slate-900 border-b ${theme.border} dark:border-slate-800 flex items-center justify-between shadow-md z-30`}>
-                  <div className="flex items-center gap-3">
-                      <button onClick={() => setView('detail')} className={`p-2 -ml-2 ${theme.accent} dark:text-slate-400 hover:bg-black/5 rounded-lg transition-colors`}>
-                          <ArrowLeft size={24} />
-                      </button>
-                      <div className={`w-12 h-12 rounded-full overflow-hidden border-2 ${theme.accent.replace('text-', 'border-')} shadow-lg`}>
-                          <img src={currentFigure.image} className="w-full h-full object-cover object-top" />
-                      </div>
-                      <div>
-                          <h2 className={`font-bold ${theme.accent} dark:text-slate-200 text-lg leading-tight`}>{currentFigure.name}</h2>
-                          <div className="flex items-center gap-1.5">
-                              <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></div>
-                              <span className={`text-[10px] uppercase font-bold opacity-70 tracking-widest`}>
-                                {t.encounterLabel}
-                              </span>
-                          </div>
-                      </div>
+  return (
+    <div className={`flex flex-col h-full bg-[#f8f7f2] dark:bg-slate-950 transition-colors relative`}>
+      {showNoKeyError && (
+           <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-red-600 text-white px-5 py-3 rounded-2xl flex items-center gap-3 shadow-2xl animate-pop-in">
+               <AlertTriangle size={20} />
+               <div className="flex flex-col">
+                   <span className="text-xs font-bold">{t('common.warning')}</span>
+                   <span className="text-xs opacity-90">{t('stories.needKey')}</span>
+               </div>
+           </div>
+      )}
+
+      {/* HUB VIEW */}
+      {view === 'hub' && (
+          <div className="flex-1 overflow-y-auto p-4 md:p-8">
+              <header className="mb-8">
+                  <div className="flex items-center gap-3 mb-4">
+                      <button onClick={onMenuClick} className="p-2 -ml-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full"><ArrowLeft size={24}/></button>
+                      <h1 className="text-2xl font-bold font-serif-text text-slate-800 dark:text-slate-100">{t('stories.title')}</h1>
                   </div>
+                  <p className="text-slate-600 dark:text-slate-400">{t('stories.subtitle')}</p>
               </header>
 
-              {/* Error: No Key Toast in Chat */}
-              {showNoKeyError && (
-                  <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-red-600 text-white px-5 py-3 rounded-2xl flex items-center gap-3 shadow-2xl animate-pop-in">
-                      <AlertTriangle size={20} />
-                      <div className="flex flex-col">
-                          <span className="text-xs font-bold">{commonT.warning}</span>
-                          <span className="text-xs opacity-90">{t.needKey}</span>
-                      </div>
-                  </div>
-              )}
-
-              <main className="flex-1 overflow-y-auto p-4 md:p-8 space-y-10 bg-[url('https://www.transparenttextures.com/patterns/old-paper.png')] scroll-smooth">
-                  {activeEncounter.messages.map((msg) => (
-                      <div key={msg.id} className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-pop-in`}>
-                          <div className={`flex gap-4 max-w-[92%] md:max-w-[80%] items-start`}>
-                              {msg.role === 'model' && (
-                                  <div className={`w-10 h-10 rounded-full ${theme.header} flex items-center justify-center shrink-0 mt-1 shadow-md border ${theme.border} overflow-hidden`}>
-                                      <img src={currentFigure.image} className="w-full h-full object-cover object-top" />
-                                  </div>
-                              )}
-                              <div className={`
-                                px-6 py-5 rounded-2xl shadow-lg relative border
-                                ${msg.role === 'user' 
-                                    ? 'bg-slate-800 text-slate-100 border-slate-700 rounded-tr-none' 
-                                    : 'bg-white/90 dark:bg-slate-900/90 text-slate-800 dark:text-slate-100 border-slate-200 dark:border-slate-800 italic rounded-tl-none'}
-                                `}>
-                                  {msg.text === '' && msg.role === 'model' && isLoading ? (
-                                      <div className="flex items-center space-x-1.5 h-6 px-2">
-                                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
-                                      </div>
-                                  ) : (
-                                      <div className="prose dark:prose-invert prose-slate max-w-none text-lg leading-relaxed">
-                                          <ReactMarkdown>{msg.text}</ReactMarkdown>
-                                      </div>
-                                  )}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                  {figures.map(fig => (
+                      <div key={fig.id} className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 group hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer" onClick={() => { setSelectedPersona(fig); setView('detail'); }}>
+                          <div className="h-48 overflow-hidden relative">
+                              <img 
+                                src={fig.image} 
+                                alt={fig.name} 
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                                style={{ objectPosition: '50% 10%' }}
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                              <div className="absolute bottom-4 left-4 text-white">
+                                  <h3 className="font-bold text-lg font-serif-text">{fig.name}</h3>
+                                  <p className="text-xs opacity-90">{fig.role}</p>
                               </div>
-                              {msg.role === 'user' && (
-                                  <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center shrink-0 mt-1 shadow-md border border-slate-600">
-                                      <User size={20} className="text-slate-300" />
-                                  </div>
-                              )}
+                          </div>
+                          <div className="p-5">
+                              <div className="flex flex-wrap gap-2 mb-4">
+                                  {fig.traits.slice(0, 3).map(trait => (
+                                      <span key={trait} className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] uppercase font-bold rounded-md">{trait}</span>
+                                  ))}
+                              </div>
+                              <button className="w-full py-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-sm font-bold group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                  {t('stories.readMore')}
+                              </button>
                           </div>
                       </div>
                   ))}
-                  <div ref={messagesEndRef} className="h-24" />
-              </main>
-
-              <footer className={`p-4 md:p-6 ${theme.header}/95 dark:bg-slate-900/95 backdrop-blur-md border-t ${theme.border} dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]`}>
-                  <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex items-end gap-3">
-                      <textarea
-                          ref={inputRef}
-                          value={inputValue}
-                          onChange={(e) => {
-                              setInputValue(e.target.value);
-                              e.target.style.height = 'auto';
-                              e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
-                          }}
-                          onKeyDown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
-                          placeholder={t.inputPlaceholder}
-                          rows={1}
-                          className="flex-1 bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3.5 text-lg focus:ring-2 focus:ring-slate-400 outline-none resize-none dark:text-white placeholder-slate-400 shadow-inner"
-                      />
-                      <button 
-                        type="submit" 
-                        disabled={isLoading || !inputValue.trim()}
-                        className={`p-5 ${theme.btn} text-white rounded-2xl disabled:opacity-50 transition-all shadow-xl active:scale-95 flex items-center justify-center`}
-                      >
-                          <Send size={24} />
-                      </button>
-                  </form>
-                  <p className={`text-[10px] text-center ${theme.accent} mt-4 uppercase tracking-[0.2em] font-bold opacity-70`}>
-                      {t.disclaimer}
-                  </p>
-              </footer>
-          </div>
-      );
-  }
-
-  return (
-    <div className="flex flex-col h-full bg-[#f8fafc] dark:bg-slate-950 overflow-hidden font-serif-text">
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 p-4 shadow-sm flex items-center justify-between sticky top-0 z-20">
-          <div className="flex items-center gap-3">
-              <button onClick={view === 'detail' ? () => setView('hub') : onMenuClick} className="p-2 -ml-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
-                  <ArrowLeft size={24} />
-              </button>
-              <div className="bg-amber-100 dark:bg-amber-900/30 p-2.5 rounded-2xl text-amber-600 dark:text-amber-400 shadow-sm">
-                  <Scroll size={24} />
               </div>
-              <div>
-                  <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">{view === 'hub' ? t.title : selectedPersona?.name}</h1>
-                  <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">{view === 'hub' ? t.subtitle : selectedPersona?.role}</p>
-              </div>
-          </div>
-          {view === 'detail' && selectedPersona && (
-            <button 
-                onClick={() => createEncounter(selectedPersona)}
-                className="flex items-center gap-2 px-5 py-2.5 bg-amber-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-amber-600/20 hover:bg-amber-500 transition-all active:scale-95"
-            >
-                <Plus size={18} /> {t.newEncounter}
-            </button>
-          )}
-      </header>
 
-      {/* Error: No Key Toast in Hub/Detail */}
-      {showNoKeyError && (
-          <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-red-600 text-white px-5 py-3 rounded-2xl flex items-center gap-3 shadow-2xl animate-pop-in">
-              <AlertTriangle size={20} />
-              <div className="flex flex-col">
-                  <span className="text-xs font-bold">{commonT.warning}</span>
-                  <span className="text-xs opacity-90">{t.needKey}</span>
-              </div>
+              {encounters.length > 0 && (
+                  <div>
+                      <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">{t('stories.pastConversations')}</h2>
+                      <div className="space-y-3">
+                          {encounters.map(enc => (
+                              <div key={enc.id} onClick={() => { setActiveEncounterId(enc.id); setView('chat'); }} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-600 cursor-pointer shadow-sm group">
+                                  <div className="flex items-center gap-4">
+                                      <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 flex items-center justify-center">
+                                          <Scroll size={20} />
+                                      </div>
+                                      <div>
+                                          {editingId === enc.id ? (
+                                              <form onSubmit={handleRename} onClick={e => e.stopPropagation()} className="flex items-center gap-2">
+                                                  <input autoFocus value={editTitle} onChange={e => setEditTitle(e.target.value)} className="text-sm border rounded px-2 py-1 outline-none bg-slate-50 dark:bg-slate-800 dark:text-white" />
+                                                  <button type="submit" className="text-emerald-500"><Check size={14}/></button>
+                                                  <button type="button" onClick={(e) => { e.stopPropagation(); setEditingId(null); }} className="text-red-500"><X size={14}/></button>
+                                              </form>
+                                          ) : (
+                                              <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">{enc.title}</h4>
+                                          )}
+                                          <p className="text-xs text-slate-500">{new Date(enc.timestamp).toLocaleDateString()}</p>
+                                      </div>
+                                  </div>
+                                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <button onClick={(e) => startRename(enc, e)} className="p-2 text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-full transition-colors"><Edit2 size={16} /></button>
+                                      <button onClick={(e) => deleteEncounter(enc.id, e)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"><Trash2 size={16} /></button>
+                                  </div>
+                              </div>
+                          ))}
+                      </div>
+                  </div>
+              )}
           </div>
       )}
 
-      <main className="flex-1 overflow-y-auto p-6 scroll-smooth">
-          <div className="max-w-6xl mx-auto">
+      {/* DETAIL VIEW */}
+      {view === 'detail' && selectedPersona && (
+          <div className="flex-1 overflow-y-auto bg-white dark:bg-slate-900">
+              <div className="relative h-72 md:h-96">
+                  <img 
+                    src={selectedPersona.image} 
+                    alt={selectedPersona.name} 
+                    className="w-full h-full object-cover" 
+                    style={{ objectPosition: '50% 10%' }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-slate-900 via-transparent to-black/30"></div>
+                  <button onClick={() => setView('hub')} className="absolute top-4 left-4 p-2 bg-black/30 text-white rounded-full hover:bg-black/50 backdrop-blur-md transition-colors"><ArrowLeft size={24}/></button>
+              </div>
               
-              {view === 'hub' && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in">
-                      {figures.map((fig) => (
-                          <div 
-                            key={fig.id} 
-                            onClick={() => { setSelectedPersona(fig); setView('detail'); }}
-                            className="group bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-lg overflow-hidden border border-slate-100 dark:border-slate-800 cursor-pointer hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
-                          >
-                               <div className="h-64 relative overflow-hidden">
-                                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent z-10"></div>
-                                   <img src={fig.image} className="w-full h-full object-cover object-top grayscale group-hover:grayscale-0 transition-all duration-700" />
-                                   <div className="absolute bottom-6 left-8 z-20">
-                                       <span className="px-3 py-1 bg-amber-600 text-white text-[10px] font-bold rounded-full uppercase tracking-widest mb-2 inline-block">{fig.role}</span>
-                                       <h3 className="text-3xl font-bold text-white">{fig.name}</h3>
-                                   </div>
-                               </div>
-                               <div className="p-8">
-                                   <div className="flex gap-2 mb-4">
-                                       {fig.traits.slice(0, 3).map(trait => (
-                                           <span key={trait} className="text-[10px] font-bold text-slate-400 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-full uppercase tracking-wider">{trait}</span>
-                                       ))}
-                                   </div>
-                                   <p className="text-slate-600 dark:text-slate-400 italic line-clamp-2 mb-6">"{fig.biography[0]}"</p>
-                                   <div className="flex items-center justify-between text-amber-600 font-bold text-sm">
-                                       <span>{t.viewDetails}</span>
-                                       <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                                   </div>
-                               </div>
-                          </div>
-                      ))}
-                  </div>
-              )}
-
-              {view === 'detail' && selectedPersona && (
-                  <div className="max-w-2xl mx-auto animate-slide-up">
-                      <div className="flex flex-col items-center mb-10">
-                          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-2xl mb-4">
-                              <img src={selectedPersona.image} className="w-full h-full object-cover object-top" />
-                          </div>
-                          <h2 className="text-4xl font-bold text-slate-800 dark:text-white mb-2">{selectedPersona.name}</h2>
-                          <p className="text-amber-600 font-bold uppercase tracking-[0.2em] text-sm">{selectedPersona.role}</p>
+              <div className="px-6 md:px-12 -mt-16 relative z-10">
+                  <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-8 md:p-10 shadow-2xl border border-slate-100 dark:border-slate-700">
+                      <h1 className="text-4xl font-bold font-serif-text text-slate-900 dark:text-white mb-2">{selectedPersona.name}</h1>
+                      <p className="text-indigo-600 dark:text-indigo-400 font-bold mb-8 flex items-center gap-2 uppercase tracking-widest text-xs"><Sparkles size={16}/> {selectedPersona.role}</p>
+                      
+                      <div className="flex flex-wrap gap-3 mb-10">
+                          {selectedPersona.traits.map(trait => (
+                              <span key={trait} className="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-black uppercase rounded-xl tracking-tighter">{trait}</span>
+                          ))}
                       </div>
 
-                      <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl mb-8">
-                          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                              <BookOpen size={16} /> {t.history}
+                      <div className="max-w-none mb-12">
+                          <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mb-6 flex items-center gap-3">
+                              <History size={16} className="text-indigo-400" /> {t('stories.history')}
                           </h3>
-                          <div className="space-y-6">
-                             {selectedPersona.biography.map((p, i) => (
-                                 <p key={i} className="text-xl leading-relaxed text-slate-600 dark:text-slate-300 italic border-l-4 border-amber-100 dark:border-amber-900/30 pl-6">"{p}"</p>
-                             ))}
+                          <div className="space-y-8">
+                              {selectedPersona.biography.map((para, i) => (
+                                  <p key={i} className="text-slate-700 dark:text-slate-300 leading-[1.8] text-lg font-serif-text italic first-letter:text-4xl first-letter:font-bold first-letter:mr-1 first-letter:float-left first-letter:text-indigo-600 dark:first-letter:text-indigo-400">
+                                      {para}
+                                  </p>
+                              ))}
                           </div>
                       </div>
 
-                      {/* Previous Encounters for this persona */}
-                      <div className="space-y-4">
-                          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] px-2 mb-4">{t.pastConversations}</h3>
-                          {encounters.filter(e => e.personaId === selectedPersona.id).length === 0 ? (
-                              <button 
-                                onClick={() => createEncounter(selectedPersona)}
-                                className="w-full py-6 bg-amber-600 hover:bg-amber-500 text-white rounded-[1.5rem] font-bold text-xl shadow-2xl shadow-amber-600/30 transition-all flex items-center justify-center gap-4 group"
-                              >
-                                  <MessageCircle size={28} className="group-hover:scale-110 transition-transform" />
-                                  {t.startRoleplay}
-                              </button>
-                          ) : (
-                              encounters.filter(e => e.personaId === selectedPersona.id).map(enc => (
-                                  <div 
-                                    key={enc.id}
-                                    onClick={() => { setActiveEncounterId(enc.id); setView('chat'); }}
-                                    className="flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 hover:border-amber-200 transition-all cursor-pointer group shadow-sm hover:shadow-md"
-                                  >
-                                      <div className="flex items-center gap-4 flex-1 min-w-0">
-                                          <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600">
-                                              <Scroll size={24} />
-                                          </div>
-                                          <div className="flex-1 min-w-0">
-                                              {editingId === enc.id ? (
-                                                  <form onSubmit={handleRename} className="flex gap-2" onClick={e => e.stopPropagation()}>
-                                                      <input autoFocus value={editTitle} onChange={e => setEditTitle(e.target.value)} className="flex-1 bg-slate-50 dark:bg-slate-800 border-2 border-amber-500 rounded-xl px-2 py-1 outline-none font-bold" />
-                                                      <button type="submit" className="p-2 bg-emerald-500 text-white rounded-lg"><Check size={16}/></button>
-                                                  </form>
-                                              ) : (
-                                                  <>
-                                                      <h4 className="font-bold text-slate-800 dark:text-slate-100 truncate group-hover:text-amber-700 dark:group-hover:text-amber-400">{enc.title}</h4>
-                                                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(enc.timestamp).toLocaleDateString()}</p>
-                                                  </>
-                                              )}
-                                          </div>
-                                      </div>
-                                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                          <button onClick={(e) => startRename(enc, e)} className="p-2 text-slate-400 hover:text-amber-600 transition-colors"><Edit2 size={16}/></button>
-                                          <button onClick={(e) => deleteEncounter(enc.id, e)} className="p-2 text-slate-400 hover:text-red-500 transition-colors"><Trash2 size={16}/></button>
-                                      </div>
-                                  </div>
-                              ))
-                          )}
+                      <div className="flex gap-4">
+                          <button onClick={() => createEncounter(selectedPersona)} className="flex-1 py-5 bg-indigo-600 text-white rounded-[1.5rem] font-black uppercase tracking-widest text-sm shadow-xl shadow-indigo-500/30 hover:bg-indigo-700 transition-all transform active:scale-95 flex items-center justify-center gap-3">
+                              <MessageCircle size={22} /> {t('stories.startRoleplay')}
+                          </button>
                       </div>
                   </div>
-              )}
+              </div>
+              <div className="h-24"></div>
           </div>
-          <div className="h-24"></div>
-      </main>
+      )}
+
+      {/* CHAT VIEW */}
+      {view === 'chat' && currentFigure && (
+          <div className="flex flex-col h-full bg-[#fdfbf7] dark:bg-slate-950">
+              <header className={`px-4 py-3 border-b flex items-center justify-between shadow-sm z-10 ${theme.bg} ${theme.border} dark:bg-slate-900 dark:border-slate-800`}>
+                  <div className="flex items-center gap-3">
+                      <button onClick={() => setView('hub')} className="p-2 -ml-2 text-slate-600 dark:text-slate-400 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"><ArrowLeft size={20}/></button>
+                      <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white dark:border-slate-700 shadow-sm">
+                              <img 
+                                src={currentFigure.image} 
+                                alt={currentFigure.name} 
+                                className="w-full h-full object-cover" 
+                                style={{ objectPosition: '50% 10%' }}
+                              />
+                          </div>
+                          <div>
+                              <h2 className={`font-bold font-serif-text text-slate-900 dark:text-white`}>{currentFigure.name}</h2>
+                              <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1"><span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> {t('stories.encounterLabel')}</p>
+                          </div>
+                      </div>
+                  </div>
+                  <button className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><BookOpen size={20}/></button>
+              </header>
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth bg-[url('https://www.transparenttextures.com/patterns/paper.png')] dark:bg-none">
+                  <div className="flex justify-center my-4">
+                      <div className="bg-slate-100/80 dark:bg-slate-800/80 backdrop-blur-md px-4 py-2 rounded-full text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest shadow-sm flex items-center gap-2 border border-slate-200 dark:border-slate-700">
+                          <AlertTriangle size={12} className="text-amber-500" /> {t('stories.disclaimer')}
+                      </div>
+                  </div>
+
+                  {activeEncounter?.messages.map((msg, idx) => (
+                      <div key={msg.id} className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-slide-up`}>
+                          <div className={`max-w-[85%] md:max-w-[70%] p-5 rounded-2xl text-sm md:text-base leading-relaxed shadow-sm relative group ${
+                              msg.role === 'user' 
+                              ? 'bg-slate-800 text-white rounded-tr-sm' 
+                              : `bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-stone-200 dark:border-slate-700 rounded-tl-sm font-serif-text`
+                          }`}>
+                              {msg.role === 'model' && (
+                                  <div className={`absolute -top-3 -left-3 w-8 h-8 rounded-full border-2 border-white dark:border-slate-700 shadow-sm overflow-hidden`}>
+                                      <img src={currentFigure.image} className="w-full h-full object-cover" style={{ objectPosition: '50% 10%' }} />
+                                  </div>
+                              )}
+                              
+                              <div className="markdown-content">
+                                <ReactMarkdown>{msg.text}</ReactMarkdown>
+                              </div>
+                              
+                              <div className={`text-[10px] mt-2 opacity-50 font-black uppercase tracking-widest text-right ${msg.role === 'user' ? 'text-slate-300' : 'text-slate-400'}`}>
+                                  {new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                              </div>
+                          </div>
+                      </div>
+                  ))}
+                  
+                  {isLoading && (
+                      <div className="flex justify-start">
+                          <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl rounded-tl-sm border border-stone-200 dark:border-slate-700 shadow-sm ml-4">
+                              <div className="flex gap-1">
+                                  <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
+                                  <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                                  <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                              </div>
+                          </div>
+                      </div>
+                  )}
+                  <div ref={messagesEndRef} />
+              </div>
+
+              <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+                  <form onSubmit={handleSendMessage} className={`flex items-end gap-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-3xl border border-slate-200 dark:border-slate-700 focus-within:ring-2 ring-indigo-500/20 transition-all`}>
+                      <textarea
+                          ref={inputRef}
+                          value={inputValue}
+                          onChange={(e) => setInputValue(e.target.value)}
+                          placeholder={t('stories.inputPlaceholder')}
+                          className="flex-1 bg-transparent border-none focus:ring-0 resize-none max-h-32 min-h-[44px] py-2.5 px-4 text-slate-800 dark:text-white placeholder-slate-400"
+                          rows={1}
+                          onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                  e.preventDefault();
+                                  handleSendMessage();
+                              }
+                          }}
+                      />
+                      <button 
+                          type="submit" 
+                          disabled={isLoading || !inputValue.trim()}
+                          className={`p-3 rounded-full text-white shadow-md transition-all transform active:scale-90 ${isLoading || !inputValue.trim() ? 'bg-slate-300 dark:bg-slate-700 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+                      >
+                          <Send size={20} />
+                      </button>
+                  </form>
+              </div>
+          </div>
+      )}
     </div>
   );
 };

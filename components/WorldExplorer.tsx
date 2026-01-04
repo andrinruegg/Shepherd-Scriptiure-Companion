@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { ArrowLeft, MessageCircle, Compass, X, Send, User, Ship, Landmark, Trees as TreeIcon, Tent, Store, Signpost, Waves, Sparkle } from 'lucide-react';
-import { translations } from '../utils/translations';
+import { useTranslation } from 'react-i18next';
 import ShepherdLogo from './ShepherdLogo';
 import { sendMessageStream } from '../services/geminiService';
 import { v4 as uuidv4 } from 'uuid';
@@ -16,7 +16,7 @@ interface NPC {
     color: string;
     icon: React.ReactNode;
     persona: string;
-    description: string;
+    descriptionKey: string; 
 }
 
 interface Decor {
@@ -32,19 +32,18 @@ const WORLD_SIZE = 1200;
 const VIEWPORT_SIZE = 500;
 
 const WorldExplorer: React.FC<{ language: string, onMenuClick: () => void }> = ({ language, onMenuClick }) => {
+    const { t } = useTranslation();
     const [playerPos, setPlayerPos] = useState({ x: 600, y: 600 });
     const [activeNPC, setActiveNPC] = useState<NPC | null>(null);
     const [isTalking, setIsTalking] = useState(false);
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [currentRegion, setCurrentRegion] = useState('The King’s Highway');
+    const [currentRegion, setCurrentRegion] = useState('');
     
     const viewportRef = useRef<HTMLDivElement>(null);
     const talkBoxRef = useRef<HTMLDivElement>(null);
     
-    const t = translations[language]?.explorer || translations['English']?.explorer || { instructions: 'Move with WASD', talk: 'Talk to {name}' };
-
     const NPCs: NPC[] = [
       { 
           id: 'peter', 
@@ -54,7 +53,7 @@ const WorldExplorer: React.FC<{ language: string, onMenuClick: () => void }> = (
           color: 'bg-blue-600', 
           icon: <Ship size={14} className="text-white" />,
           persona: 'SIMON PETER. Fisherman, humble, eyewitness. Speak of the sea and the Master.',
-          description: 'Mending his nets by the Sea of Galilee.'
+          descriptionKey: 'Galilee Fisherman'
       },
       { 
           id: 'scholar', 
@@ -64,7 +63,7 @@ const WorldExplorer: React.FC<{ language: string, onMenuClick: () => void }> = (
           color: 'bg-amber-700', 
           icon: <Landmark size={14} className="text-white" />,
           persona: 'WISE SCHOLAR in Jerusalem. Measured, knowledgeable of the law.',
-          description: 'Studying scrolls in the Holy City.'
+          descriptionKey: 'Jerusalem Scholar'
       },
       { 
           id: 'traveler', 
@@ -74,7 +73,7 @@ const WorldExplorer: React.FC<{ language: string, onMenuClick: () => void }> = (
           color: 'bg-emerald-600', 
           icon: <User size={14} className="text-white" />,
           persona: 'A TRAVELER seeking hope. Friendly, weary.',
-          description: 'Resting on the road to Jericho.'
+          descriptionKey: 'Weary Traveler'
       }
     ];
 
@@ -155,10 +154,10 @@ const WorldExplorer: React.FC<{ language: string, onMenuClick: () => void }> = (
         });
         setActiveNPC(near || null);
 
-        if (playerPos.x < 500 && playerPos.y < 450) setCurrentRegion(t.seaOfGalilee || 'Sea of Galilee');
-        else if (playerPos.x > 800 && playerPos.y > 800) setCurrentRegion(t.jerusalem || 'Jerusalem');
-        else if (playerPos.x < 400 && playerPos.y > 800) setCurrentRegion(t.wilderness || 'Wilderness');
-        else setCurrentRegion('The King’s Highway');
+        if (playerPos.x < 500 && playerPos.y < 450) setCurrentRegion(t('explorer.galilee'));
+        else if (playerPos.x > 800 && playerPos.y > 800) setCurrentRegion(t('explorer.jerusalem'));
+        else if (playerPos.x < 400 && playerPos.y > 800) setCurrentRegion(t('explorer.wilderness'));
+        else setCurrentRegion(t('explorer.highway'));
     }, [playerPos, t]);
 
     const startTalk = () => {
@@ -201,7 +200,7 @@ const WorldExplorer: React.FC<{ language: string, onMenuClick: () => void }> = (
                 <div className="flex items-center gap-3">
                     <button onClick={onMenuClick} className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors"><ArrowLeft size={24} /></button>
                     <Compass className="text-emerald-400 animate-spin-slow" size={20} />
-                    <h1 className="text-lg font-bold tracking-tight">Pixel Journey</h1>
+                    <h1 className="text-lg font-bold tracking-tight">{t('explorer.title')}</h1>
                 </div>
                 <div className="absolute left-1/2 -translate-x-1/2 top-4 animate-fade-in text-center">
                     <div className="px-4 py-1 bg-black/60 rounded-full border border-white/10 backdrop-blur-md">
@@ -285,7 +284,7 @@ const WorldExplorer: React.FC<{ language: string, onMenuClick: () => void }> = (
                             <div key={npc.id} className="absolute group cursor-pointer" style={{ left: npc.x, top: npc.y }}>
                                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all scale-90 group-hover:scale-100 bg-slate-900/90 px-3 py-1.5 rounded-xl border border-white/10 shadow-2xl z-50 whitespace-nowrap">
                                     <div className="text-[10px] font-black uppercase text-amber-400">{npc.name}</div>
-                                    <div className="text-[8px] text-slate-400 italic">Eyewitness</div>
+                                    <div className="text-[8px] text-slate-400 italic">{t('explorer.eyewitness')}</div>
                                 </div>
                                 <div className={`w-12 h-12 rounded-2xl ${npc.color} flex items-center justify-center shadow-2xl border-2 border-black/10 animate-pixel-bob`}>
                                     {npc.icon}
@@ -311,7 +310,7 @@ const WorldExplorer: React.FC<{ language: string, onMenuClick: () => void }> = (
                         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-pop-in z-50">
                             <button onClick={startTalk} className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3 rounded-2xl text-xs font-black shadow-2xl border-b-4 border-indigo-800 flex items-center gap-3 transform active:translate-y-1 transition-all">
                                 <MessageCircle size={18} />
-                                {t.talk.replace('{name}', activeNPC.name)}
+                                {t('explorer.talk', { name: activeNPC.name })}
                             </button>
                         </div>
                     )}
@@ -326,7 +325,7 @@ const WorldExplorer: React.FC<{ language: string, onMenuClick: () => void }> = (
                                 </div>
                                 <div>
                                     <h2 className="font-black text-white text-lg leading-none mb-1">{activeNPC.name}</h2>
-                                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em]">{activeNPC.description}</p>
+                                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em]">{activeNPC.descriptionKey}</p>
                                 </div>
                             </div>
                             <button onClick={() => setIsTalking(false)} className="p-2 text-slate-500 hover:text-white rounded-full bg-black/20 hover:rotate-90 transition-all"><X size={24} /></button>
@@ -351,7 +350,7 @@ const WorldExplorer: React.FC<{ language: string, onMenuClick: () => void }> = (
                         </div>
 
                         <form onSubmit={handleSendMessage} className="p-4 bg-slate-800/80 flex gap-3 border-t border-white/5 backdrop-blur-xl">
-                            <input autoFocus value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder="Say something..." className="flex-1 bg-slate-950/50 border border-white/10 rounded-2xl px-5 py-3.5 text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
+                            <input autoFocus value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder={t('explorer.placeholder')} className="flex-1 bg-slate-950/50 border border-white/10 rounded-2xl px-5 py-3.5 text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
                             <button type="submit" disabled={isLoading || !inputValue.trim()} className="bg-indigo-600 hover:bg-indigo-500 text-white p-4 rounded-2xl disabled:opacity-50 shadow-xl active:scale-90 transition-transform"><Send size={20} /></button>
                         </form>
                     </div>
@@ -368,7 +367,7 @@ const WorldExplorer: React.FC<{ language: string, onMenuClick: () => void }> = (
                         <button className="bg-slate-800 w-16 h-16 rounded-2xl flex items-center justify-center active:bg-indigo-600 border-b-4 border-slate-950 active:translate-y-1 transition-all" onTouchStart={() => window.dispatchEvent(new KeyboardEvent('keydown', {key: 's'}))}>S</button>
                         <button className="bg-slate-800 w-16 h-16 rounded-2xl flex items-center justify-center active:bg-indigo-600 border-b-4 border-slate-950 active:translate-y-1 transition-all" onTouchStart={() => window.dispatchEvent(new KeyboardEvent('keydown', {key: 'd'}))}>D</button>
                     </div>
-                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mt-2 animate-pulse">{t.instructions}</p>
+                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mt-2 animate-pulse">{t('explorer.instructions')}</p>
                 </div>
             )}
         </div>

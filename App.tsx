@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import ChatInterface from './components/ChatInterface';
 import Sidebar from './components/Sidebar';
 import Login from './components/Login';
@@ -18,15 +20,16 @@ import PasswordResetModal from './components/PasswordResetModal';
 import VisualComposerModal from './components/VisualComposerModal'; 
 import HomeView from './components/HomeView'; 
 import FeedbackModal from './components/FeedbackModal'; 
+import WorldExplorer from './components/WorldExplorer';
 import { Message, ChatSession, UserPreferences, AppView, SavedItem, BibleHighlight, SocialTab } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import { sendMessageStream, generateChatTitle } from './services/geminiService';
 import { supabase } from './services/supabase';
 import { db } from './services/db';
 import { updateStreak } from './services/dailyVerseService';
-import { translations } from './utils/translations';
 
 const App: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const [session, setSession] = useState<any>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
@@ -74,16 +77,17 @@ const App: React.FC = () => {
   const [isPrincessHearts, setIsPrincessHearts] = useState(() => localStorage.getItem('princessHearts') !== 'false');
   const [isPrincessSparkles, setIsPrincessSparkles] = useState(() => localStorage.getItem('princessSparkles') !== 'false');
 
-  // Verify API Key on start and periodically
   const verifyKey = async () => {
-    // 1. Check manual storage first
-    const manualKey = localStorage.getItem('shepherd_api_key');
-    if (manualKey && manualKey.trim().length > 10) {
-        setHasApiKey(true);
-        return true;
+    try {
+        const manualKey = localStorage.getItem('shepherd_api_key');
+        if (manualKey && manualKey.trim().length > 10) {
+            setHasApiKey(true);
+            return true;
+        }
+    } catch (e) {
+        console.warn("Could not read from localStorage", e);
     }
 
-    // 2. Check platform aistudio state
     if (window.aistudio) {
       const hasKey = await window.aistudio.hasSelectedApiKey();
       setHasApiKey(hasKey);
@@ -96,7 +100,6 @@ const App: React.FC = () => {
 
   useEffect(() => {
     verifyKey();
-    // Poll occasionally to stay synced with external dialog or storage changes
     const interval = setInterval(verifyKey, 5000);
     return () => clearInterval(interval);
   }, []);
@@ -106,20 +109,32 @@ const App: React.FC = () => {
   };
 
   const handleUpdateManualKey = (key: string) => {
-    if (key.trim()) {
-      localStorage.setItem('shepherd_api_key', key.trim());
-      setHasApiKey(true);
-    } else {
-      localStorage.removeItem('shepherd_api_key');
-      verifyKey();
+    try {
+        if (key.trim()) {
+          localStorage.setItem('shepherd_api_key', key.trim());
+          setHasApiKey(true);
+        } else {
+          localStorage.removeItem('shepherd_api_key');
+          verifyKey();
+        }
+    } catch (e) {
+        console.error("Failed to save API key", e);
+        if (key.trim()) setHasApiKey(true);
     }
   };
 
-  // SPLASH REVEAL TIMER
   useEffect(() => {
     const timer = setTimeout(() => setShowSplash(false), 5000);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+      const langCodeMap: Record<string, string> = { 'English': 'en', 'German': 'de', 'Romanian': 'ro' };
+      const code = langCodeMap[language] || 'en';
+      if (i18n.language !== code) {
+          i18n.changeLanguage(code);
+      }
+  }, [language, i18n]);
 
   useEffect(() => {
     if (isPrincessMode) {
@@ -389,15 +404,12 @@ const App: React.FC = () => {
   };
 
   const createNewChat = useCallback((activateView: boolean = true) => {
-    const langData = translations[language] || translations['English'];
-    const messages = langData.welcomeMessages || translations['English'].welcomeMessages;
-    const randomTemplate = messages[Math.floor(Math.random() * messages.length)];
-    const finalWelcomeText = randomTemplate.replace('{name}', displayName || (language === 'Romanian' ? 'Prieten' : 'Friend'));
+    const finalWelcomeText = t('home.welcome', { name: displayName || t('common.guest') });
     const tempId = uuidv4();
     const welcomeMsg: Message = { id: uuidv4(), role: 'model', text: finalWelcomeText, timestamp: new Date().toISOString() };
     const newChat: ChatSession = {
       id: tempId,
-      title: translations[language]?.sidebar?.newChat || 'New Conversation',
+      title: t('sidebar.newChat'),
       createdAt: Date.now(),
       messages: [welcomeMsg],
       isTemp: true
@@ -405,7 +417,7 @@ const App: React.FC = () => {
     setChats(prevChats => [newChat, ...prevChats]);
     setActiveChatId(tempId);
     if (activateView) setCurrentView('chat');
-  }, [language, displayName]);
+  }, [displayName, t]);
 
   const handleDeleteChat = async (chatId: string) => {
     let nextActiveId = activeChatId;
@@ -490,16 +502,29 @@ const App: React.FC = () => {
     if (!currentChat) return;
     const msgs = currentChat.messages;
     if (msgs.length < 2) return;
+    
+    // Identify messages
+    const lastMessage = msgs[msgs.length - 1];
     const lastUserMessage = msgs[msgs.length - 2];
+    
+    // Checks
+    if (lastMessage.role !== 'model') return;
     if (!lastUserMessage || lastUserMessage.role !== 'user') return;
 
     setIsLoading(true);
     const newAiMessageId = uuidv4();
     const newAiMessage: Message = { id: newAiMessageId, role: 'model', text: '', timestamp: new Date().toISOString() };
+    
     setChats(prev => prev.map(chat => {
       if (chat.id === activeChatId) return { ...chat, messages: [...chat.messages.slice(0, -1), newAiMessage] };
       return chat;
     }));
+
+    // NEW: Delete from DB
+    try {
+        await db.deleteMessage(lastMessage.id);
+    } catch(e) { console.error("Failed to delete", e); }
+
     const historyPayload = msgs.slice(0, -2); 
     const regenContext = lastUserMessage.hiddenContext ? `${lastUserMessage.hiddenContext} (Regen-${uuidv4()})` : undefined;
     await streamAIResponse(activeChatId, newAiMessageId, historyPayload, lastUserMessage.text, regenContext, newAiMessage);
@@ -531,8 +556,14 @@ const App: React.FC = () => {
   };
 
   const handleNavigate = (view: AppView) => {
-    if (view === 'chat' && (!activeChatId || chats.length === 0)) {
-      createNewChat(true);
+    if (view === 'chat') {
+      const existingTempChat = chats.find(c => c.isTemp);
+      if (existingTempChat) {
+        setActiveChatId(existingTempChat.id);
+        setCurrentView('chat');
+      } else {
+        createNewChat(true);
+      }
     } else {
       setCurrentView(view);
     }
@@ -542,6 +573,9 @@ const App: React.FC = () => {
 
   const activeChat = chats.find(c => c.id === activeChatId);
   const activeMessages = activeChat ? activeChat.messages.map(m => ({ ...m, timestamp: new Date(m.timestamp) })) : [];
+  
+  // FIX: Brand name should always be 'Shepherd' in the splash screen animation
+  const brandName = "Shepherd";
 
   return (
     <div className={`${isDarkMode ? 'dark' : ''} animate-fade-in ${session ? 'h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'}`}>
@@ -568,13 +602,13 @@ const App: React.FC = () => {
          </div>
          <div className="relative z-20 text-center flex flex-col items-center -mt-4">
              <h1 className="text-5xl md:text-8xl font-bold text-white font-serif-text tracking-tight drop-shadow-[0_0_20px_rgba(255,215,0,0.4)] flex gap-1 justify-center mb-2">
-                {['S','h','e','p','h','e','r','d'].map((char, i) => (
+                {brandName.split('').map((char, i) => (
                     <span key={i} className="animate-letter-reveal" style={{ animationDelay: `${0.3 + i * 0.08}s` }}>{char}</span>
                 ))}
              </h1>
              <div className="flex items-center justify-center gap-4 animate-tracking-expand opacity-0" style={{ animationDelay: '1.2s', animationFillMode: 'forwards' }}>
                 <div className="h-[2px] w-8 md:w-24 bg-gradient-to-r from-transparent via-amber-200 to-transparent shadow-[0_0_8px_rgba(253,230,138,0.6)]"></div>
-                <p className="text-amber-100 text-base md:text-2xl font-semibold uppercase tracking-[0.25em] font-sans drop-shadow-md whitespace-nowrap">Scripture Companion</p>
+                <p className="text-amber-100 text-base md:text-2xl font-semibold uppercase tracking-[0.25em] font-sans drop-shadow-md whitespace-nowrap">{t('chat.subtitle')}</p>
                 <div className="h-[2px] w-8 md:w-24 bg-gradient-to-r from-transparent via-amber-200 to-transparent shadow-[0_0_8px_rgba(253,230,138,0.6)]"></div>
              </div>
          </div>
@@ -587,103 +621,113 @@ const App: React.FC = () => {
           <div className="fixed inset-0 bg-slate-950 flex items-center justify-center z-40">
                <div className="flex flex-col items-center gap-4">
                   <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-slate-400 text-sm animate-pulse">Connecting...</p>
+                  <p className="text-slate-400 text-sm animate-pulse">{t('common.loading')}</p>
                </div>
           </div>
       ) : !session ? ( 
           <Login isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} language={language} onSetLanguage={(lang) => handleUpdatePreference('language', lang)} /> 
       ) : (
-        <div className="flex h-full overflow-hidden relative z-0">
-          {currentView === 'home' && (
-              <div className="flex-1 w-full h-full">
-                  <HomeView 
-                      language={language} displayName={displayName} userAvatar={avatar} dailyStreak={dailyStreak} 
-                      onNavigate={handleNavigate} onOpenSettings={() => setIsSettingsOpen(true)}
-                      onOpenNotifications={() => handleOpenSocial('inbox')} onOpenProfile={() => handleOpenSocial('profile')}
-                      onOpenFriends={() => handleOpenSocial('friends')} onOpenSanctuary={() => setIsSanctuaryOpen(true)}
-                      onOpenFeedback={() => setIsFeedbackOpen(true)} notificationCount={totalNotifications}
-                      onOpenDailyVerse={() => setIsDailyVerseOpen(true)}
-                  />
-              </div>
-          )}
-          {currentView === 'chat' && (
-              <div className="flex w-full h-full">
-                  <Sidebar 
-                    isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} chats={chats}
-                    activeChatId={activeChatId} onSelectChat={(id) => { setActiveChatId(id); if(window.innerWidth < 768) setIsSidebarOpen(false); }}
-                    onNewChat={() => createNewChat(true)} onDeleteChat={(id) => handleDeleteChat(id)}
-                    onRenameChat={handleRenameChat} language={language} onNavigateHome={() => { setCurrentView('home'); setIsSidebarOpen(false); }}
-                  />
-                  <div className="flex-1 h-full w-full relative">
-                      <ChatInterface 
-                          messages={activeMessages} isLoading={isLoading} onSendMessage={handleSendMessage} 
-                          onMenuClick={() => setIsSidebarOpen(true)} onRegenerate={handleRegenerate} 
-                          onDeleteCurrentChat={activeChatId ? () => handleDeleteChat(activeChatId) : undefined} 
-                          onNewChat={() => createNewChat(true)} language={language} userAvatar={avatar}
-                          onSaveMessage={handleSaveMessage} onOpenComposer={(text) => setComposerData({ text })}
-                          onOpenSettings={() => setIsSettingsOpen(true)} 
-                          onNavigateHome={() => setCurrentView('home')}
-                          hasApiKey={hasApiKey}
-                          onSelectApiKey={handleSelectApiKey}
-                          onUpdateManualKey={handleUpdateManualKey}
-                      />
-                  </div>
-              </div>
-          )}
-          {currentView === 'bible' && ( 
-              <div className="flex-1 w-full h-full">
-                  <BibleReader 
-                    language={language} 
-                    onSaveItem={handleSaveItem} 
-                    onMenuClick={() => setCurrentView('home')} 
-                    highlights={highlights} 
-                    onAddHighlight={handleAddHighlight} 
-                    onRemoveHighlight={handleRemoveHighlight} 
-                    onOpenComposer={(text, ref) => setComposerData({ text, reference: ref })} 
-                    hasApiKey={hasApiKey}
-                  /> 
-              </div>
-          )}
-          {currentView === 'saved' && ( 
-              <div className="flex-1 w-full h-full">
-                  <SavedCollection savedItems={savedItems} onRemoveItem={handleRemoveSavedItem} language={language} onMenuClick={() => setCurrentView('home')} onOpenComposer={(text, ref) => setComposerData({ text, reference: ref })} /> 
-              </div>
-          )}
-          {currentView === 'prayer' && ( 
-              <div className="flex-1 w-full h-full">
-                  <PrayerList savedItems={savedItems} onSaveItem={handleSaveItem} onUpdateItem={handleUpdateItem} onRemoveItem={handleRemoveSavedItem} language={language} onMenuClick={() => setCurrentView('home')} currentUserId={session.user.id} userName={displayName} userAvatar={avatar} /> 
-              </div>
-          )}
-          {currentView === 'quiz' && ( <div className="flex-1 w-full h-full"><QuizMode language={language} onMenuClick={() => setCurrentView('home')} /></div> )}
-          {currentView === 'stories' && ( 
-              <div className="flex-1 w-full h-full">
-                  <RoleplayView 
-                    language={language} 
-                    onMenuClick={() => setCurrentView('home')} 
-                    hasApiKey={hasApiKey}
-                  />
-              </div> 
-          )}
-          
-          <Sanctuary isOpen={isSanctuaryOpen} onClose={() => setIsSanctuaryOpen(false)} language={language} />
-          <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} language={language} />
-          <VisualComposerModal isOpen={!!composerData} onClose={() => setComposerData(null)} initialText={composerData?.text || ''} initialReference={composerData?.reference} language={language} />
-          <SettingsModal 
-            isOpen={isSettingsOpen} 
-            onClose={() => setIsSettingsOpen(false)} 
-            preferences={{ bibleTranslation, theme: isDarkMode ? 'dark' : 'light', winterTheme: isWinterMode, winterSnow: isWinterSnow, winterLights: isWinterLights, winterIcicles: isWinterIcicles, princessTheme: isPrincessMode, princessHearts: isPrincessHearts, princessSparkles: isPrincessSparkles, language, displayName, avatar, bio }} 
-            onUpdatePreference={handleUpdatePreference} 
-            userEmail={session.user.email} 
-            userId={session.user.id} 
-            onLogout={handleLogout} 
-            hasApiKey={hasApiKey}
-            onSelectApiKey={handleSelectApiKey}
-            onUpdateManualKey={handleUpdateManualKey}
-          />
-          <DailyVerseModal isOpen={isDailyVerseOpen} onClose={() => setIsDailyVerseOpen(false)} isDarkMode={isDarkMode} language={language} onOpenComposer={(text, ref) => setComposerData({ text, reference: ref })} />
-          <SocialModal isOpen={isSocialOpen} onClose={() => setIsSocialOpen(false)} initialTab={socialInitialTab} currentUserShareId={shareId} isDarkMode={isDarkMode} onUpdateNotifications={loadSocialNotifications} language={language} />
-          <PasswordResetModal isOpen={isPasswordResetOpen} onClose={() => setIsPasswordResetOpen(false)} />
-        </div>
+        <Suspense fallback={<div className="h-full w-full flex items-center justify-center bg-slate-900 text-white">{t('common.loading')}</div>}>
+            <div className="flex h-full overflow-hidden relative z-0">
+            {currentView === 'home' && (
+                <div className="flex-1 w-full h-full">
+                    <HomeView 
+                        language={language} displayName={displayName} userAvatar={avatar} dailyStreak={dailyStreak} 
+                        onNavigate={handleNavigate} onOpenSettings={() => setIsSettingsOpen(true)}
+                        onOpenNotifications={() => handleOpenSocial('inbox')} onOpenProfile={() => handleOpenSocial('profile')}
+                        onOpenFriends={() => handleOpenSocial('friends')} onOpenSanctuary={() => setIsSanctuaryOpen(true)}
+                        onOpenFeedback={() => setIsFeedbackOpen(true)} notificationCount={totalNotifications}
+                        onOpenDailyVerse={() => setIsDailyVerseOpen(true)}
+                    />
+                </div>
+            )}
+            {currentView === 'chat' && (
+                <div className="flex w-full h-full">
+                    <Sidebar 
+                        isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} chats={chats}
+                        activeChatId={activeChatId} onSelectChat={(id) => { setActiveChatId(id); if(window.innerWidth < 768) setIsSidebarOpen(false); }}
+                        onNewChat={() => createNewChat(true)} onDeleteChat={(id) => handleDeleteChat(id)}
+                        onRenameChat={handleRenameChat} language={language} onNavigateHome={() => { setCurrentView('home'); setIsSidebarOpen(false); }}
+                    />
+                    <div className="flex-1 h-full w-full relative">
+                        <ChatInterface 
+                            messages={activeMessages} isLoading={isLoading} onSendMessage={handleSendMessage} 
+                            onMenuClick={() => setIsSidebarOpen(true)} onRegenerate={handleRegenerate} 
+                            onDeleteCurrentChat={activeChatId ? () => handleDeleteChat(activeChatId) : undefined} 
+                            onNewChat={() => createNewChat(true)} language={language} userAvatar={avatar}
+                            onSaveMessage={handleSaveMessage} onOpenComposer={(text) => setComposerData({ text })}
+                            onOpenSettings={() => setIsSettingsOpen(true)} 
+                            onNavigateHome={() => setCurrentView('home')}
+                            hasApiKey={hasApiKey}
+                            onSelectApiKey={handleSelectApiKey}
+                            onUpdateManualKey={handleUpdateManualKey}
+                        />
+                    </div>
+                </div>
+            )}
+            {currentView === 'bible' && ( 
+                <div className="flex-1 w-full h-full">
+                    <BibleReader 
+                        language={language} 
+                        onSaveItem={handleSaveItem} 
+                        onMenuClick={() => setCurrentView('home')} 
+                        highlights={highlights} 
+                        onAddHighlight={handleAddHighlight} 
+                        onRemoveHighlight={handleRemoveHighlight} 
+                        onOpenComposer={(text, ref) => setComposerData({ text, reference: ref })} 
+                        hasApiKey={hasApiKey}
+                    /> 
+                </div>
+            )}
+            {currentView === 'saved' && ( 
+                <div className="flex-1 w-full h-full">
+                    <SavedCollection savedItems={savedItems} onRemoveItem={handleRemoveSavedItem} language={language} onMenuClick={() => setCurrentView('home')} onOpenComposer={(text, ref) => setComposerData({ text, reference: ref })} /> 
+                </div>
+            )}
+            {currentView === 'prayer' && ( 
+                <div className="flex-1 w-full h-full">
+                    <PrayerList savedItems={savedItems} onSaveItem={handleSaveItem} onUpdateItem={handleUpdateItem} onRemoveItem={handleRemoveSavedItem} language={language} onMenuClick={() => setCurrentView('home')} currentUserId={session.user.id} userName={displayName} userAvatar={avatar} /> 
+                </div>
+            )}
+            {currentView === 'quiz' && ( <div className="flex-1 w-full h-full"><QuizMode language={language} onMenuClick={() => setCurrentView('home')} /></div> )}
+            {currentView === 'stories' && ( 
+                <div className="flex-1 w-full h-full">
+                    <RoleplayView 
+                        language={language} 
+                        onMenuClick={() => setCurrentView('home')} 
+                        hasApiKey={hasApiKey}
+                    />
+                </div> 
+            )}
+            {currentView === 'explorer' && ( 
+                <div className="flex-1 w-full h-full">
+                    <WorldExplorer 
+                        language={language} 
+                        onMenuClick={() => setCurrentView('home')} 
+                    />
+                </div> 
+            )}
+            
+            <Sanctuary isOpen={isSanctuaryOpen} onClose={() => setIsSanctuaryOpen(false)} language={language} />
+            <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} language={language} />
+            <VisualComposerModal isOpen={!!composerData} onClose={() => setComposerData(null)} initialText={composerData?.text || ''} initialReference={composerData?.reference} language={language} />
+            <SettingsModal 
+                isOpen={isSettingsOpen} 
+                onClose={() => setIsSettingsOpen(false)} 
+                preferences={{ bibleTranslation, theme: isDarkMode ? 'dark' : 'light', winterTheme: isWinterMode, winterSnow: isWinterSnow, winterLights: isWinterLights, winterIcicles: isWinterIcicles, princessTheme: isPrincessMode, princessHearts: isPrincessHearts, princessSparkles: isPrincessSparkles, language, displayName, avatar, bio }} 
+                onUpdatePreference={handleUpdatePreference} 
+                userEmail={session.user.email} 
+                userId={session.user.id} 
+                onLogout={handleLogout} 
+                hasApiKey={hasApiKey}
+                onSelectApiKey={handleSelectApiKey}
+                onUpdateManualKey={handleUpdateManualKey}
+            />
+            <DailyVerseModal isOpen={isDailyVerseOpen} onClose={() => setIsDailyVerseOpen(false)} isDarkMode={isDarkMode} language={language} onOpenComposer={(text, ref) => setComposerData({ text, reference: ref })} />
+            <SocialModal isOpen={isSocialOpen} onClose={() => setIsSocialOpen(false)} initialTab={socialInitialTab} currentUserShareId={shareId} isDarkMode={isDarkMode} onUpdateNotifications={loadSocialNotifications} language={language} />
+            <PasswordResetModal isOpen={isPasswordResetOpen} onClose={() => setIsPasswordResetOpen(false)} />
+            </div>
+        </Suspense>
       )}
     </div>
   );

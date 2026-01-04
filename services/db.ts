@@ -88,6 +88,12 @@ export const db = {
     if (error) throw error;
   },
 
+  async deleteMessage(messageId: string) {
+      const client = ensureSupabase();
+      const { error } = await client.from('messages').delete().eq('id', messageId);
+      if (error) throw error;
+  },
+
   async updateChatTitle(chatId: string, title: string) {
     const client = ensureSupabase();
     const { error } = await client.from('chats').update({ title }).eq('id', chatId);
