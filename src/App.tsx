@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import ChatInterface from './components/ChatInterface';
@@ -27,12 +26,6 @@ import { sendMessageStream, generateChatTitle } from './services/geminiService';
 import { supabase } from './services/supabase';
 import { db } from './services/db';
 import { updateStreak } from './services/dailyVerseService';
-
-const SANCTUARY_SOUNDS = [
-    { id: 'rain', url: 'https://cdn.pixabay.com/audio/2021/09/06/audio_012e8b0903.mp3' },
-    { id: 'fire', url: 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808d05b08.mp3' },
-    { id: 'stream', url: 'https://cdn.pixabay.com/audio/2023/04/23/audio_821a8a252a.mp3' }
-];
 
 const App: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -82,22 +75,6 @@ const App: React.FC = () => {
   const [isPrincessMode, setIsPrincessMode] = useState(() => localStorage.getItem('princessMode') === 'true');
   const [isPrincessHearts, setIsPrincessHearts] = useState(() => localStorage.getItem('princessHearts') !== 'false');
   const [isPrincessSparkles, setIsPrincessSparkles] = useState(() => localStorage.getItem('princessSparkles') !== 'false');
-
-  // AGGRESSIVE AUDIO PRE-CACHING FOR INSTANT PLAYBACK
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    SANCTUARY_SOUNDS.forEach(sound => {
-        if (!(window as any)[`cached_audio_${sound.id}`]) {
-            fetch(sound.url)
-                .then(res => res.blob())
-                .then(blob => {
-                    const blobUrl = URL.createObjectURL(blob);
-                    (window as any)[`cached_audio_${sound.id}`] = blobUrl;
-                })
-                .catch(e => console.warn("Pre-cache failed for sanctuary audio", sound.id, e));
-        }
-    });
-  }, []);
 
   const verifyKey = async () => {
     try {
@@ -152,10 +129,11 @@ const App: React.FC = () => {
 
   useEffect(() => {
       const langCodeMap: Record<string, string> = { 
-        'English': 'en', 'German': 'de', 'Română': 'ro', 'Romanian': 'ro',
-        'Spanish': 'es', 'Español': 'es', 'French': 'fr', 'Français': 'fr',
-        'Portuguese': 'pt', 'Português': 'pt', 'Italian': 'it', 'Italiano': 'it',
-        'Chinese': 'zh', '中文': 'zh', 'Japanese': 'ja', '日本語': 'ja', 'Korean': 'ko', '한국어': 'ko'
+          'English': 'en', 
+          'German': 'de', 
+          'Romanian': 'ro',
+          'Spanish': 'es',
+          'French': 'fr'
       };
       const code = langCodeMap[language] || 'en';
       if (i18n.language !== code) {

@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Moon, Sun, LogOut, User, Globe, Info, Edit2, Check, AlignLeft, CloudSnow, Sparkles, Droplets, Crown, Heart, Camera, Trash2, Snowflake, AlertCircle, Key, ShieldCheck, ExternalLink } from 'lucide-react';
+import { X, Moon, Sun, LogOut, User, Globe, Info, Edit2, Check, Camera, Snowflake, Key, ExternalLink, Crown } from 'lucide-react';
 import { UserPreferences } from '../types';
 import { useTranslation } from 'react-i18next';
 
@@ -17,17 +16,12 @@ interface SettingsModalProps {
   onUpdateManualKey: (key: string) => void;
 }
 
-const SUPPORTED_LANGUAGES = [
-  { id: 'en', label: 'English' },
-  { id: 'ro', label: 'Română' },
-  { id: 'de', label: 'Deutsch' },
-  { id: 'es', label: 'Español' },
-  { id: 'fr', label: 'Français' },
-  { id: 'it', label: 'Italiano' },
-  { id: 'pt', label: 'Português' },
-  { id: 'zh', label: '中文' },
-  { id: 'ja', label: '日本語' },
-  { id: 'ko', label: '한국어' }
+const LANGUAGES = [
+  { id: 'en', name: 'English' },
+  { id: 'ro', name: 'Română' },
+  { id: 'de', name: 'Deutsch' },
+  { id: 'es', name: 'Español' },
+  { id: 'fr', name: 'Français' },
 ];
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -69,8 +63,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
       const code = e.target.value;
       i18n.changeLanguage(code);
-      const selected = SUPPORTED_LANGUAGES.find(l => l.id === code);
-      onUpdatePreference('language', selected ? selected.label : 'English');
+      const mapLegacy: Record<string, string> = { 
+          'en': 'English', 
+          'de': 'German', 
+          'ro': 'Romanian',
+          'es': 'Spanish',
+          'fr': 'French'
+      };
+      onUpdatePreference('language', mapLegacy[code] || 'English');
   };
 
   const handleSaveName = () => {
@@ -234,7 +234,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-3xl">
                     <div className="flex items-center gap-3"><Globe className="text-indigo-500" size={20} /><span className="text-sm font-bold dark:text-white">{t('settings.language')}</span></div>
                     <select value={i18n.language.substring(0, 2)} onChange={handleLanguageChange} className="bg-transparent text-sm font-bold text-indigo-600 outline-none">
-                        {SUPPORTED_LANGUAGES.map(l => <option key={l.id} value={l.id}>{l.label}</option>)}
+                        {LANGUAGES.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
                     </select>
                 </div>
 

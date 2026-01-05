@@ -14,8 +14,8 @@ i18n
     fallbackLng: 'en',
     debug: false,
     
-    // ISO codes: English, German, Romanian
-    supportedLngs: ['en', 'de', 'ro'],
+    // Supported ISO codes: English, German, Romanian, Spanish, French
+    supportedLngs: ['en', 'de', 'ro', 'es', 'fr', 'it', 'pt'],
     
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
