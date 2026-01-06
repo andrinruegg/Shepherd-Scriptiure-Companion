@@ -57,7 +57,7 @@ const BibleReader: React.FC<{ language: string, onSaveItem: (item: SavedItem) =>
                    <div className="font-serif-text leading-[2] text-lg text-slate-800 dark:text-slate-200 pb-20">
                        <h2 className="text-3xl font-bold mb-8 text-center text-slate-900 dark:text-white border-b dark:border-slate-700 pb-6">{displayBookName} {chapter}</h2>
                        {data.verses.map((v: any) => (
-                           <span key={v.verse} onClick={() => setActiveVerse(activeVerse === v.verse ? null : v.verse)} className={`relative inline cursor-pointer rounded px-1 transition-all mx-0.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 ${highlights.find(h=>h.ref===`${selectedBookId} ${chapter}:${v.verse}`) ? 'bg-yellow-100 dark:bg-yellow-900/30' : ''}`}>
+                           <span key={v.verse} onClick={() => setActiveVerse(activeVerse === v.verse ? null : v.verse)} className={`relative inline cursor-pointer rounded px-1 transition-all mx-0.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 ${highlights.find((h: BibleHighlight)=>h.ref===`${selectedBookId} ${chapter}:${v.verse}`) ? 'bg-yellow-100 dark:bg-yellow-900/30' : ''}`}>
                                <sup className="text-[10px] font-sans mr-1 text-slate-400 font-black">{v.verse}</sup>{v.text}
                                {activeVerse === v.verse && (
                                    <span className="absolute -top-14 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-900 border dark:border-slate-700 rounded-2xl shadow-2xl p-2 flex gap-1 items-center z-20 whitespace-nowrap animate-scale-in">

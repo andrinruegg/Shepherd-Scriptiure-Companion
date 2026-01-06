@@ -426,12 +426,12 @@ const App: React.FC = () => {
   const handleDeleteChat = async (chatId: string) => {
     let nextActiveId = activeChatId;
     if (activeChatId === chatId) {
-      const remainingChats = chats.filter(c => c.id !== chatId);
+      const remainingChats = chats.filter((c: ChatSession) => c.id !== chatId);
       if (remainingChats.length > 0) nextActiveId = remainingChats[0].id;
       else nextActiveId = null; 
     }
     const chatsBackup = [...chats];
-    setChats(prev => prev.filter(c => c.id !== chatId));
+    setChats((prev: ChatSession[]) => prev.filter((c: ChatSession) => c.id !== chatId));
     setActiveChatId(nextActiveId);
     if (chats.length <= 1 && nextActiveId === null) { 
       setTimeout(() => createNewChat(true), 50);
@@ -440,7 +440,7 @@ const App: React.FC = () => {
   };
 
   const handleRenameChat = async (chatId: string, newTitle: string) => {
-    setChats(prev => prev.map(c => {
+    setChats((prev: ChatSession[]) => prev.map((c: ChatSession) => {
         if (c.id === chatId) return { ...c, title: newTitle, isTemp: false };
         return c;
     }));
@@ -462,14 +462,14 @@ const App: React.FC = () => {
     }
 
     let currentChatId = activeChatId;
-    const currentChat = chats.find(c => c.id === currentChatId);
+    const currentChat = chats.find((c: ChatSession) => c.id === currentChatId);
     if (!currentChat) return;
 
     const userMessage: Message = { id: uuidv4(), role: 'user', text: text, timestamp: new Date().toISOString(), hiddenContext: hiddenContext };
     const aiMessageId = uuidv4();
     const initialAiMessage: Message = { id: aiMessageId, role: 'model', text: '', timestamp: new Date().toISOString() };
 
-    setChats(prevChats => prevChats.map(chat => {
+    setChats((prevChats: ChatSession[]) => prevChats.map((chat: ChatSession) => {
       if (chat.id === currentChatId) {
         return { ...chat, messages: [...chat.messages, userMessage, initialAiMessage], isTemp: false };
       }
@@ -501,7 +501,7 @@ const App: React.FC = () => {
       return;
     }
 
-    const currentChat = chats.find(c => c.id === activeChatId);
+    const currentChat = chats.find((c: ChatSession) => c.id === activeChatId);
     if (!currentChat) return;
     const msgs = currentChat.messages;
     if (msgs.length < 2) return;
@@ -516,7 +516,7 @@ const App: React.FC = () => {
     const newAiMessageId = uuidv4();
     const newAiMessage: Message = { id: newAiMessageId, role: 'model', text: '', timestamp: new Date().toISOString() };
     
-    setChats(prev => prev.map(chat => {
+    setChats((prev: ChatSession[]) => prev.map((chat: ChatSession) => {
       if (chat.id === activeChatId) return { ...chat, messages: [...chat.messages.slice(0, -1), newAiMessage] };
       return chat;
     }));
@@ -536,7 +536,7 @@ const App: React.FC = () => {
       history, prompt, hiddenContext, bibleTranslation, language, displayName, 
       (chunk: string) => {
         accumulatedText += chunk;
-        setChats(prevChats => prevChats.map(chat => {
+        setChats((prevChats: ChatSession[]) => prevChats.map((chat: ChatSession) => {
           if (chat.id === chatId) {
             return { ...chat, messages: chat.messages.map((msg: Message) => msg.id === messageId ? { ...msg, text: accumulatedText } : msg) };
           }
@@ -565,7 +565,7 @@ const App: React.FC = () => {
 
   if (!supabase) return <div className={isDarkMode ? 'dark' : ''}><SetupScreen /></div>;
 
-  const activeChat = chats.find(c => c.id === activeChatId);
+  const activeChat = chats.find((c: ChatSession) => c.id === activeChatId);
   const activeMessages = activeChat ? activeChat.messages.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) })) : [];
   
   const brandName = "Shepherd";
@@ -639,16 +639,16 @@ const App: React.FC = () => {
                     <Sidebar 
                         isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} chats={chats}
                         activeChatId={activeChatId} onSelectChat={(id) => { setActiveChatId(id); if(window.innerWidth < 768) setIsSidebarOpen(false); }}
-                        onNewChat={() => createNewChat(true)} onDeleteChat={(id, e) => handleDeleteChat(id)}
+                        onNewChat={() => createNewChat(true)} onDeleteChat={(id: string) => handleDeleteChat(id)}
                         onRenameChat={handleRenameChat} language={language} onNavigateHome={() => { setCurrentView('home'); setIsSidebarOpen(false); }}
                     />
                     <div className="flex-1 h-full w-full relative">
                         <ChatInterface 
                             messages={activeMessages} isLoading={isLoading} onSendMessage={handleSendMessage} 
                             onMenuClick={() => setIsSidebarOpen(true)} onRegenerate={handleRegenerate} 
-                            onDeleteCurrentChat={activeChatId ? (e: any) => handleDeleteChat(activeChatId) : undefined} 
+                            onDeleteCurrentChat={activeChatId ? () => handleDeleteChat(activeChatId) : undefined} 
                             onNewChat={() => createNewChat(true)} language={language} userAvatar={avatar}
-                            onSaveMessage={handleSaveMessage} onOpenComposer={(text) => setComposerData({ text })}
+                            onSaveMessage={handleSaveMessage} onOpenComposer={(text: string) => setComposerData({ text })}
                             onOpenSettings={() => setIsSettingsOpen(true)} 
                             onNavigateHome={() => setCurrentView('home')}
                             hasApiKey={hasApiKey}
@@ -667,14 +667,14 @@ const App: React.FC = () => {
                         highlights={highlights} 
                         onAddHighlight={handleAddHighlight} 
                         onRemoveHighlight={handleRemoveHighlight} 
-                        onOpenComposer={(text, ref) => setComposerData({ text, reference: ref })} 
+                        onOpenComposer={(text: string, ref: string) => setComposerData({ text, reference: ref })} 
                         hasApiKey={hasApiKey}
                     /> 
                 </div>
             )}
             {currentView === 'saved' && ( 
                 <div className="flex-1 w-full h-full">
-                    <SavedCollection savedItems={savedItems} onRemoveItem={handleRemoveSavedItem} language={language} onMenuClick={() => setCurrentView('home')} onOpenComposer={(text, ref) => setComposerData({ text, reference: ref })} /> 
+                    <SavedCollection savedItems={savedItems} onRemoveItem={handleRemoveSavedItem} language={language} onMenuClick={() => setCurrentView('home')} onOpenComposer={(text: string, ref?: string) => setComposerData({ text, reference: ref })} /> 
                 </div>
             )}
             {currentView === 'prayer' && ( 
@@ -716,7 +716,7 @@ const App: React.FC = () => {
                 onSelectApiKey={handleSelectApiKey}
                 onUpdateManualKey={handleUpdateManualKey}
             />
-            <DailyVerseModal isOpen={isDailyVerseOpen} onClose={() => setIsDailyVerseOpen(false)} isDarkMode={isDarkMode} language={language} onOpenComposer={(text, ref) => setComposerData({ text, reference: ref })} />
+            <DailyVerseModal isOpen={isDailyVerseOpen} onClose={() => setIsDailyVerseOpen(false)} isDarkMode={isDarkMode} language={language} onOpenComposer={(text: string, ref: string) => setComposerData({ text, reference: ref })} />
             <SocialModal isOpen={isSocialOpen} onClose={() => setIsSocialOpen(false)} initialTab={socialInitialTab} currentUserShareId={shareId} isDarkMode={isDarkMode} onUpdateNotifications={loadSocialNotifications} language={language} />
             <PasswordResetModal isOpen={isPasswordResetOpen} onClose={() => setIsPasswordResetOpen(false)} />
             </div>

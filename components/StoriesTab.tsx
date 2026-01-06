@@ -54,10 +54,10 @@ const RoleplayView: React.FC<{ language: string, onMenuClick: () => void, hasApi
     if (!persona) return;
     const userText = inputValue.trim();
     const aiMsgId = uuidv4();
-    setEncounters(prev => prev.map((e: Encounter) => e.id === activeEncounterId ? { ...e, messages: [...e.messages, { id: uuidv4(), role: 'user', text: userText, timestamp: new Date().toISOString() }, { id: aiMsgId, role: 'model', text: '', timestamp: new Date().toISOString() }] } : e));
+    setEncounters((prev: Encounter[]) => prev.map((e: Encounter) => e.id === activeEncounterId ? { ...e, messages: [...e.messages, { id: uuidv4(), role: 'user', text: userText, timestamp: new Date().toISOString() }, { id: aiMsgId, role: 'model', text: '', timestamp: new Date().toISOString() }] } : e));
     setInputValue(''); setIsLoading(true);
     let acc = "";
-    await sendMessageStream(currentEnc?.messages || [], userText, undefined, 'NIV', language, 'Witness', (chunk: string) => { acc += chunk; setEncounters(prev => prev.map((e: Encounter) => e.id === activeEncounterId ? { ...e, messages: e.messages.map((m: Message) => m.id === aiMsgId ? { ...m, text: acc } : m) } : e)); }, () => setIsLoading(false), () => setIsLoading(false), `Role: ${persona.name}. Persona Info: ${persona.traits.join(',')}. Language: ${language}. Time: 1st Century.`);
+    await sendMessageStream(currentEnc?.messages || [], userText, undefined, 'NIV', language, 'Witness', (chunk: string) => { acc += chunk; setEncounters((prev: Encounter[]) => prev.map((e: Encounter) => e.id === activeEncounterId ? { ...e, messages: e.messages.map((m: Message) => m.id === aiMsgId ? { ...m, text: acc } : m) } : e)); }, () => setIsLoading(false), (error: any) => setIsLoading(false), `Role: ${persona.name}. Persona Info: ${persona.traits.join(',')}. Language: ${language}. Time: 1st Century.`);
   };
 
   return (

@@ -54,7 +54,7 @@ const WorldExplorer: React.FC<{ language: string, onMenuClick: () => void }> = (
         setMessages(prev => [...prev, {id:uuidv4(), role:'user', text:userText, timestamp:new Date().toISOString()}, {id:aiMsgId, role:'model', text:'', timestamp:new Date().toISOString()}]);
         setInputValue(''); setIsLoading(true);
         let acc = "";
-        await sendMessageStream(messages, userText, undefined, 'NIV', language, 'Traveler', (chunk: string) => { acc += chunk; setMessages(prev => prev.map((m: Message) => m.id === aiMsgId ? {...m, text: acc} : m)); }, () => setIsLoading(false), () => setIsLoading(false), `Role: ${activeNPC.persona}. Lang: ${language}`);
+        await sendMessageStream(messages, userText, undefined, 'NIV', language, 'Traveler', (chunk: string) => { acc += chunk; setMessages(prev => prev.map((m: Message) => m.id === aiMsgId ? {...m, text: acc} : m)); }, () => setIsLoading(false), (error: any) => setIsLoading(false), `Role: ${activeNPC.persona}. Lang: ${language}`);
     };
 
     return (
