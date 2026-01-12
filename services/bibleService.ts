@@ -1,4 +1,3 @@
-
 import { BibleBook, BibleChapter } from '../types';
 import { getBibleChapterFromAI } from './geminiService';
 

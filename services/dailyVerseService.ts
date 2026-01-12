@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from 'uuid';
 
 interface Verse {
@@ -58,9 +57,10 @@ export const getDailyVerse = (language: string): { text: string; reference: stri
   const rawVerse = VERSES[index];
 
   let langKey = 'en';
-  const norm = language.toLowerCase();
-  if (norm.includes('roman') || norm === 'ro') langKey = 'ro';
-  else if (norm.includes('german') || norm === 'de') langKey = 'de';
+  const normalized = language.toLowerCase();
+  
+  if (normalized.includes('roman') || normalized === 'ro') langKey = 'ro';
+  else if (normalized.includes('german') || normalized === 'de') langKey = 'de';
 
   return {
       text: rawVerse.text[langKey] || rawVerse.text['en'],

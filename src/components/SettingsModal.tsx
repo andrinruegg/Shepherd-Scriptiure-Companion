@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Moon, Sun, LogOut, User, Globe, Info, Edit2, Check, Camera, Snowflake, Key, ExternalLink, Crown } from 'lucide-react';
 import { UserPreferences } from '../types';
@@ -20,8 +21,6 @@ const LANGUAGES = [
   { id: 'en', name: 'English' },
   { id: 'ro', name: 'Română' },
   { id: 'de', name: 'Deutsch' },
-  { id: 'es', name: 'Español' },
-  { id: 'fr', name: 'Français' },
 ];
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -66,9 +65,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       const mapLegacy: Record<string, string> = { 
           'en': 'English', 
           'de': 'German', 
-          'ro': 'Romanian',
-          'es': 'Spanish',
-          'fr': 'French'
+          'ro': 'Romanian'
       };
       onUpdatePreference('language', mapLegacy[code] || 'English');
   };

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import ChatInterface from './components/ChatInterface';
@@ -618,7 +617,7 @@ const App: React.FC = () => {
                </div>
           </div>
       ) : !session ? ( 
-          <Login isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} language={language} onSetLanguage={(lang) => handleUpdatePreference('language', lang)} /> 
+          <Login isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} language={language} onSetLanguage={(lang: string) => handleUpdatePreference('language', lang)} /> 
       ) : (
         <Suspense fallback={<div className="h-full w-full flex items-center justify-center bg-slate-900 text-white">{t('common.loading')}</div>}>
             <div className="flex h-full overflow-hidden relative z-0">
@@ -638,15 +637,15 @@ const App: React.FC = () => {
                 <div className="flex w-full h-full">
                     <Sidebar 
                         isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} chats={chats}
-                        activeChatId={activeChatId} onSelectChat={(id) => { setActiveChatId(id); if(window.innerWidth < 768) setIsSidebarOpen(false); }}
-                        onNewChat={() => createNewChat(true)} onDeleteChat={(id: string) => handleDeleteChat(id)}
+                        activeChatId={activeChatId} onSelectChat={(id: string) => { setActiveChatId(id); if(window.innerWidth < 768) setIsSidebarOpen(false); }}
+                        onNewChat={() => createNewChat(true)} onDeleteChat={(id: string, e: React.MouseEvent) => handleDeleteChat(id)}
                         onRenameChat={handleRenameChat} language={language} onNavigateHome={() => { setCurrentView('home'); setIsSidebarOpen(false); }}
                     />
                     <div className="flex-1 h-full w-full relative">
                         <ChatInterface 
                             messages={activeMessages} isLoading={isLoading} onSendMessage={handleSendMessage} 
                             onMenuClick={() => setIsSidebarOpen(true)} onRegenerate={handleRegenerate} 
-                            onDeleteCurrentChat={activeChatId ? () => handleDeleteChat(activeChatId) : undefined} 
+                            onDeleteCurrentChat={activeChatId ? (e: React.MouseEvent) => handleDeleteChat(activeChatId) : undefined} 
                             onNewChat={() => createNewChat(true)} language={language} userAvatar={avatar}
                             onSaveMessage={handleSaveMessage} onOpenComposer={(text: string) => setComposerData({ text })}
                             onOpenSettings={() => setIsSettingsOpen(true)} 

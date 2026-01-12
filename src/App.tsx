@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import ChatInterface from './components/ChatInterface';
@@ -131,9 +132,7 @@ const App: React.FC = () => {
       const langCodeMap: Record<string, string> = { 
           'English': 'en', 
           'German': 'de', 
-          'Romanian': 'ro',
-          'Spanish': 'es',
-          'French': 'fr'
+          'Romanian': 'ro'
       };
       const code = langCodeMap[language] || 'en';
       if (i18n.language !== code) {
@@ -535,7 +534,7 @@ const App: React.FC = () => {
     let accumulatedText = "";
     await sendMessageStream(
       history, prompt, hiddenContext, bibleTranslation, language, displayName, 
-      (chunk) => {
+      (chunk: string) => {
         accumulatedText += chunk;
         setChats(prevChats => prevChats.map(chat => {
           if (chat.id === chatId) {
@@ -549,7 +548,7 @@ const App: React.FC = () => {
         const finalAiMessage = { ...baseAiMessage, text: accumulatedText };
         try { await db.addMessage(chatId, finalAiMessage); } catch(e) { console.error(e); }
       },
-      (error) => {
+      (error: any) => {
         setIsLoading(false);
       }
     );
@@ -647,7 +646,7 @@ const App: React.FC = () => {
                         <ChatInterface 
                             messages={activeMessages} isLoading={isLoading} onSendMessage={handleSendMessage} 
                             onMenuClick={() => setIsSidebarOpen(true)} onRegenerate={handleRegenerate} 
-                            onDeleteCurrentChat={activeChatId ? () => handleDeleteChat(activeChatId) : undefined} 
+                            onDeleteCurrentChat={activeChatId ? (e) => handleDeleteChat(activeChatId) : undefined} 
                             onNewChat={() => createNewChat(true)} language={language} userAvatar={avatar}
                             onSaveMessage={handleSaveMessage} onOpenComposer={(text) => setComposerData({ text })}
                             onOpenSettings={() => setIsSettingsOpen(true)} 

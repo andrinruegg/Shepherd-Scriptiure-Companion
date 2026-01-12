@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Book, ChevronLeft, ChevronRight, Heart, X, ArrowLeft, Pause, Volume1, Image, Loader2, AlertTriangle } from 'lucide-react';
 import { BIBLE_BOOKS, fetchChapter } from '../services/bibleService';
@@ -41,12 +40,12 @@ const BibleReader: React.FC<{ language: string, onSaveItem: (item: SavedItem) =>
                <button onClick={() => setIsPlaying(!isPlaying)} className={`ml-2 p-2 rounded-full transition-all ${isPlaying ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>{audioLoading ? <Loader2 size={20} className="animate-spin" /> : isPlaying ? <Pause size={20} fill="currentColor"/> : <Volume1 size={20}/>}</button>
            </div>
            <div className="flex items-center gap-2 w-full md:w-auto">
-               <select value={selectedBookId} onChange={(e) => { setSelectedBookId(e.target.value); setChapter(1); }} className="flex-1 md:w-48 p-2.5 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none">
+               <select value={selectedBookId} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => { setSelectedBookId(e.target.value); setChapter(1); }} className="flex-1 md:w-48 p-2.5 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none">
                    <optgroup label={t('bible.oldTestament')}>{BIBLE_BOOKS.filter((b: any) => b.testament === 'OT').map((b: any) => (<option key={b.id} value={b.id}>{language === 'German' ? b.names.de : language === 'Romanian' ? b.names.ro : b.names.en}</option>))}</optgroup>
                    <optgroup label={t('bible.newTestament')}>{BIBLE_BOOKS.filter((b: any) => b.testament === 'NT').map((b: any) => (<option key={b.id} value={b.id}>{language === 'German' ? b.names.de : language === 'Romanian' ? b.names.ro : b.names.en}</option>))}</optgroup>
                </select>
-               <select value={chapter} onChange={(e) => setChapter(Number(e.target.value))} className="w-20 p-2.5 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none">
-                   {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map(num => (<option key={num} value={num}>{num}</option>))}
+               <select value={chapter} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setChapter(Number(e.target.value))} className="w-20 p-2.5 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none">
+                   {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map((num: number) => (<option key={num} value={num}>{num}</option>))}
                </select>
            </div>
        </header>

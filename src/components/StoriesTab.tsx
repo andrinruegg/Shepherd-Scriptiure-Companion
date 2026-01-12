@@ -49,15 +49,15 @@ const RoleplayView: React.FC<{ language: string, onMenuClick: () => void, hasApi
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading || !activeEncounterId) return;
-    const currentEnc = encounters.find(e => e.id === activeEncounterId);
-    const persona = figures.find(f => f.id === currentEnc?.personaId);
+    const currentEnc = encounters.find((e: any) => e.id === activeEncounterId);
+    const persona = figures.find((f: any) => f.id === currentEnc?.personaId);
     if (!persona) return;
     const userText = inputValue.trim();
     const aiMsgId = uuidv4();
-    setEncounters(prev => prev.map(e => e.id === activeEncounterId ? { ...e, messages: [...e.messages, { id: uuidv4(), role: 'user', text: userText, timestamp: new Date().toISOString() }, { id: aiMsgId, role: 'model', text: '', timestamp: new Date().toISOString() }] } : e));
+    setEncounters((prev: any[]) => prev.map((e: any) => e.id === activeEncounterId ? { ...e, messages: [...e.messages, { id: uuidv4(), role: 'user', text: userText, timestamp: new Date().toISOString() }, { id: aiMsgId, role: 'model', text: '', timestamp: new Date().toISOString() }] } : e));
     setInputValue(''); setIsLoading(true);
     let acc = "";
-    await sendMessageStream(currentEnc?.messages || [], userText, undefined, 'NIV', language, 'Witness', (chunk) => { acc += chunk; setEncounters(prev => prev.map(e => e.id === activeEncounterId ? { ...e, messages: e.messages.map(m => m.id === aiMsgId ? { ...m, text: acc } : m) } : e)); }, () => setIsLoading(false), () => setIsLoading(false), `Role: ${persona.name}. Persona Info: ${persona.traits.join(',')}. Language: ${language}. Time: 1st Century.`);
+    await sendMessageStream(currentEnc?.messages || [], userText, undefined, 'NIV', language, 'Witness', (chunk: string) => { acc += chunk; setEncounters((prev: any[]) => prev.map((e: any) => e.id === activeEncounterId ? { ...e, messages: e.messages.map((m: any) => m.id === aiMsgId ? { ...m, text: acc } : m) } : e)); }, () => setIsLoading(false), (error: any) => setIsLoading(false), `Role: ${persona.name}. Persona Info: ${persona.traits.join(',')}. Language: ${language}. Time: 1st Century.`);
   };
 
   return (
@@ -69,13 +69,13 @@ const RoleplayView: React.FC<{ language: string, onMenuClick: () => void, hasApi
                   <div><h1 className="text-2xl font-bold font-serif-text text-slate-800 dark:text-slate-100">{t('stories.title')}</h1><p className="text-slate-600 dark:text-slate-400 text-sm">{t('stories.subtitle')}</p></div>
               </header>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {figures.map(fig => (
+                  {figures.map((fig: any) => (
                       <div key={fig.id} className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm border dark:border-slate-800 group hover:shadow-xl transition-all cursor-pointer" onClick={() => { setSelectedPersona(fig); setView('detail'); }}>
                           <div className="h-48 overflow-hidden relative">
-                              <img src={fig.image} className="w-full h-full object-cover transition-transform group-hover:scale-105" style={{ objectPosition: '50% 10%' }} />
+                              <img src={fig.image} alt={fig.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" style={{ objectPosition: '50% 10%' }} />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" /><div className="absolute bottom-4 left-4 text-white"><h3 className="font-bold text-lg font-serif-text">{fig.name}</h3><p className="text-xs opacity-90">{fig.role}</p></div>
                           </div>
-                          <div className="p-5 flex flex-wrap gap-2">{fig.traits.slice(0,3).map(tr => <span key={tr} className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-[10px] font-bold uppercase rounded-md dark:text-slate-400">{tr}</span>)}</div>
+                          <div className="p-5 flex flex-wrap gap-2">{fig.traits.slice(0,3).map((tr: string) => <span key={tr} className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-[10px] font-bold uppercase rounded-md dark:text-slate-400">{tr}</span>)}</div>
                       </div>
                   ))}
               </div>
@@ -84,13 +84,13 @@ const RoleplayView: React.FC<{ language: string, onMenuClick: () => void, hasApi
       {view === 'detail' && selectedPersona && (
           <div className="flex-1 overflow-y-auto bg-white dark:bg-slate-900">
               <div className="relative h-72 md:h-96">
-                  <img src={selectedPersona.image} className="w-full h-full object-cover" style={{ objectPosition: '50% 10%' }} />
+                  <img src={selectedPersona.image} alt={selectedPersona.name} className="w-full h-full object-cover" style={{ objectPosition: '50% 10%' }} />
                   <button onClick={() => setView('hub')} className="absolute top-4 left-4 p-2 bg-black/30 text-white rounded-full hover:bg-black/50 backdrop-blur-md"><ArrowLeft size={24}/></button>
               </div>
               <div className="px-6 md:px-12 -mt-16 relative z-10">
                   <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-8 shadow-2xl border dark:border-slate-700">
                       <h1 className="text-4xl font-bold font-serif-text mb-2 text-slate-900 dark:text-white">{selectedPersona.name}</h1>
-                      <div className="space-y-8 my-8">{selectedPersona.biography.map((para, i) => <p key={i} className="text-slate-700 dark:text-slate-300 leading-relaxed italic text-lg font-serif-text">{para}</p>)}</div>
+                      <div className="space-y-8 my-8">{selectedPersona.biography.map((para: string, i: number) => <p key={i} className="text-slate-700 dark:text-slate-300 leading-relaxed italic text-lg font-serif-text">{para}</p>)}</div>
                       <button onClick={() => startEncounter(selectedPersona)} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-bold flex items-center justify-center gap-3 shadow-xl"><MessageCircle size={22}/>{t('stories.startRoleplay')}</button>
                   </div>
               </div>
@@ -99,10 +99,10 @@ const RoleplayView: React.FC<{ language: string, onMenuClick: () => void, hasApi
       {view === 'chat' && activeEncounterId && (
           <div className="flex flex-col h-full bg-[#fdfbf7] dark:bg-slate-950">
               <header className="px-4 py-3 border-b dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
-                  <div className="flex items-center gap-3"><button onClick={() => setView('hub')} className="p-2 text-slate-600 dark:text-slate-400"><ArrowLeft size={20}/></button><h2 className="font-bold text-slate-900 dark:text-white">{figures.find(f => f.id === encounters.find(e => e.id === activeEncounterId)?.personaId)?.name}</h2></div>
+                  <div className="flex items-center gap-3"><button onClick={() => setView('hub')} className="p-2 text-slate-600 dark:text-slate-400"><ArrowLeft size={20}/></button><h2 className="font-bold text-slate-900 dark:text-white">{figures.find((f: any) => f.id === encounters.find((e: any) => e.id === activeEncounterId)?.personaId)?.name}</h2></div>
               </header>
               <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                  {encounters.find(e => e.id === activeEncounterId)?.messages.map(m => (
+                  {encounters.find((e: any) => e.id === activeEncounterId)?.messages.map((m: Message) => (
                       <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                           <div className={`max-w-[85%] p-5 rounded-2xl ${m.role === 'user' ? 'bg-slate-800 text-white rounded-tr-none' : 'bg-white dark:bg-slate-800 dark:text-white border shadow-sm font-serif-text italic rounded-tl-none'}`}><ReactMarkdown>{m.text}</ReactMarkdown></div>
                       </div>
@@ -110,7 +110,7 @@ const RoleplayView: React.FC<{ language: string, onMenuClick: () => void, hasApi
                   <div ref={messagesEndRef} />
               </div>
               <div className="p-4 bg-white dark:bg-slate-900 border-t dark:border-slate-800 flex gap-2">
-                  <input value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder={t('stories.inputPlaceholder')} className="flex-1 bg-slate-100 dark:bg-slate-800 rounded-full px-5 outline-none dark:text-white" onKeyDown={e => e.key === 'Enter' && handleSendMessage()}/>
+                  <input value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder={t('stories.inputPlaceholder')} className="flex-1 bg-slate-100 dark:bg-slate-800 rounded-full px-5 outline-none dark:text-white" onKeyDown={(e: any) => e.key === 'Enter' && handleSendMessage()}/>
                   <button onClick={handleSendMessage} disabled={isLoading} className="p-3 bg-indigo-600 text-white rounded-full shadow-lg"><Send size={20}/></button>
               </div>
           </div>

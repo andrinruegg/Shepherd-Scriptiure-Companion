@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../services/supabase';
 import { ArrowRight, Mail, Lock, AlertCircle, CheckCircle2, Moon, Sun, Eye, EyeOff, User, Globe, BadgeCheck, Sparkles, Inbox, RefreshCw } from 'lucide-react';
@@ -31,9 +32,7 @@ const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language, onS
   const LANGUAGES = [
       { id: 'en', label: 'English' },
       { id: 'ro', label: 'Română' },
-      { id: 'de', label: 'Deutsch' },
-      { id: 'es', label: 'Español' },
-      { id: 'fr', label: 'Français' }
+      { id: 'de', label: 'Deutsch' }
   ];
 
   useEffect(() => {
@@ -123,9 +122,7 @@ const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language, onS
       const map: Record<string, string> = { 
           'en': 'English', 
           'ro': 'Romanian', 
-          'de': 'German',
-          'es': 'Spanish',
-          'fr': 'French'
+          'de': 'German'
       };
       onSetLanguage(map[code]);
       setShowLangMenu(false);

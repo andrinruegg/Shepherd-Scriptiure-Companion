@@ -19,7 +19,7 @@ const BibleReader: React.FC<{ language: string, onSaveItem: (item: SavedItem) =>
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   
-  const selectedBook = BIBLE_BOOKS.find(b => b.id === selectedBookId) || BIBLE_BOOKS[0];
+  const selectedBook = BIBLE_BOOKS.find((b: any) => b.id === selectedBookId) || BIBLE_BOOKS[0];
   const displayBookName = language === 'German' ? selectedBook.names.de : language === 'Romanian' ? selectedBook.names.ro : selectedBook.names.en;
 
   useEffect(() => {
@@ -42,8 +42,8 @@ const BibleReader: React.FC<{ language: string, onSaveItem: (item: SavedItem) =>
            </div>
            <div className="flex items-center gap-2 w-full md:w-auto">
                <select value={selectedBookId} onChange={(e) => { setSelectedBookId(e.target.value); setChapter(1); }} className="flex-1 md:w-48 p-2.5 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none">
-                   <optgroup label={t('bible.oldTestament')}>{BIBLE_BOOKS.filter(b => b.testament === 'OT').map(b => (<option key={b.id} value={b.id}>{language === 'German' ? b.names.de : language === 'Romanian' ? b.names.ro : b.names.en}</option>))}</optgroup>
-                   <optgroup label={t('bible.newTestament')}>{BIBLE_BOOKS.filter(b => b.testament === 'NT').map(b => (<option key={b.id} value={b.id}>{language === 'German' ? b.names.de : language === 'Romanian' ? b.names.ro : b.names.en}</option>))}</optgroup>
+                   <optgroup label={t('bible.oldTestament')}>{BIBLE_BOOKS.filter((b: any) => b.testament === 'OT').map((b: any) => (<option key={b.id} value={b.id}>{language === 'German' ? b.names.de : language === 'Romanian' ? b.names.ro : b.names.en}</option>))}</optgroup>
+                   <optgroup label={t('bible.newTestament')}>{BIBLE_BOOKS.filter((b: any) => b.testament === 'NT').map((b: any) => (<option key={b.id} value={b.id}>{language === 'German' ? b.names.de : language === 'Romanian' ? b.names.ro : b.names.en}</option>))}</optgroup>
                </select>
                <select value={chapter} onChange={(e) => setChapter(Number(e.target.value))} className="w-20 p-2.5 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none">
                    {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map(num => (<option key={num} value={num}>{num}</option>))}
@@ -56,8 +56,8 @@ const BibleReader: React.FC<{ language: string, onSaveItem: (item: SavedItem) =>
                {loading ? (<div className="flex flex-col items-center justify-center h-64 text-slate-400"><Loader2 size={40} className="animate-spin mb-4"/><p className="text-sm font-bold uppercase tracking-widest">{t('bible.loading')}</p></div>) : data ? (
                    <div className="font-serif-text leading-[2] text-lg text-slate-800 dark:text-slate-200 pb-20">
                        <h2 className="text-3xl font-bold mb-8 text-center text-slate-900 dark:text-white border-b dark:border-slate-700 pb-6">{displayBookName} {chapter}</h2>
-                       {data.verses.map((v) => (
-                           <span key={v.verse} onClick={() => setActiveVerse(activeVerse === v.verse ? null : v.verse)} className={`relative inline cursor-pointer rounded px-1 transition-all mx-0.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 ${highlights.find(h=>h.ref===`${selectedBookId} ${chapter}:${v.verse}`) ? 'bg-yellow-100 dark:bg-yellow-900/30' : ''}`}>
+                       {data.verses.map((v: any) => (
+                           <span key={v.verse} onClick={() => setActiveVerse(activeVerse === v.verse ? null : v.verse)} className={`relative inline cursor-pointer rounded px-1 transition-all mx-0.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 ${highlights.find((h: BibleHighlight)=>h.ref===`${selectedBookId} ${chapter}:${v.verse}`) ? 'bg-yellow-100 dark:bg-yellow-900/30' : ''}`}>
                                <sup className="text-[10px] font-sans mr-1 text-slate-400 font-black">{v.verse}</sup>{v.text}
                                {activeVerse === v.verse && (
                                    <span className="absolute -top-14 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-900 border dark:border-slate-700 rounded-2xl shadow-2xl p-2 flex gap-1 items-center z-20 whitespace-nowrap animate-scale-in">

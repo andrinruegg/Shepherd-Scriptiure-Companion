@@ -47,7 +47,7 @@ const QuizMode: React.FC<{ language: string, onMenuClick: () => void }> = ({ lan
                         <div className="bg-purple-100 dark:bg-purple-900/30 w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto shadow-lg"><Brain size={48} className="text-purple-600" /></div>
                         <div><h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{t('quiz.start')}</h2><p className="text-slate-400 text-sm">{t('quiz.difficulty')}</p></div>
                         <div className="grid gap-3">
-                            {(['Easy', 'Medium', 'Hard'] as const).map(d => (
+                            {(['Easy', 'Medium', 'Hard'] as const).map((d: any) => (
                                 <button key={d} onClick={() => startQuiz(d)} className="p-5 bg-white dark:bg-slate-800 border-2 dark:border-slate-700 rounded-2xl text-left font-bold hover:border-purple-500 dark:hover:border-purple-500 transition-all flex justify-between items-center group"><span>{t(`quiz.${d.toLowerCase()}`)}</span><ArrowRight size={20} className="text-slate-300 group-hover:text-purple-500" /></button>
                             ))}
                         </div>
@@ -60,7 +60,7 @@ const QuizMode: React.FC<{ language: string, onMenuClick: () => void }> = ({ lan
                             <h3 className="text-xl font-bold text-slate-900 dark:text-white leading-relaxed">{currentQ.question}</h3>
                         </div>
                         <div className="grid gap-3">
-                            {currentQ.options.map((opt, idx) => {
+                            {currentQ.options.map((opt: string, idx: number) => {
                                 let style = "bg-white dark:bg-slate-800 border-2 dark:border-slate-700 text-slate-700 dark:text-slate-200";
                                 if (showResult) {
                                     if (idx === currentQ.correctIndex) style = "bg-emerald-50 border-emerald-500 text-emerald-700 dark:bg-emerald-900/20";
@@ -83,7 +83,7 @@ const QuizMode: React.FC<{ language: string, onMenuClick: () => void }> = ({ lan
                     </div>
                 )}
                 {gameState === 'complete' && (
-                    <div className="w-full max-w-sm text-center space-y-8 animate-scale-in">
+                    <div className="w-full max-sm text-center space-y-8 animate-scale-in">
                         <Trophy size={80} className="mx-auto text-amber-500 drop-shadow-lg" />
                         <h2 className="text-3xl font-bold text-slate-900 dark:text-white">{t('quiz.correct')}</h2>
                         <div className="grid grid-cols-2 gap-4">

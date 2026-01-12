@@ -13,7 +13,7 @@ i18n
     debug: false,
     
     // Supported ISO codes for the UI
-    supportedLngs: ['en', 'de', 'ro', 'es', 'fr', 'pt', 'it', 'zh', 'ja', 'ko'],
+    supportedLngs: ['en', 'de', 'ro'],
     
     interpolation: {
       escapeValue: false, 

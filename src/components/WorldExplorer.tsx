@@ -41,7 +41,7 @@ const WorldExplorer: React.FC<{ language: string, onMenuClick: () => void }> = (
     }, [isTalking]);
 
     useEffect(() => {
-        const near = NPCs.find(n => Math.sqrt(Math.pow(n.x - playerPos.x, 2) + Math.pow(n.y - playerPos.y, 2)) < 60);
+        const near = NPCs.find((n: any) => Math.sqrt(Math.pow(n.x - playerPos.x, 2) + Math.pow(n.y - playerPos.y, 2)) < 60);
         setActiveNPC(near || null);
         if (playerPos.x < 500 && playerPos.y < 450) setCurrentRegion(t('explorer.galilee'));
         else if (playerPos.x > 800 && playerPos.y > 800) setCurrentRegion(t('explorer.jerusalem'));
@@ -54,7 +54,7 @@ const WorldExplorer: React.FC<{ language: string, onMenuClick: () => void }> = (
         setMessages(prev => [...prev, {id:uuidv4(), role:'user', text:userText, timestamp:new Date().toISOString()}, {id:aiMsgId, role:'model', text:'', timestamp:new Date().toISOString()}]);
         setInputValue(''); setIsLoading(true);
         let acc = "";
-        await sendMessageStream(messages, userText, undefined, 'NIV', language, 'Traveler', (chunk) => { acc += chunk; setMessages(prev => prev.map(m => m.id === aiMsgId ? {...m, text: acc} : m)); }, () => setIsLoading(false), () => setIsLoading(false), `Role: ${activeNPC.persona}. Lang: ${language}`);
+        await sendMessageStream(messages, userText, undefined, 'NIV', language, 'Traveler', (chunk: string) => { acc += chunk; setMessages(prev => prev.map((m: any) => m.id === aiMsgId ? {...m, text: acc} : m)); }, () => setIsLoading(false), (error: any) => setIsLoading(false), `Role: ${activeNPC.persona}. Lang: ${language}`);
     };
 
     return (
@@ -80,7 +80,7 @@ const WorldExplorer: React.FC<{ language: string, onMenuClick: () => void }> = (
                 {isTalking && (
                     <div className="absolute inset-x-4 bottom-10 top-10 md:w-[500px] bg-slate-900 rounded-[3rem] shadow-2xl border-4 border-white/10 flex flex-col z-[60] animate-pop-in overflow-hidden">
                         <div className="p-6 flex items-center justify-between border-b border-white/5 bg-white/5"><h2 className="font-black text-white text-lg">{activeNPC?.name}</h2><button onClick={() => setIsTalking(false)} className="p-2 text-slate-500 hover:text-white"><X size={28}/></button></div>
-                        <div className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth">{messages.map(m => (<div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[85%] px-5 py-4 rounded-[2rem] text-sm leading-relaxed ${m.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none shadow-indigo-500/20' : 'bg-slate-800 text-slate-100 border border-white/5 rounded-tl-none italic'}`}><ReactMarkdown>{m.text}</ReactMarkdown></div></div>))}</div>
+                        <div className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth">{messages.map((m: any) => (<div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[85%] px-5 py-4 rounded-[2rem] text-sm leading-relaxed ${m.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none shadow-indigo-500/20' : 'bg-slate-800 text-slate-100 border border-white/5 rounded-tl-none italic'}`}><ReactMarkdown>{m.text}</ReactMarkdown></div></div>))}</div>
                         <form onSubmit={(e)=>{e.preventDefault(); handleSendMessage();}} className="p-4 bg-slate-800 flex gap-3 border-t border-white/5 backdrop-blur-xl"><input autoFocus value={inputValue} onChange={e=>setInputValue(e.target.value)} placeholder={t('explorer.placeholder')} className="flex-1 bg-slate-950 border-none rounded-2xl px-5 text-sm py-4 outline-none focus:ring-2 focus:ring-indigo-500"/><button type="submit" disabled={isLoading || !inputValue.trim()} className="bg-indigo-600 p-4 rounded-2xl shadow-lg active:scale-90 transition-transform"><Send size={20}/></button></form>
                     </div>
                 )}
