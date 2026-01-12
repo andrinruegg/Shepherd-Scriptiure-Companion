@@ -49,15 +49,15 @@ const RoleplayView: React.FC<{ language: string, onMenuClick: () => void, hasApi
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading || !activeEncounterId) return;
-    const currentEnc = encounters.find((e: any) => e.id === activeEncounterId);
-    const persona = figures.find((f: any) => f.id === currentEnc?.personaId);
+    const currentEnc = encounters.find((e) => e.id === activeEncounterId);
+    const persona = figures.find((f) => f.id === currentEnc?.personaId);
     if (!persona) return;
     const userText = inputValue.trim();
     const aiMsgId = uuidv4();
-    setEncounters((prev: any[]) => prev.map((e: any) => e.id === activeEncounterId ? { ...e, messages: [...e.messages, { id: uuidv4(), role: 'user', text: userText, timestamp: new Date().toISOString() }, { id: aiMsgId, role: 'model', text: '', timestamp: new Date().toISOString() }] } : e));
+    setEncounters((prev) => prev.map((e) => e.id === activeEncounterId ? { ...e, messages: [...e.messages, { id: uuidv4(), role: 'user', text: userText, timestamp: new Date().toISOString() }, { id: aiMsgId, role: 'model', text: '', timestamp: new Date().toISOString() }] } : e));
     setInputValue(''); setIsLoading(true);
     let acc = "";
-    await sendMessageStream(currentEnc?.messages || [], userText, undefined, 'NIV', language, 'Witness', (chunk: string) => { acc += chunk; setEncounters((prev: any[]) => prev.map((e: any) => e.id === activeEncounterId ? { ...e, messages: e.messages.map((m: any) => m.id === aiMsgId ? { ...m, text: acc } : m) } : e)); }, () => setIsLoading(false), (error: any) => setIsLoading(false), `Role: ${persona.name}. Persona Info: ${persona.traits.join(',')}. Language: ${language}. Time: 1st Century.`);
+    await sendMessageStream(currentEnc?.messages || [], userText, undefined, 'NIV', language, 'Witness', (chunk: string) => { acc += chunk; setEncounters((prev) => prev.map((e) => e.id === activeEncounterId ? { ...e, messages: e.messages.map((m) => m.id === aiMsgId ? { ...m, text: acc } : m) } : e)); }, () => setIsLoading(false), (error: any) => setIsLoading(false), `Role: ${persona.name}. Persona Info: ${persona.traits.join(',')}. Language: ${language}. Time: 1st Century.`);
   };
 
   return (
@@ -69,7 +69,7 @@ const RoleplayView: React.FC<{ language: string, onMenuClick: () => void, hasApi
                   <div><h1 className="text-2xl font-bold font-serif-text text-slate-800 dark:text-slate-100">{t('stories.title')}</h1><p className="text-slate-600 dark:text-slate-400 text-sm">{t('stories.subtitle')}</p></div>
               </header>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {figures.map((fig: any) => (
+                  {figures.map((fig) => (
                       <div key={fig.id} className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm border dark:border-slate-800 group hover:shadow-xl transition-all cursor-pointer" onClick={() => { setSelectedPersona(fig); setView('detail'); }}>
                           <div className="h-48 overflow-hidden relative">
                               <img src={fig.image} alt={fig.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" style={{ objectPosition: '50% 10%' }} />
@@ -99,10 +99,10 @@ const RoleplayView: React.FC<{ language: string, onMenuClick: () => void, hasApi
       {view === 'chat' && activeEncounterId && (
           <div className="flex flex-col h-full bg-[#fdfbf7] dark:bg-slate-950">
               <header className="px-4 py-3 border-b dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
-                  <div className="flex items-center gap-3"><button onClick={() => setView('hub')} className="p-2 text-slate-600 dark:text-slate-400"><ArrowLeft size={20}/></button><h2 className="font-bold text-slate-900 dark:text-white">{figures.find((f: any) => f.id === encounters.find((e: any) => e.id === activeEncounterId)?.personaId)?.name}</h2></div>
+                  <div className="flex items-center gap-3"><button onClick={() => setView('hub')} className="p-2 text-slate-600 dark:text-slate-400"><ArrowLeft size={20}/></button><h2 className="font-bold text-slate-900 dark:text-white">{figures.find((f) => f.id === encounters.find((e) => e.id === activeEncounterId)?.personaId)?.name}</h2></div>
               </header>
               <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                  {encounters.find((e: any) => e.id === activeEncounterId)?.messages.map((m: Message) => (
+                  {encounters.find((e) => e.id === activeEncounterId)?.messages.map((m: Message) => (
                       <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                           <div className={`max-w-[85%] p-5 rounded-2xl ${m.role === 'user' ? 'bg-slate-800 text-white rounded-tr-none' : 'bg-white dark:bg-slate-800 dark:text-white border shadow-sm font-serif-text italic rounded-tl-none'}`}><ReactMarkdown>{m.text}</ReactMarkdown></div>
                       </div>

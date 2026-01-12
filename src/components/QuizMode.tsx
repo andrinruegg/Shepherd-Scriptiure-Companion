@@ -47,7 +47,7 @@ const QuizMode: React.FC<{ language: string, onMenuClick: () => void }> = ({ lan
                         <div className="bg-purple-100 dark:bg-purple-900/30 w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto shadow-lg"><Brain size={48} className="text-purple-600" /></div>
                         <div><h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{t('quiz.start')}</h2><p className="text-slate-400 text-sm">{t('quiz.difficulty')}</p></div>
                         <div className="grid gap-3">
-                            {(['Easy', 'Medium', 'Hard'] as const).map((d: any) => (
+                            {(['Easy', 'Medium', 'Hard'] as const).map((d) => (
                                 <button key={d} onClick={() => startQuiz(d)} className="p-5 bg-white dark:bg-slate-800 border-2 dark:border-slate-700 rounded-2xl text-left font-bold hover:border-purple-500 dark:hover:border-purple-500 transition-all flex justify-between items-center group"><span>{t(`quiz.${d.toLowerCase()}`)}</span><ArrowRight size={20} className="text-slate-300 group-hover:text-purple-500" /></button>
                             ))}
                         </div>
