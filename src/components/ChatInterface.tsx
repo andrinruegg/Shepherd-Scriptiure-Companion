@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { Send, Menu, Trash2, Plus, Key, ExternalLink, Sparkles, Check, AlertCircle } from 'lucide-react';
 import { Message } from '../types';
@@ -72,9 +71,24 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                       <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 mb-8 text-left border dark:border-slate-700">
                          <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2"><Sparkles size={12} className="text-indigo-400" />{t('chat.instructions')}</h4>
                          <ul className="space-y-4">
-                            <li className="flex gap-4"><span className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center text-xs font-black">1</span><a href="https://aistudio.google.com/api-keys" target="_blank" rel="noreferrer" className="text-sm text-slate-600 dark:text-slate-300 font-bold hover:underline flex items-center gap-1.5">{t('chat.howTo.step1')} <ExternalLink size={14} /></a></li>
-                            <li className="flex gap-4"><span className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center text-xs font-black">2</span><p className="text-sm text-slate-600 dark:text-slate-300">{t('chat.howTo.step2')}</p></li>
-                            <li className="flex gap-4"><span className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center text-xs font-black">3</span><p className="text-sm text-slate-600 dark:text-slate-300">{t('chat.howTo.step3')}</p></li>
+                            <li className="flex gap-4">
+                                <span className="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-black">1</span>
+                                <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noreferrer" className="text-sm text-slate-600 dark:text-slate-300 font-bold hover:underline flex items-center gap-1.5">
+                                    {t('chat.howTo.step1')} <ExternalLink size={14} />
+                                </a>
+                            </li>
+                            <li className="flex gap-4">
+                                <span className="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-black">2</span>
+                                <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">{t('chat.howTo.step2')}</p>
+                            </li>
+                            <li className="flex gap-4">
+                                <span className="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-black">3</span>
+                                <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">{t('chat.howTo.step3')}</p>
+                            </li>
+                            <li className="flex gap-4">
+                                <span className="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-black">4</span>
+                                <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">{t('chat.howTo.step4')}</p>
+                            </li>
                          </ul>
                       </div>
                       <form onSubmit={(e)=>{e.preventDefault(); if(keyInputValue.length < 30) setValidationError(t('chat.invalidKey')); else onUpdateManualKey(keyInputValue.trim());}} className="space-y-4">

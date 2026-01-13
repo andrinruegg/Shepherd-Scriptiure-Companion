@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { X, UserPlus, Users, Bell, Search, Check, AlertCircle, Copy, User, MessageCircle, ArrowLeft, Trash2, Circle, Flame, Award, Book, Scroll, Trophy, Info } from 'lucide-react';
 import { UserProfile, FriendRequest, Achievement, SocialTab } from '../types';
@@ -41,11 +40,9 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
   const [loadingData, setLoadingData] = useState(false);
   const [totalUnreadMessages, setTotalUnreadMessages] = useState(0);
 
-  // Note: AppUpdate type was removed from usage here, assuming static updates list or handled differently
-  const updatesLog = [
-      { version: "1.7.0", date: "2025-12-14", title: "New Dashboard", changes: ["Added Home View", "Improved Navigation"] },
-      { version: "1.6.0", date: "2025-12-12", title: "Bible Reader Upgrade", changes: ["Fixed Romanian Bible (Cornilescu) loading", "Instant chapter switching", "Offline-ready Bible text"] }
-  ];
+  const updatesLog: any[] = Array.isArray(t('social.updatesList', { returnObjects: true })) 
+    ? (t('social.updatesList', { returnObjects: true }) as any[]) 
+    : [];
 
   useEffect(() => {
       if (isOpen) {
@@ -200,7 +197,6 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
       const lockedList = ACHIEVEMENT_STRUCTURE.filter(a => !unlockedIds.has(a.id));
 
       const renderItem = (achStruct: typeof ACHIEVEMENT_STRUCTURE[0], isUnlocked: boolean) => {
-          // Fallback title/desc if key missing
           const title = t(`social.achievementList.${achStruct.id}.title`) || achStruct.id;
           const description = t(`social.achievementList.${achStruct.id}.description`) || "...";
           
@@ -262,7 +258,7 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
              <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={() => setViewingProfile(null)} />
              <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden animate-scale-in border border-slate-200 dark:border-slate-800 flex flex-col max-h-[85vh] h-[85vh]">
-                 <button onClick={() => setViewingProfile(null)} className="absolute top-4 left-4 p-2 bg-black/20 text-white rounded-full hover:bg-black/30 backdrop-blur-sm z-20 shadow-lg">
+                 <button onClick={() => setViewingProfile(null)} className="absolute top-4 left-4 p-2 bg-black/20 text-white rounded-full hover:bg-black/30 backdrop-blur-sm z-20 shadow-lg" title={t('common.cancel')}>
                      <ArrowLeft size={20} />
                  </button>
                  <div className="flex-1 overflow-y-auto w-full no-scrollbar">
@@ -288,11 +284,11 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
                          <div className="flex gap-3 w-full mt-auto">
                              {isFriend ? (
                                  <>
-                                     <button onClick={() => { handleOpenChat(viewingProfile); setViewingProfile(null); }} className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95 hover:scale-105"><MessageCircle size={18} /> {t('social.profile.message')}</button>
+                                     <button onClick={() => { handleOpenChat(viewingProfile); setViewingProfile(null); }} className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95 hover:scale-105" title={t('social.profile.message')}><MessageCircle size={18} /> {t('social.profile.message')}</button>
                                      <button onClick={() => handleUnfriend(viewingProfile.id)} className="px-4 py-3.5 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-300 rounded-xl font-medium hover:bg-red-200 dark:hover:bg-red-900/60 border border-red-200 dark:border-red-800 transition-colors shadow-sm" title={t('social.profile.unfriend')}><Trash2 size={20} /></button>
                                  </>
                              ) : (
-                                 <button onClick={() => sendRequest(viewingProfile.id)} className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95 hover:scale-105"><UserPlus size={18} /> {t('social.profile.addFriend')}</button>
+                                 <button onClick={() => sendRequest(viewingProfile.id)} className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95 hover:scale-105" title={t('social.profile.addFriend')}><UserPlus size={18} /> {t('social.profile.addFriend')}</button>
                              )}
                          </div>
                      </div>
@@ -325,6 +321,7 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
                     <button 
                         onClick={() => setCurrentView('friends')}
                         className="p-1.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 transition-colors"
+                        title={t('stories.back')}
                     >
                         <ArrowLeft size={20} />
                     </button>
@@ -340,12 +337,12 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
                     <button 
                         onClick={() => setCurrentView('add')} 
                         className="p-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors shadow-sm"
-                        title="Add Friend"
+                        title={t('social.profile.addFriend')}
                     >
                         <UserPlus size={18} />
                     </button>
                 )}
-                <button onClick={onClose} className="p-2 rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 hover:rotate-90 transition-transform">
+                <button onClick={onClose} className="p-2 rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 hover:rotate-90 transition-transform" title={t('common.cancel')}>
                     <X size={20} />
                 </button>
             </div>
@@ -414,7 +411,7 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
             {currentView === 'friends' && (
                 <div className="space-y-3">
                      {loadingData ? (
-                        <div className="text-center py-8 text-slate-400 animate-pulse">{t('social.friends.loading')}</div>
+                        <div className="text-center py-8 text-slate-400 animate-pulse">{t('common.loading')}</div>
                      ) : friends.length === 0 ? (
                         <div className="text-center py-20 opacity-60">
                             <Users size={48} className="mx-auto mb-2 text-slate-300"/>
@@ -473,7 +470,7 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); handleOpenChat(friend); }}
                                             className={`p-2 rounded-lg transition-colors ${hasUnread ? 'bg-indigo-600 text-white shadow-md' : 'bg-indigo-50 dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-slate-600 hover:scale-110'}`}
-                                            title="Chat"
+                                            title={t('social.profile.message')}
                                         >
                                             <MessageCircle size={20} />
                                         </button>
@@ -491,7 +488,7 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
                         <div className="text-xs font-medium opacity-80 uppercase tracking-wide mb-2">{t('social.add.yourId')}</div>
                         <div className="flex items-center justify-between bg-white/10 p-3 rounded-lg backdrop-blur-sm border border-white/10">
                             <div className="text-2xl font-bold font-mono tracking-wider">{currentUserShareId}</div>
-                            <button onClick={copyMyId} className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors hover:scale-110 active:scale-95 shadow-sm">
+                            <button onClick={copyMyId} className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors hover:scale-110 active:scale-95 shadow-sm" title={t('common.original')}>
                                 <Copy size={18} />
                             </button>
                         </div>
@@ -514,6 +511,7 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
                                 onClick={handleSearch}
                                 disabled={searchLoading || !searchId}
                                 className="px-4 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-50 hover:scale-105 active:scale-95 transition-transform shadow-md"
+                                title={t('social.add.search')}
                             >
                                 <Search size={20} />
                             </button>
@@ -564,6 +562,7 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
             )}
 
         </div>
+        {/* Navigation is managed via the Hub (Home View) or sub-buttons, bottom nav removed per user request */}
       </div>
     </div>
   );

@@ -89,7 +89,7 @@ export const generateChatTitle = async (userMessage: string, language: string = 
           model: 'gemini-3-flash-preview',
           contents: `Summarize this user request into a short, elegant 3-5 word title for a journal entry (no quotes).
           
-          CRITICAL INSTRUCTION: You MUST output the title in the "${language}" language, regardless of the language of the user's message.
+          CRITICAL INSTRUCTION: You MUST output the title in the "${language}" language. Do NOT use English if the language is different.
           
           User Message: "${userMessage}"`,
         });
@@ -122,7 +122,7 @@ export const sendMessageStream = async (
     
     IMPORTANT PREFERENCES:
     1. QUOTE ALL SCRIPTURE USING THE ${bibleTranslation} TRANSLATION.
-    2. RESPONSE LANGUAGE: You must respond in "${userLanguage}".
+    2. RESPONSE LANGUAGE: You MUST respond in "${userLanguage}". This is non-negotiable. Even if the user types in another language, your explanation and guidance must be in "${userLanguage}".
     ${displayName ? `3. GREETING: Address the user as "${displayName}" naturally.` : ''}
     `;
 
@@ -194,7 +194,7 @@ export const generateQuizQuestion = async (
 ): Promise<QuizQuestion> => {
     return await makeRequestWithRetry(async (ai) => {
         const historyContext = history.length > 0 
-            ? `PREVIOUSLY ASKED QUESTIONS (DO NOT REPEAT TOPICS OR VERSES FROM THESE): ${JSON.stringify(history.slice(-20))}` 
+            ? `PREVIOUSLY ASKED QUESTIONS: ${JSON.stringify(history.slice(-20))}` 
             : "";
         const prompt = `Generate a single multiple-choice Bible trivia question.
         Difficulty: ${difficulty}

@@ -11,202 +11,103 @@ export const STATIC_QUIZ_DATA: QuizData = {
       { question: "Where was Jesus born?", options: ["Nazareth", "Jerusalem", "Bethlehem", "Galilee"], correctIndex: 2, explanation: "Jesus was born in Bethlehem of Judea, fulfilling the prophecy of Micah.", reference: "Matthew 2:1" },
       { question: "What river was Jesus baptized in?", options: ["Nile", "Euphrates", "Jordan", "Tigris"], correctIndex: 2, explanation: "John the Baptist baptized Jesus in the Jordan River.", reference: "Mark 1:9" },
       { question: "Who was the first man created?", options: ["Eve", "Abel", "Cain", "Adam"], correctIndex: 3, explanation: "Adam was the first man created by God in the Garden of Eden.", reference: "Genesis 2:7" },
-      { question: "How many disciples did Jesus choose?", options: ["7", "10", "12", "40"], correctIndex: 2, explanation: "Jesus chose twelve apostles to follow Him and spread His message.", reference: "Matthew 10:1" },
-      { question: "Which book tells the story of the Israelites leaving Egypt?", options: ["Genesis", "Exodus", "Leviticus", "Numbers"], correctIndex: 1, explanation: "Exodus details the departure of the Israelites from slavery in Egypt under Moses.", reference: "Exodus 1:1" },
-      { question: "What was Jesus' earthly profession?", options: ["Fisherman", "Tax Collector", "Carpenter", "Shepherd"], correctIndex: 2, explanation: "Jesus was known as the son of a carpenter and practiced the trade himself.", reference: "Mark 6:3" },
-      { question: "Who defeated Goliath with a sling and a stone?", options: ["Saul", "Solomon", "David", "Samson"], correctIndex: 2, explanation: "The young shepherd David defeated the giant Philistine Goliath.", reference: "1 Samuel 17" },
-      { question: "What is the first book of the Bible?", options: ["Psalms", "Genesis", "Matthew", "John"], correctIndex: 1, explanation: "Genesis is the book of beginnings and the first book in the Bible.", reference: "Genesis 1:1" },
-      { question: "Who was swallowed by a great fish?", options: ["Paul", "Peter", "Jonah", "Noah"], correctIndex: 2, explanation: "Jonah was swallowed by a great fish after trying to flee from God's command.", reference: "Jonah 1:17" },
-      { question: "How many days did it take God to create the world?", options: ["1", "6", "7", "10"], correctIndex: 1, explanation: "God created the world in six days and rested on the seventh.", reference: "Genesis 1" },
-      { question: "Who received the Ten Commandments on Mount Sinai?", options: ["Aaron", "Joshua", "Moses", "Elijah"], correctIndex: 2, explanation: "God gave the Ten Commandments to Moses to lead the people.", reference: "Exodus 20" },
-      { question: "Which disciple denied Jesus three times?", options: ["John", "Judas", "Peter", "Thomas"], correctIndex: 2, explanation: "Peter denied knowing Jesus three times before the rooster crowed.", reference: "Luke 22:61" },
-      { question: "What did God use to lead the Israelites by night?", options: ["A Star", "A Pillar of Cloud", "A Pillar of Fire", "An Angel"], correctIndex: 2, explanation: "God guided them with a pillar of cloud by day and fire by night.", reference: "Exodus 13:21" },
-      { question: "Who was the mother of Jesus?", options: ["Martha", "Mary", "Sarah", "Elizabeth"], correctIndex: 1, explanation: "Mary was the virgin chosen by God to give birth to Jesus.", reference: "Luke 1:30" },
-      { question: "What was the sign of God's promise to Noah?", options: ["An Olive Branch", "A Rainbow", "A Dove", "A Cloud"], correctIndex: 1, explanation: "God set a rainbow in the sky as a sign of His covenant never to flood the earth again.", reference: "Genesis 9:13" },
-      { question: "Who was known for his coat of many colors?", options: ["Joseph", "Benjamin", "Jacob", "Isaac"], correctIndex: 0, explanation: "Jacob gave his son Joseph a richly ornamented robe as a sign of favor.", reference: "Genesis 37:3" },
-      { question: "Which miracle did Jesus perform first?", options: ["Walking on Water", "Healing a Leper", "Turning Water to Wine", "Feeding the 5,000"], correctIndex: 2, explanation: "Jesus turned water into wine at a wedding feast in Cana.", reference: "John 2:11" },
-      { question: "Who was the strong man whose hair was the secret of his strength?", options: ["Samson", "Gideon", "David", "Elijah"], correctIndex: 0, explanation: "Samson was a Nazarite whose strength came from his vow, symbolized by his hair.", reference: "Judges 16" },
-      { question: "What is the last book of the Bible?", options: ["Hebrews", "Jude", "Malachi", "Revelation"], correctIndex: 3, explanation: "The Book of Revelation is the final book of the New Testament and the Bible.", reference: "Revelation 22" }
+      { question: "How many disciples did Jesus choose?", options: ["7", "10", "12", "40"], correctIndex: 2, explanation: "Jesus chose twelve apostles to follow Him and spread His message.", reference: "Matthew 10:1" }
     ],
     Medium: [
       { question: "Who was the oldest man in the Bible?", options: ["Noah", "Methuselah", "Adam", "Abraham"], correctIndex: 1, explanation: "Methuselah lived to be 969 years old.", reference: "Genesis 5:27" },
-      { question: "Who was the prophet who succeeded Elijah?", options: ["Elisha", "Isaiah", "Jeremiah", "Ezekiel"], correctIndex: 0, explanation: "Elisha followed Elijah and received a double portion of his spirit.", reference: "2 Kings 2:9" },
-      { question: "Which king of Israel built the first temple?", options: ["David", "Saul", "Solomon", "Hezekiah"], correctIndex: 2, explanation: "Solomon was granted the privilege of building God's temple in Jerusalem.", reference: "1 Kings 6" },
-      { question: "How many books are in the Old Testament?", options: ["27", "39", "66", "12"], correctIndex: 1, explanation: "The Old Testament consists of 39 books of law, history, poetry, and prophecy.", reference: "Canon" },
-      { question: "Who was the woman who hid the Israelite spies in Jericho?", options: ["Deborah", "Ruth", "Rahab", "Esther"], correctIndex: 2, explanation: "Rahab protected the spies and was later spared during the city's destruction.", reference: "Joshua 2" },
-      { question: "What was the first plague God sent upon Egypt?", options: ["Frogs", "Lice", "Water to Blood", "Locusts"], correctIndex: 2, explanation: "Moses turned the Nile into blood as the first sign to Pharaoh.", reference: "Exodus 7:20" },
-      { question: "Who wrote most of the letters in the New Testament?", options: ["Peter", "John", "James", "Paul"], correctIndex: 3, explanation: "The Apostle Paul wrote at least 13 letters to various churches and individuals.", reference: "Epistles" },
-      { question: "Which judge defeated the Midianites with only 300 men?", options: ["Samson", "Barak", "Gideon", "Jephthah"], correctIndex: 2, explanation: "God reduced Gideon's army to ensure the glory for the victory was His.", reference: "Judges 7" },
-      { question: "Who was the queen who saved the Jewish people from Haman?", options: ["Vashti", "Esther", "Jezebel", "Athaliah"], correctIndex: 1, explanation: "Esther risked her life to appeal to the King for her people's survival.", reference: "Esther 7" },
-      { question: "Which city's walls fell after marching around it for seven days?", options: ["Ai", "Bethlehem", "Jericho", "Damascus"], correctIndex: 2, explanation: "The Israelites followed God's unusual instructions for the conquest of Jericho.", reference: "Joshua 6" },
-      { question: "What is the longest chapter in the Bible?", options: ["Psalm 23", "Psalm 119", "Isaiah 53", "Matthew 5"], correctIndex: 1, explanation: "Psalm 119 is an acrostic poem about the beauty of God's Word.", reference: "Psalm 119" },
-      { question: "Who was the brother of Moses?", options: ["Joshua", "Caleb", "Aaron", "Hur"], correctIndex: 2, explanation: "Aaron was Moses' spokesman and the first high priest of Israel.", reference: "Exodus 4:14" },
-      { question: "Which king of Judah led a great reform after finding the Book of the Law?", options: ["Hezekiah", "Josiah", "Uzziah", "Jehoshaphat"], correctIndex: 1, explanation: "Josiah's discovery led to a national repentance and restoration of the Passover.", reference: "2 Kings 22" },
-      { question: "What mountain did Moses receive the Ten Commandments on?", options: ["Nebo", "Ararat", "Sinai", "Carmel"], correctIndex: 2, explanation: "God appeared to Moses in fire and cloud on Mount Sinai.", reference: "Exodus 19" },
-      { question: "Who was the first martyr of the early church?", options: ["Peter", "James", "Stephen", "Paul"], correctIndex: 2, explanation: "Stephen was stoned after preaching a bold sermon to the Sanhedrin.", reference: "Acts 7" },
-      { question: "Which Gospel contains the 'Sermon on the Mount'?", options: ["Mark", "Luke", "Matthew", "John"], correctIndex: 2, explanation: "The Sermon on the Mount spans Matthew chapters 5 through 7.", reference: "Matthew 5" },
-      { question: "Who was the mother of Samuel?", options: ["Sarah", "Hannah", "Elizabeth", "Rachel"], correctIndex: 1, explanation: "Hannah prayed fervently for a child and dedicated him to the Lord.", reference: "1 Samuel 1" },
-      { question: "What did Peter find in a fish's mouth to pay the temple tax?", options: ["A pearl", "A gold coin", "A silver coin", "A net"], correctIndex: 2, explanation: "Jesus performed this miracle to provide for the tax payment.", reference: "Matthew 17:27" },
-      { question: "Which prophet was taken to heaven in a whirlwind?", options: ["Elisha", "Elijah", "Isaiah", "Jeremiah"], correctIndex: 1, explanation: "Elijah was taken up in a chariot of fire as Elisha watched.", reference: "2 Kings 2:11" },
-      { question: "How many tribes of Israel were named after Jacob's sons?", options: ["10", "12", "14", "7"], correctIndex: 1, explanation: "The twelve tribes are the traditional divisions of the Israelite people.", reference: "Genesis 49" }
+      { question: "Who succeeded Elijah as prophet?", options: ["Elisha", "Isaiah", "Jeremiah", "Ezekiel"], correctIndex: 0, explanation: "Elisha followed Elijah and received a double portion of his spirit.", reference: "2 Kings 2:9" }
     ],
     Hard: [
-      { question: "Who was the left-handed judge who killed Eglon?", options: ["Gideon", "Ehud", "Jephthah", "Shamgar"], correctIndex: 1, explanation: "Ehud made a double-edged sword and killed Eglon, King of Moab.", reference: "Judges 3:15" },
-      { question: "Which king of Judah was struck with leprosy for burning incense?", options: ["Hezekiah", "Josiah", "Uzziah", "Manasseh"], correctIndex: 2, explanation: "Uzziah became prideful and usurped the role of the priests.", reference: "2 Chronicles 26" },
-      { question: "Who was the father of the prophet Samuel?", options: ["Eli", "Elkanah", "Kish", "Jesse"], correctIndex: 1, explanation: "Elkanah was Hannah's husband and Samuel's father.", reference: "1 Samuel 1:1" },
-      { question: "What was the name of the valley where David fought Goliath?", options: ["Jezreel", "Elah", "Achor", "Siddim"], correctIndex: 1, explanation: "The armies of Israel and the Philistines faced off in the Valley of Elah.", reference: "1 Samuel 17:2" },
-      { question: "Who was the queen of Ethiopia's eunuch that Philip baptized?", options: ["Candace", "Vashti", "Sheba", "Athaliah"], correctIndex: 0, explanation: "Candace was the title for the queens of Ethiopia.", reference: "Acts 8:27" },
-      { question: "Which king of Israel reigned for only seven days?", options: ["Zimri", "Shallum", "Zechariah", "Pekahiah"], correctIndex: 0, explanation: "Zimri committed suicide by burning the palace over himself.", reference: "1 Kings 16:15" },
-      { question: "Who was the wife of Moses?", options: ["Rebekah", "Zipporah", "Rachel", "Leah"], correctIndex: 1, explanation: "Moses married the daughter of Jethro, the priest of Midian.", reference: "Exodus 2:21" },
-      { question: "What was the name of the place where Jacob wrestled with God?", options: ["Bethel", "Peniel", "Hebron", "Shechem"], correctIndex: 1, explanation: "Jacob named it Peniel, meaning 'Face of God'.", reference: "Genesis 32:30" },
-      { question: "Which prophet predicted that Jesus would be born in Bethlehem?", options: ["Isaiah", "Jeremiah", "Micah", "Hosea"], correctIndex: 2, explanation: "Micah 5:2 specifically names Bethlehem Ephrathah.", reference: "Micah 5:2" },
-      { question: "Who was chosen by lot to replace Judas Iscariot?", options: ["Barnabas", "Matthias", "Silas", "Timothy"], correctIndex: 1, explanation: "Matthias was one of those who had been with Jesus from the beginning.", reference: "Acts 1:26" },
-      { question: "What was the name of the high priest who met Abraham?", options: ["Aaron", "Eli", "Melchizedek", "Zadok"], correctIndex: 2, explanation: "Melchizedek was the King of Salem and priest of God Most High.", reference: "Genesis 14:18" },
-      { question: "Which tribe of Israel did not receive an inheritance of land?", options: ["Judah", "Levi", "Benjamin", "Reuben"], correctIndex: 1, explanation: "The Lord Himself was the inheritance of the Levites.", reference: "Joshua 13:33" },
-      { question: "Who confronted King David about his sin with Bathsheba?", options: ["Samuel", "Nathan", "Gad", "Elijah"], correctIndex: 1, explanation: "Nathan used a parable about a rich man and a poor man's ewe lamb.", reference: "2 Samuel 12" },
-      { question: "What was the name of the hill in Athens where Paul preached?", options: ["Sinai", "Zion", "Areopagus", "Hermon"], correctIndex: 2, explanation: "The Areopagus, or Mars Hill, was where philosophers gathered.", reference: "Acts 17:19" },
-      { question: "Who was the king who saw the 'handwriting on the wall'?", options: ["Nebuchadnezzar", "Belshazzar", "Darius", "Cyrus"], correctIndex: 1, explanation: "Daniel interpreted the message as a sign of the king's impending downfall.", reference: "Daniel 5" },
-      { question: "How many elders are around the throne in Revelation?", options: ["12", "24", "72", "144"], correctIndex: 1, explanation: "Twenty-four elders fall down before the Lamb in worship.", reference: "Revelation 4:4" },
-      { question: "Who was the prophetess who recognized Jesus in the temple?", options: ["Elizabeth", "Anna", "Deborah", "Huldah"], correctIndex: 1, explanation: "Anna had been a widow for 84 years, serving in the temple day and night.", reference: "Luke 2:36" },
-      { question: "Which book of the Bible doesn't mention the name of God?", options: ["Esther", "Obadiah", "Jude", "Song of Solomon"], correctIndex: 0, explanation: "Esther's story shows God's providence without naming Him.", reference: "Esther" },
-      { question: "What was the name of the high priest's servant whose ear Peter cut off?", options: ["Malchus", "Marcus", "Matthias", "Marius"], correctIndex: 0, explanation: "Jesus healed Malchus' ear immediately after the injury.", reference: "John 18:10" },
-      { question: "Who was the father of King Saul?", options: ["Kish", "Jesse", "Abner", "Ner"], correctIndex: 0, explanation: "Kish was of the tribe of Benjamin.", reference: "1 Samuel 9:1" }
+      { question: "Who was the left-handed judge who killed Eglon?", options: ["Gideon", "Ehud", "Jephthah", "Shamgar"], correctIndex: 1, explanation: "Ehud made a double-edged sword and killed Eglon, King of Moab.", reference: "Judges 3:15" }
     ]
   },
   German: {
     Easy: [
       { question: "Wer baute die Arche?", options: ["Mose", "Noah", "David", "Abraham"], correctIndex: 1, explanation: "Gott befahl Noah, eine Arche zu bauen, um seine Familie und die Tiere zu retten.", reference: "1. Mose 6,14" },
       { question: "Wo wurde Jesus geboren?", options: ["Nazareth", "Jerusalem", "Bethlehem", "Galiläa"], correctIndex: 2, explanation: "Jesus wurde in Bethlehem in Judäa geboren.", reference: "Matthäus 2,1" },
-      { question: "In welchem Fluss wurde Jesus getauft?", options: ["Nil", "Euphrat", "Jordan", "Tigris"], correctIndex: 2, explanation: "Johannes der Täufer taufte Jesus im Jordan.", reference: "Markus 1,9" },
-      { question: "Wer war der erste Mensch?", options: ["Eva", "Abel", "Kain", "Adam"], correctIndex: 3, explanation: "Adam war der erste Mensch, den Gott erschuf.", reference: "1. Mose 2,7" },
-      { question: "Wie viele Jünger wählte Jesus aus?", options: ["7", "10", "12", "40"], correctIndex: 2, explanation: "Jesus wählte zwölf Apostel aus.", reference: "Matthäus 10,1" },
-      { question: "Welches Buch erzählt vom Auszug aus Ägypten?", options: ["Genesis", "Exodus", "Levitikus", "Numeri"], correctIndex: 1, explanation: "Exodus beschreibt den Auszug der Israeliten unter Mose.", reference: "2. Mose 1,1" },
-      { question: "Was war der irdische Beruf von Jesus?", options: ["Fischer", "Zöllner", "Zimmermann", "Hirte"], correctIndex: 2, explanation: "Jesus war als Sohn eines Zimmermanns bekannt.", reference: "Markus 6,3" },
-      { question: "Wer besiegte Goliath mit einer Schleuder?", options: ["Saul", "Salomo", "David", "Simson"], correctIndex: 2, explanation: "Der junge David besiegte den Riesen Goliath.", reference: "1. Samuel 17" },
-      { question: "Was ist das erste Buch der Bibel?", options: ["Psalmen", "Genesis", "Matthäus", "Johannes"], correctIndex: 1, explanation: "Genesis ist das Buch der Anfänge.", reference: "1. Mose 1,1" },
-      { question: "Wer wurde von einem großen Fisch verschluckt?", options: ["Paulus", "Petrus", "Jona", "Noah"], correctIndex: 2, explanation: "Jona wurde von einem großen Fisch verschluckt.", reference: "Jona 2,1" },
-      { question: "Wie viele Tage brauchte Gott für die Schöpfung?", options: ["1", "6", "7", "10"], correctIndex: 1, explanation: "Gott erschuf die Welt in sechs Tagen.", reference: "1. Mose 1" },
-      { question: "Wer empfing die Zehn Gebote auf dem Sinai?", options: ["Aaron", "Josua", "Mose", "Elia"], correctIndex: 2, explanation: "Gott gab Mose die Zehn Gebote.", reference: "2. Mose 20" },
-      { question: "Welcher Jünger verleugnete Jesus dreimal?", options: ["Johannes", "Judas", "Petrus", "Thomas"], correctIndex: 2, explanation: "Petrus verleugnete Jesus dreimal.", reference: "Lukas 22,61" },
-      { question: "Womit führte Gott die Israeliten nachts?", options: ["Ein Stern", "Wolkensäule", "Feuersäule", "Ein Engel"], correctIndex: 2, explanation: "Er führte sie mit einer Feuersäule bei Nacht.", reference: "2. Mose 13,21" },
-      { question: "Wer war die Mutter von Jesus?", options: ["Martha", "Maria", "Sara", "Elisabeth"], correctIndex: 1, explanation: "Maria wurde von Gott erwählt, Jesus zu gebären.", reference: "Lukas 1,30" },
-      { question: "Was war das Zeichen des Bundes mit Noah?", options: ["Ölzweig", "Regenbogen", "Taube", "Wolke"], correctIndex: 1, explanation: "Der Regenbogen ist das Zeichen des Bundes.", reference: "1. Mose 9,13" },
-      { question: "Wer besaß ein prächtiges, buntes Gewand?", options: ["Josef", "Benjamin", "Jakob", "Isaak"], correctIndex: 0, explanation: "Jakob schenkte seinem Sohn Josef ein buntes Gewand.", reference: "1. Mose 37,3" },
-      { question: "Was war das erste Wunder Jesu?", options: ["Seewandel", "Heilung", "Wasser zu Wein", "Speisung"], correctIndex: 2, explanation: "Jesus verwandelte Wasser in Wein in Kana.", reference: "Johannes 2,11" },
-      { question: "Wessen Kraft lag in seinen Haaren?", options: ["Simson", "Gideon", "David", "Elia"], correctIndex: 0, explanation: "Simson war ein Nasiräer Gottes.", reference: "Richter 16" },
-      { question: "Was ist das letzte Buch der Bibel?", options: ["Hebräer", "Judas", "Maleachi", "Offenbarung"], correctIndex: 3, explanation: "Die Offenbarung schließt das Neue Testament ab.", reference: "Offenbarung 22" }
+      { question: "In welchem Fluss wurde Jesus getauft?", options: ["Nil", "Euphrat", "Jordan", "Tigris"], correctIndex: 2, explanation: "Johannes der Täufer taufte Jesus im Jordan.", reference: "Markus 1,9" }
     ],
     Medium: [
-      { question: "Wer war der älteste Mann der Bibel?", options: ["Noah", "Methusalem", "Adam", "Abraham"], correctIndex: 1, explanation: "Methusalem wurde 969 Jahre alt.", reference: "1. Mose 5,27" },
-      { question: "Welcher Prophet folgte auf Elia?", options: ["Elisa", "Jesaja", "Jeremia", "Hesekiel"], correctIndex: 0, explanation: "Elisa erhielt ein doppeltes Maß von Elias Geist.", reference: "2. Könige 2,9" },
-      { question: "Welcher König baute den ersten Tempel in Jerusalem?", options: ["David", "Saul", "Salomo", "Hiskia"], correctIndex: 2, explanation: "Salomo vollendete das Werk, das sein Vater David vorbereitet hatte.", reference: "1. Könige 6" },
-      { question: "Wie viele Bücher hat das Alte Testament?", options: ["27", "39", "66", "12"], correctIndex: 1, explanation: "Es sind 39 Bücher von Genesis bis Maleachi.", reference: "Kanon" },
-      { question: "Wie hieß die Frau, die die israelitischen Spione in Jericho versteckte?", options: ["Debora", "Rut", "Rahab", "Ester"], correctIndex: 2, explanation: "Rahab rettete die Spione und wurde Teil des Volkes Israel.", reference: "Josua 2" },
-      { question: "Was war die erste Plage in Ägypten?", options: ["Frösche", "Läuse", "Wasser zu Blut", "Heuschrecken"], correctIndex: 2, explanation: "Der Nil wurde auf Gottes Befehl hin zu Blut.", reference: "2. Mose 7,20" },
-      { question: "Wer schrieb die meisten Briefe im Neuen Testament?", options: ["Petrus", "Johannes", "Jakobus", "Paulus"], correctIndex: 3, explanation: "Paulus verfasste mindestens 13 Briefe an Gemeinden.", reference: "Episteln" },
-      { question: "Welcher Richter besiegte die Midianiter mit 300 Mann?", options: ["Simson", "Barak", "Gideon", "Jephta"], correctIndex: 2, explanation: "Gideon reduzierte sein Heer auf Gottes Anweisung.", reference: "Richter 7" },
-      { question: "Wer war die Königin, die ihr Volk vor Haman rettete?", options: ["Waschti", "Ester", "Isebel", "Atalja"], correctIndex: 1, explanation: "Ester setzte ihr Leben für ihr Volk ein.", reference: "Ester 7" },
-      { question: "Welche Stadtmauern fielen nach sieben Tagen Umkreisung?", options: ["Ai", "Bethlehem", "Jericho", "Damaskus"], correctIndex: 2, explanation: "Die Mauern von Jericho stürzten durch Gottes Wunder ein.", reference: "Josua 6" },
-      { question: "Welches ist das längste Kapitel der Bibel?", options: ["Psalm 23", "Psalm 119", "Jesaja 53", "Matthäus 5"], correctIndex: 1, explanation: "Psalm 119 preist die Herrlichkeit von Gottes Wort.", reference: "Psalm 119" },
-      { question: "Wer war der Bruder von Mose?", options: ["Josua", "Kaleb", "Aaron", "Hur"], correctIndex: 2, explanation: "Aaron war der erste Hohepriester Israels.", reference: "2. Mose 4,14" },
-      { question: "Welcher König von Juda führte Reformen durch, nachdem das Gesetzbuch gefunden wurde?", options: ["Hiskia", "Josia", "Usija", "Josaphat"], correctIndex: 1, explanation: "Josia erneuerte den Bund mit Gott.", reference: "2. Könige 22" },
-      { question: "Auf welchem Berg empfing Mose die Gebote?", options: ["Nebo", "Ararat", "Sinai", "Karmel"], correctIndex: 2, explanation: "Der Berg Sinai ist der Ort der Gesetzgebung.", reference: "2. Mose 19" },
-      { question: "Wer war der erste Märtyrer der Gemeinde?", options: ["Petrus", "Jakobus", "Stephanus", "Paulus"], correctIndex: 2, explanation: "Stephanus wurde wegen seines Zeugnisses gesteinigt.", reference: "Apostelgeschichte 7" },
-      { question: "In welchem Evangelium steht die Bergpredigt?", options: ["Markus", "Lukas", "Matthäus", "Johannes"], correctIndex: 2, explanation: "Die Bergpredigt findet sich in Matthäus 5-7.", reference: "Matthäus 5" },
-      { question: "Wer war die Mutter von Samuel?", options: ["Sara", "Hanna", "Elisabeth", "Rahel"], correctIndex: 1, explanation: "Hanna bat Gott unter Tränen um einen Sohn.", reference: "1. Samuel 1" },
-      { question: "Was fand Petrus im Maul eines Fisches, um die Steuer zu zahlen?", options: ["Eine Perle", "Gold", "Eine Silbermünze", "Ein Netz"], correctIndex: 2, explanation: "Jesus wirkte dieses Wunder für Petrus.", reference: "Matthäus 17,27" },
-      { question: "Welcher Prophet wurde lebendig in den Himmel aufgenommen?", options: ["Elisa", "Elia", "Jesaja", "Jeremia"], correctIndex: 1, explanation: "Elia fuhr in einem feurigen Wagen auf.", reference: "2. Könige 2,11" },
-      { question: "Wie viele Stämme Israels gab es ursprünglich?", options: ["10", "12", "14", "7"], correctIndex: 1, explanation: "Die zwölf Stämme gehen auf die Söhne Jakobs zurück.", reference: "1. Mose 49" }
+        { question: "Wer war der älteste Mann der Bibel?", options: ["Noah", "Methusalem", "Adam", "Abraham"], correctIndex: 1, explanation: "Methusalem wurde 969 Jahre alt.", reference: "1. Mose 5,27" }
     ],
     Hard: [
-      { question: "Wer war der linkshändige Richter?", options: ["Gideon", "Ehud", "Jephta", "Schamgar"], correctIndex: 1, explanation: "Ehud tötete den König Eglon von Moab.", reference: "Richter 3,15" },
-      { question: "Welcher König von Juda wurde wegen Stolz aussätzig?", options: ["Hiskia", "Josia", "Usija", "Manasse"], correctIndex: 2, explanation: "Usija wollte eigenmächtig das Priesteramt ausüben.", reference: "2. Chronik 26" },
-      { question: "Wer war der Vater des Propheten Samuel?", options: ["Eli", "Elkana", "Kisch", "Isai"], correctIndex: 1, explanation: "Elkana war der Ehemann von Hanna.", reference: "1. Samuel 1,1" },
-      { question: "Wie hieß das Tal, in dem David gegen Goliath kämpfte?", options: ["Jesreel", "Ela", "Achor", "Siddim"], correctIndex: 1, explanation: "Das Elatal war der Schauplatz des Kampfes.", reference: "1. Samuel 17,2" },
-      { question: "Wie hieß die Königin von Äthiopien, deren Kämmerer Philippus taufte?", options: ["Kandake", "Waschti", "Saba", "Atalja"], correctIndex: 0, explanation: "Kandake war der Titel der äthiopischen Königinnen.", reference: "Apostelgeschichte 8,27" },
-      { question: "Welcher israelitische König regierte nur sieben Tage?", options: ["Zimri", "Schallum", "Secharja", "Pekachja"], correctIndex: 0, explanation: "Zimri kam gewaltsam an die Macht und starb kurz darauf.", reference: "1. Könige 16,15" },
-      { question: "Wie hieß die Frau von Mose?", options: ["Rebekka", "Zippora", "Rahel", "Lea"], correctIndex: 1, explanation: "Zippora war eine Tochter Jitros.", reference: "2. Mose 2,21" },
-      { question: "Wo rang Jakob mit Gott?", options: ["Bethel", "Pniel", "Hebron", "Sichem"], correctIndex: 1, explanation: "Pniel bedeutet 'Angesicht Gottes'.", reference: "1. Mose 32,31" },
-      { question: "Welcher Prophet sagte Bethlehem als Geburtsort Jesu voraus?", options: ["Jesaja", "Jeremia", "Micha", "Hosea"], correctIndex: 2, explanation: "Micha 5,1 enthält diese berühmte Prophezeiung.", reference: "Micha 5,1" },
-      { question: "Wer wurde durch das Los zum Ersatz für Judas Iskariot gewählt?", options: ["Barnabas", "Matthias", "Silas", "Timotheus"], correctIndex: 1, explanation: "Matthias wurde in den Kreis der Zwölf aufgenommen.", reference: "Apostelgeschichte 1,26" },
-      { question: "Wer war der Priesterkönig, dem Abraham begegnete?", options: ["Aaron", "Eli", "Melchisedek", "Zadok"], correctIndex: 2, explanation: "Melchisedek war König von Salem.", reference: "1. Mose 14,18" },
-      { question: "Welcher Stamm Israels erhielt kein eigenes Land als Erbe?", options: ["Juda", "Levi", "Benjamin", "Ruben"], correctIndex: 1, explanation: "Die Leviten dienten Gott im Heiligtum.", reference: "Josua 13,33" },
-      { question: "Welcher Prophet tadelte David für seine Sünde mit Batseba?", options: ["Samuel", "Natan", "Gad", "Elia"], correctIndex: 1, explanation: "Natan erzählte David das Gleichnis vom armen Mann.", reference: "2. Samuel 12" },
-      { question: "Wo predigte Paulus in Athen vor den Philosophen?", options: ["Sinai", "Zion", "Areopag", "Hermon"], correctIndex: 2, explanation: "Der Areopag war der Versammlungsort in Athen.", reference: "Apostelgeschichte 17,19" },
-      { question: "Welcher König sah die Geisterschrift an der Wand?", options: ["Nebukadnezar", "Belsazar", "Darius", "Kyros"], correctIndex: 1, explanation: "Belsazar sah das 'Menetekel' beim Gastmahl.", reference: "Daniel 5" },
-      { question: "Wie viele Älteste sitzen in der Offenbarung um den Thron?", options: ["12", "24", "72", "144"], correctIndex: 1, explanation: "Es sind die vierundzwanzig Ältesten.", reference: "Offenbarung 4,4" },
-      { question: "Welche Prophetin erkannte das Kind Jesus im Tempel?", options: ["Elisabeth", "Hanna", "Debora", "Hulda"], correctIndex: 1, explanation: "Hanna war eine betagte Prophetin.", reference: "Lukas 2,36" },
-      { question: "Welches biblische Buch erwähnt Gott namentlich nie?", options: ["Ester", "Obadja", "Judas", "Hohelied"], correctIndex: 0, explanation: "Im Buch Ester wirkt Gott im Verborgenen.", reference: "Ester" },
-      { question: "Wie hieß der Knecht, dem Petrus das Ohr einschlug?", options: ["Malchus", "Marcus", "Matthias", "Marius"], correctIndex: 0, explanation: "Malchus war ein Knecht des Hohepriesters.", reference: "Johannes 18,10" },
-      { question: "Wer war der Vater von König Saul?", options: ["Kisch", "Isai", "Abner", "Ner"], correctIndex: 0, explanation: "Kisch stammte aus dem Stamm Benjamin.", reference: "1. Samuel 9,1" }
+        { question: "Wer war der linkshändige Richter, der Eglon tötete?", options: ["Gideon", "Ehud", "Jephta", "Schamgar"], correctIndex: 1, explanation: "Ehud tötete den König von Moab mit einem zweischneidigen Schwert.", reference: "Richter 3,15" }
     ]
   },
   Romanian: {
     Easy: [
       { question: "Cine a construit Arca?", options: ["Moise", "Noe", "David", "Avraam"], correctIndex: 1, explanation: "Dumnezeu i-a poruncit lui Noe să construiască o arcă.", reference: "Geneza 6:14" },
-      { question: "Unde s-a născut Isus?", options: ["Nazaret", "Ierusalim", "Betleem", "Galilee"], correctIndex: 2, explanation: "Isus s-a născut în Betleemul din Iudeea.", reference: "Matei 2:1" },
-      { question: "În ce râu a fost botezat Isus?", options: ["Nil", "Eufrat", "Iordan", "Tigru"], correctIndex: 2, explanation: "Ioan Botezătorul l-a botezat pe Isus în râul Iordan.", reference: "Marcu 1:9" },
-      { question: "Cine a fost primul om creat?", options: ["Eva", "Abel", "Cain", "Adam"], correctIndex: 3, explanation: "Adam a fost primul om creat de Dumnezeu.", reference: "Geneza 2:7" },
-      { question: "Câți ucenici a ales Isus?", options: ["7", "10", "12", "40"], correctIndex: 2, explanation: "Isus a ales doisprezece apostoli.", reference: "Matei 10:1" },
-      { question: "Care carte descrie ieșirea din Egipt?", options: ["Geneza", "Exodul", "Leviticul", "Numeri"], correctIndex: 1, explanation: "Exodul detaliază plecarea israeliților sub Moise.", reference: "Exodul 1:1" },
-      { question: "Care a fost meseria pământească a lui Isus?", options: ["Pescar", "Vameș", "Tâmplar", "Păstor"], correctIndex: 2, explanation: "Isus era cunoscut ca fiind fiul tâmplarului.", reference: "Marcu 6:3" },
-      { question: "Cine l-a învins pe Goliat?", options: ["Saul", "Solomon", "David", "Samson"], correctIndex: 2, explanation: "Tânărul David l-a învins pe Goliat cu o praștie.", reference: "1 Samuel 17" },
-      { question: "Care este prima carte a Bibliei?", options: ["Psalmii", "Geneza", "Matei", "Ioan"], correctIndex: 1, explanation: "Geneza este cartea începuturilor.", reference: "Geneza 1:1" },
-      { question: "Cine a fost înghițit de un pește mare?", options: ["Pavel", "Petru", "Iona", "Noe"], correctIndex: 2, explanation: "Iona a fost înghițit după ce a fugit de Dumnezeu.", reference: "Iona 1:17" },
-      { question: "În câte zile a creat Dumnezeu lumea?", options: ["1", "6", "7", "10"], correctIndex: 1, explanation: "Dumnezeu a creat lumea în șase zile.", reference: "Geneza 1" },
-      { question: "Cine a primit Cele Zece Porunci?", options: ["Aaron", "Iosua", "Moise", "Ilie"], correctIndex: 2, explanation: "Moise a primit legile pe muntele Sinai.", reference: "Exodul 20" },
-      { question: "Care ucenic s-a lepădat de Isus?", options: ["Ioan", "Iuda", "Petru", "Toma"], correctIndex: 2, explanation: "Petru s-a lepădat de trei ori de Isus.", reference: "Luca 22:61" },
-      { question: "Cu ce i-a călăuzit Dumnezeu noaptea?", options: ["O stea", "Stâlp de nor", "Stâlp de foc", "Înger"], correctIndex: 2, explanation: "Dumnezeu i-a condus cu un stâlp de foc noaptea.", reference: "Exodul 13:21" },
-      { question: "Cine a fost mama lui Isus?", options: ["Marta", "Maria", "Sara", "Elisabeta"], correctIndex: 1, explanation: "Maria a fost aleasă să-L nască pe Isus.", reference: "Luca 1:30" },
-      { question: "Care a fost semnul promisiunii lui Noe?", options: ["Ramură", "Curcubeu", "Porumbel", "Nor"], correctIndex: 1, explanation: "Curcubeul este semnul legământului divin.", reference: "Geneza 9:13" },
-      { question: "Cine a avut o haină pestriță?", options: ["Iosif", "Beniamin", "Iacov", "Isac"], correctIndex: 0, explanation: "Iacov i-a dăruit lui Iosif o haină deosebită.", reference: "Geneza 37:3" },
-      { question: "Care a fost prima minune a lui Isus?", options: ["Mersul pe apă", "Vindecarea", "Apa în vin", "Înmulțirea"], correctIndex: 2, explanation: "Isus a prefăcut apa în vin la nunta din Cana.", reference: "Ioan 2:11" },
-      { question: "Cine avea puterea în păr?", options: ["Samson", "Ghedeon", "David", "Ilie"], correctIndex: 0, explanation: "Puterea lui Samson stătea în jurământul său.", reference: "Judecătorii 16" },
-      { question: "Care este ultima carte a Bibliei?", options: ["Evrei", "Iuda", "Maleahi", "Apocalipsa"], correctIndex: 3, explanation: "Apocalipsa încheie Noul Testament.", reference: "Apocalipsa 22" }
+      { question: "Unde s-a născut Isus?", options: ["Nazaret", "Ierusalim", "Betleem", "Galilee"], correctIndex: 2, explanation: "Isus s-a născut în Betleemul din Iudeea.", reference: "Matei 2:1" }
     ],
     Medium: [
-      { question: "Cine a fost cel mai bătrân om?", options: ["Noe", "Metusala", "Adam", "Avraam"], correctIndex: 1, explanation: "Metusala a trăit 969 de ani.", reference: "Geneza 5:27" },
-      { question: "Cine a fost profetul care i-a urmat lui Ilie?", options: ["Elisei", "Isaia", "Ieremia", "Ezechiel"], correctIndex: 0, explanation: "Elisei a primit o îndoită măsură din duhul lui Ilie.", reference: "2 Împărați 2:9" },
-      { question: "Care rege a construit primul templu din Ierusalim?", options: ["David", "Saul", "Solomon", "Ezechia"], correctIndex: 2, explanation: "Solomon a împlinit visul tatălui său de a zidi o casă Domnului.", reference: "1 Împărați 6" },
-      { question: "Câte cărți sunt în Vechiul Testament?", options: ["27", "39", "66", "12"], correctIndex: 1, explanation: "Vechiul Testament conține 39 de cărți sacre.", reference: "Canon" },
-      { question: "Cine a fost femeia care a ascuns iscoadele în Ierihon?", options: ["Debora", "Rut", "Rahab", "Estera"], correctIndex: 2, explanation: "Rahab a fost salvată împreună cu familia ei.", reference: "Iosua 2" },
-      { question: "Care a fost prima urgie trimisă asupra Egiptului?", options: ["Broaștele", "Păduchii", "Apa în sânge", "Lăcustele"], correctIndex: 2, explanation: "Nilul s-a prefăcut în sânge la porunca lui Moise.", reference: "Exodul 7:20" },
-      { question: "Cine a scris cele mai multe epistole din Noul Testament?", options: ["Petru", "Ioan", "Iacov", "Pavel"], correctIndex: 3, explanation: "Apostolul Pavel este autorul a 13 sau 14 epistole.", reference: "Epistole" },
-      { question: "Care judecător i-a învins pe madianiți cu 300 de oameni?", options: ["Samson", "Barac", "Ghedeon", "Iefta"], correctIndex: 2, explanation: "Ghedeon a fost ales pentru a arăta puterea lui Dumnezeu.", reference: "Judecătorii 7" },
-      { question: "Cine a fost regina care a salvat poporul evreu de Haman?", options: ["Vasti", "Estera", "Izabela", "Atalia"], correctIndex: 1, explanation: "Estera a mijlocit în fața regelui pentru poporul ei.", reference: "Estera 7" },
-      { question: "Zidurile cărui oraș au căzut după șapte zile?", options: ["Ai", "Betleem", "Ierihon", "Damasc"], correctIndex: 2, explanation: "Ierihonul a fost cucerit prin credință și ascultare.", reference: "Iosua 6" },
-      { question: "Care este cel mai lung capitol din Biblie?", options: ["Psalmul 23", "Psalmul 119", "Isaia 53", "Matei 5"], correctIndex: 1, explanation: "Psalmul 119 este o meditație lungă asupra Legii.", reference: "Psalmul 119" },
-      { question: "Cine a fost fratele lui Moise?", options: ["Iosua", "Caleb", "Aaron", "Hur"], correctIndex: 2, explanation: "Aaron a fost primul mare preot al lui Israel.", reference: "Exodul 4:14" },
-      { question: "Ce rege a făcut reforme după găsirea Cărții Legii?", options: ["Ezechia", "Iosia", "Ozia", "Iosafat"], correctIndex: 1, explanation: "Iosia a dărâmat idolii și a restabilit Paștele.", reference: "2 Împărați 22" },
-      { question: "Pe ce munte a primit Moise Cele Zece Porunci?", options: ["Nebo", "Ararat", "Sinai", "Carmel"], correctIndex: 2, explanation: "Muntele Sinai este locul legământului.", reference: "Exodul 19" },
-      { question: "Cine a fost primul martir al bisericii?", options: ["Petru", "Iacov", "Ștefan", "Pavel"], correctIndex: 2, explanation: "Ștefan a fost ucis cu pietre de către sinedriu.", reference: "Faptele Apostolilor 7" },
-      { question: "Care Evanghelie conține Predica de pe Munte?", options: ["Marcu", "Luca", "Matei", "Ioan"], correctIndex: 2, explanation: "Predica de pe Munte se află în Matei 5-7.", reference: "Matei 5" },
-      { question: "Cine a fost mama lui Samuel?", options: ["Sara", "Ana", "Elisabeta", "Rahela"], correctIndex: 1, explanation: "Ana s-a rugat stăruitor pentru un copil.", reference: "1 Samuel 1" },
-      { question: "Ce a găsit Petru în gura unui pește?", options: ["O perlă", "Aur", "Un ban (statir)", "O plasă"], correctIndex: 2, explanation: "Isus a făcut această minune pentru a plăti taxa.", reference: "Matei 17:27" },
-      { question: "Care profet a fost luat la cer într-un vârtej?", options: ["Elisei", "Ilie", "Isaia", "Ieremia"], correctIndex: 1, explanation: "Ilie a fost înălțat într-un car de foc.", reference: "2 Împărați 2:11" },
-      { question: "Câte seminții (triburi) avea Israelul?", options: ["10", "12", "14", "7"], correctIndex: 1, explanation: "Cele douăsprezece triburi provin de la fiii lui Iacov.", reference: "Geneza 49" }
+        { question: "Cine a fost cel mai bătrân om?", options: ["Noe", "Metusala", "Adam", "Avraam"], correctIndex: 1, explanation: "Metusala a trăit 969 de ani.", reference: "Geneza 5:27" }
     ],
     Hard: [
-      { question: "Cine a fost judecătorul stângaci?", options: ["Ghedeon", "Ehud", "Iefta", "Șamgar"], correctIndex: 1, explanation: "Ehud l-a ucis pe împăratul Eglon al Moabului.", reference: "Judecătorii 3:15" },
-      { question: "Care rege a fost lovit de lepră pentru mândrie?", options: ["Ezechia", "Iosia", "Ozia", "Manase"], correctIndex: 2, explanation: "Ozia a vrut să ardă tămâie, încălcând legea.", reference: "2 Cronici 26" },
-      { question: "Cine a fost tatăl prorocului Samuel?", options: ["Eli", "Elcana", "Chiș", "Iese"], correctIndex: 1, explanation: "Elcana era soțul Anei.", reference: "1 Samuel 1:1" },
-      { question: "Cum se numea valea unde David l-a învins pe Goliat?", options: ["Iezreel", "Ela", "Acor", "Sidim"], correctIndex: 1, explanation: "Lupta a avut loc în valea Ela.", reference: "1 Samuel 17:2" },
-      { question: "Cum se numea regina Etiopiei al cărei famen s-a botezat?", options: ["Candace", "Vasti", "Seba", "Atalia"], correctIndex: 0, explanation: "Candace era titlul reginelor etiopiene.", reference: "Faptele Apostolilor 8:27" },
-      { question: "Care rege al lui Israel a domnit doar șapte zile?", options: ["Zimri", "Șalum", "Zaharia", "Pecahia"], correctIndex: 0, explanation: "Zimri a murit în palatul cuprins de flăcări.", reference: "1 Împărați 16:15" },
-      { question: "Cum se numea soția lui Moise?", options: ["Rebeca", "Sefora", "Rahela", "Lea"], correctIndex: 1, explanation: "Sefora era fiica lui Ietro.", reference: "Exodul 2:21" },
-      { question: "Unde s-a luptat Iacov cu Dumnezeu?", options: ["Betel", "Peniel", "Hebron", "Sihem"], correctIndex: 1, explanation: "Iacov a numit locul Peniel (Fața lui Dumnezeu).", reference: "Geneza 32:30" },
-      { question: "Care profet a prezis nașterea în Betleem?", options: ["Isaia", "Ieremia", "Mica", "Osea"], correctIndex: 2, explanation: "Mica 5:2 conține această prorocie clară.", reference: "Mica 5:2" },
-      { question: "Cine a fost ales prin sorți în locul lui Iuda?", options: ["Barnaba", "Matia", "Sila", "Timotei"], correctIndex: 1, explanation: "Matia a fost adăugat celor unsprezece apostoli.", reference: "Faptele Apostolilor 1:26" },
-      { question: "Cine a fost regele-preot care l-a întâlnit pe Avraam?", options: ["Aaron", "Eli", "Melhisedec", "Țadoc"], correctIndex: 2, explanation: "Melhisedec era regele Salemului.", reference: "Geneza 14:18" },
-      { question: "Care seminție nu a primit moștenire de pământ?", options: ["Iuda", "Levi", "Beniamin", "Ruben"], correctIndex: 1, explanation: "Domnul era moștenirea leviților.", reference: "Iosua 13:33" },
-      { question: "Care profet l-a mustrat pe David pentru Batșeba?", options: ["Samuel", "Natan", "Gad", "Ilie"], correctIndex: 1, explanation: "Natan a folosit pilda cu oaia săracului.", reference: "2 Samuel 12" },
-      { question: "Unde a predicat Pavel filozofilor din Atena?", options: ["Sinai", "Zion", "Areopag", "Hermon"], correctIndex: 2, explanation: "Areopagul era locul de adunare din Atena.", reference: "Faptele Apostolilor 17:19" },
-      { question: "Care rege a văzut 'scrisul pe perete'?", options: ["Nebucadnețar", "Belșațar", "Darius", "Cirus"], correctIndex: 1, explanation: "Daniel a tălmăcit cuvintele la ospățul lui Belșațar.", reference: "Daniel 5" },
-      { question: "Câți bătrâni sunt în jurul tronului în Apocalipsa?", options: ["12", "24", "72", "144"], correctIndex: 1, explanation: "Sunt cei douăzeci și patru de bătrâni.", reference: "Apocalipsa 4:4" },
-      { question: "Care prorociță L-a recunoscut pe Isus în Templu?", options: ["Elisabeta", "Ana", "Debora", "Hulda"], correctIndex: 1, explanation: "Ana era o văduvă foarte bătrână.", reference: "Luca 2:36" },
-      { question: "Care carte a Bibliei nu conține numele lui Dumnezeu?", options: ["Estera", "Obadia", "Iuda", "Cântarea Cântărilor"], correctIndex: 0, explanation: "Cartea Estera ilustrează pronia divină ascunsă.", reference: "Estera" },
-      { question: "Cum se numea robul căruia Petru i-a tăiat urechea?", options: ["Malhus", "Marcus", "Matia", "Marius"], correctIndex: 0, explanation: "Malhus era robul marelui preot.", reference: "Ioan 18:10" },
-      { question: "Cine a fost tatăl regelui Saul?", options: ["Chiș", "Iese", "Abner", "Ner"], correctIndex: 0, explanation: "Chiș era un om bogat din Beniamin.", reference: "1 Samuel 9:1" }
+        { question: "Cine a fost judecătorul stângaci?", options: ["Ghedeon", "Ehud", "Iefta", "Șamgar"], correctIndex: 1, explanation: "Ehud l-a ucis pe împăratul Moabului.", reference: "Judecătorii 3:15" }
+    ]
+  },
+  Spanish: {
+    Easy: [
+      { question: "¿Quién construyó el Arca?", options: ["Moisés", "Noé", "David", "Abraham"], correctIndex: 1, explanation: "Dios le mandó a Noé construir un arca para salvar a su familia y a los animales.", reference: "Génesis 6:14" },
+      { question: "¿Dónde nació Jesús?", options: ["Nazaret", "Jerusalén", "Belén", "Galilea"], correctIndex: 2, explanation: "Jesús nació en Belén de Judea, cumpliendo la profecía de Miqueas.", reference: "Mateo 2:1" },
+      { question: "¿En qué río fue bautizado Jesús?", options: ["Nilo", "Éufrates", "Jordán", "Tigris"], correctIndex: 2, explanation: "Juan el Bautista bautizó a Jesús en el río Jordán.", reference: "Marcos 1:9" },
+      { question: "¿Quién fue el primer hombre creado?", options: ["Eva", "Abel", "Caín", "Adán"], correctIndex: 3, explanation: "Adán fue el primer hombre creado por Dios en el Jardín del Edén.", reference: "Génesis 2:7" },
+      { question: "¿Cuántos discípulos eligió Jesús?", options: ["7", "10", "12", "40"], correctIndex: 2, explanation: "Jesús eligió a doce apóstoles para seguirle y difundir su mensaje.", reference: "Mateo 10:1" }
+    ],
+    Medium: [
+      { question: "¿Quién fue el hombre más viejo en la Biblia?", options: ["Noé", "Matusalén", "Adán", "Abraham"], correctIndex: 1, explanation: "Matusalén vivió 969 años.", reference: "Génesis 5:27" },
+      { question: "¿Quién sucedió a Elías como profeta?", options: ["Eliseo", "Isaías", "Jeremías", "Ezequiel"], correctIndex: 0, explanation: "Eliseo siguió a Elías y recibió una doble porción de su espíritu.", reference: "2 Reyes 2:9" }
+    ],
+    Hard: [
+      { question: "¿Quién fue el juez zurdo que mató a Eglón?", options: ["Gedeón", "Aod", "Jefté", "Samgar"], correctIndex: 1, explanation: "Aod fabricó un puñal de dos filos y mató a Eglón, rey de Moab.", reference: "Jueces 3:15" }
+    ]
+  },
+  French: {
+    Easy: [
+      { question: "Qui a construit l'Arche ?", options: ["Moïse", "Noé", "David", "Abraham"], correctIndex: 1, explanation: "Dieu a ordonné à Noé de construire une arche pour sauver sa famille et les animaux.", reference: "Genèse 6:14" },
+      { question: "Où est né Jésus ?", options: ["Nazareth", "Jérusalem", "Bethléem", "Galilée"], correctIndex: 2, explanation: "Jésus est né à Bethléem en Judée, accomplissant la prophétie de Michée.", reference: "Matthieu 2:1" },
+      { question: "Dans quel fleuve Jésus a-t-il été baptisé ?", options: ["Nil", "Euphrate", "Jourdain", "Tigre"], correctIndex: 2, explanation: "Jean-Baptiste a baptisé Jésus dans le Jourdain.", reference: "Marc 1:9" },
+      { question: "Qui a été le premier homme créé ?", options: ["Ève", "Abel", "Caïn", "Adam"], correctIndex: 3, explanation: "Adam a été le premier homme créé par Dieu dans le jardin d'Éden.", reference: "Genèse 2:7" },
+      { question: "Combien de disciples Jésus a-t-il choisis ?", options: ["7", "10", "12", "40"], correctIndex: 2, explanation: "Jésus a choisi douze apôtoles pour le suivre.", reference: "Matthieu 10:1" }
+    ],
+    Medium: [
+      { question: "Qui est l'homme le plus vieux de la Bible ?", options: ["Noé", "Mathusalem", "Adam", "Abraham"], correctIndex: 1, explanation: "Mathusalem a vécu 969 ans.", reference: "Genèse 5:27" },
+      { question: "Qui a succédé à Élie comme prophète ?", options: ["Élisée", "Isaïe", "Jérémie", "Ézéchiel"], correctIndex: 0, explanation: "Élisée a suivi Élie et a reçu une double portion de son esprit.", reference: "2 Rois 2:9" }
+    ],
+    Hard: [
+      { question: "Qui était le juge gaucher qui a tué Églon ?", options: ["Gédéon", "Éhud", "Jephthé", "Shamgar"], correctIndex: 1, explanation: "Éhud a fabriqué une épée à deux tranchants et a tué Églon, roi de Moab.", reference: "Juges 3:15" }
+    ]
+  },
+  Portuguese: {
+    Easy: [
+      { question: "Quem construiu a Arca?", options: ["Moisés", "Noé", "Davi", "Abraão"], correctIndex: 1, explanation: "Deus instruiu Noé a construir uma arca para salvar sua família e os animais.", reference: "Gênesis 6:14" },
+      { question: "Onde Jesus nasceu?", options: ["Nazaré", "Jerusalém", "Belém", "Galileia"], correctIndex: 2, explanation: "Jesus nasceu em Belém da Judeia.", reference: "Mateus 2:1" },
+      { question: "Em qual rio Jesus foi batizado?", options: ["Nilo", "Eufrates", "Jordão", "Tigre"], correctIndex: 2, explanation: "João Batista batizou Jesus no rio Jordão.", reference: "Marcos 1:9" },
+      { question: "Quem foi o primeiro homem criado?", options: ["Eva", "Abel", "Caim", "Adão"], correctIndex: 3, explanation: "Adão foi o primeiro homem criado por Deus.", reference: "Gênesis 2:7" },
+      { question: "Quantos discípulos Jesus escolheu?", options: ["7", "10", "12", "40"], correctIndex: 2, explanation: "Jesus escolheu doze apóstolos.", reference: "Mateus 10:1" }
+    ],
+    Medium: [
+      { question: "Quem foi o homem mais velho da Bíblia?", options: ["Noé", "Matusalém", "Adão", "Abraão"], correctIndex: 1, explanation: "Matusalém viveu 969 anos.", reference: "Gênesis 5:27" },
+      { question: "Quem sucedeu Elias como profeta?", options: ["Eliseu", "Isaías", "Jeremias", "Ezequiel"], correctIndex: 0, explanation: "Eliseu seguiu Elias e recebeu uma porção dobrada do seu espírito.", reference: "2 Reis 2:9" }
+    ],
+    Hard: [
+      { question: "Quem foi o juiz canhoto que matou Eglom?", options: ["Gideão", "Eúde", "Jefté", "Sangar"], correctIndex: 1, explanation: "Eúde fez uma espada de dois gumes e matou Eglom, rei de Moabe.", reference: "Juízes 3:15" }
+    ]
+  },
+  Italian: {
+    Easy: [
+      { question: "Chi costruì l'Arca?", options: ["Mosè", "Noè", "Davide", "Abramo"], correctIndex: 1, explanation: "Dio ordinò a Noè di costruire un'arca per salvare la sua famiglia e gli animali.", reference: "Genesi 6:14" },
+      { question: "Dove nacque Gesù?", options: ["Nazareth", "Gerusalemme", "Betlemme", "Galilea"], correctIndex: 2, explanation: "Gesù nacque a Betlemme di Giudea.", reference: "Matteo 2:1" },
+      { question: "In quale fiume fu battezzato Gesù?", options: ["Nilo", "Eufrate", "Giordano", "Tigri"], correctIndex: 2, explanation: "Giovanni Battista battezzò Gesù nel fiume Giordano.", reference: "Marco 1:9" },
+      { question: "Chi fu il primo uomo creato?", options: ["Eva", "Abele", "Caino", "Adamo"], correctIndex: 3, explanation: "Adamo fu il primo uomo creato da Dio nel giardino dell'Eden.", reference: "Genesi 2:7" },
+      { question: "Quanti discepoli scelse Gesù?", options: ["7", "10", "12", "40"], correctIndex: 2, explanation: "Gesù scelse dodici apostoli.", reference: "Matteo 10:1" }
+    ],
+    Medium: [
+      { question: "Chi fu l'uomo più vecchio della Bibbia?", options: ["Noè", "Matusalemme", "Adamo", "Abramo"], correctIndex: 1, explanation: "Matusalemme visse 969 anni.", reference: "Genesi 5:27" },
+      { question: "Chi succedette a Elia come profeta?", options: ["Eliseo", "Isaia", "Geremia", "Ezechiele"], correctIndex: 0, explanation: "Eliseo seguì Elia e ricevette una doppia porzione del suo spirito.", reference: "2 Re 2:9" }
+    ],
+    Hard: [
+      { question: "Chi fu il giudice mancino che uccise Eglon?", options: ["Gedeone", "Eud", "Iefte", "Samgar"], correctIndex: 1, explanation: "Eud fabbricò un pugnale a due tagli e uccise Eglon, re di Moab.", reference: "Giudici 3:15" }
     ]
   }
 };

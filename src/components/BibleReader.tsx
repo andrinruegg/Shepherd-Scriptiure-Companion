@@ -1,14 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
-import { Book, ChevronLeft, ChevronRight, Heart, X, ArrowLeft, Pause, Volume1, Image, Loader2, AlertTriangle } from 'lucide-react';
+import { Book, ChevronLeft, ChevronRight, Heart, X, ArrowLeft, Pause, Volume1, Image, Loader2, AlertTriangle, Key } from 'lucide-react';
 import { BIBLE_BOOKS, fetchChapter } from '../services/bibleService';
 import { BibleChapter, SavedItem, BibleHighlight } from '../types';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
-import { generateSpeech } from '../services/geminiService';
 
-const BibleReader: React.FC<{ language: string, onSaveItem: (item: SavedItem) => void, onMenuClick: () => void, highlights: BibleHighlight[], onAddHighlight: (h: BibleHighlight) => void, onRemoveHighlight: (ref: string) => void, onOpenComposer: (t: string, r: string) => void, hasApiKey: boolean }> = ({ 
-    language, onSaveItem, onMenuClick, highlights, onAddHighlight, onRemoveHighlight, onOpenComposer, hasApiKey
+const BibleReader: React.FC<{ language: string, onSaveItem: (item: SavedItem) => void, onMenuClick: () => void, highlights: BibleHighlight[], onAddHighlight: (h: BibleHighlight) => void, onRemoveHighlight: (ref: string) => void, onOpenComposer: (t: string, r: string) => void, hasApiKey: boolean, onTriggerKeyWarning?: () => void }> = ({ 
+    language, onSaveItem, onMenuClick, highlights, onAddHighlight, onRemoveHighlight, onOpenComposer, hasApiKey, onTriggerKeyWarning
 }) => {
   const { t } = useTranslation();
   const [selectedBookId, setSelectedBookId] = useState('JHN');
@@ -18,6 +16,7 @@ const BibleReader: React.FC<{ language: string, onSaveItem: (item: SavedItem) =>
   const [activeVerse, setActiveVerse] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
+  const [showKeyError, setShowKeyError] = useState(false);
   
   const selectedBook = BIBLE_BOOKS.find((b: any) => b.id === selectedBookId) || BIBLE_BOOKS[0];
   const displayBookName = language === 'German' ? selectedBook.names.de : language === 'Romanian' ? selectedBook.names.ro : selectedBook.names.en;
@@ -31,14 +30,60 @@ const BibleReader: React.FC<{ language: string, onSaveItem: (item: SavedItem) =>
     loadChapter();
   }, [selectedBookId, chapter, language]);
 
+  const triggerKeyError = () => {
+    setShowKeyError(true);
+    setTimeout(() => setShowKeyError(false), 5000);
+  };
+
+  const handleAudioToggle = () => {
+    if (!hasApiKey) {
+      if (onTriggerKeyWarning) {
+          onTriggerKeyWarning();
+      } else {
+          triggerKeyError();
+      }
+      return;
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const getColorClass = (color: string) => {
+    switch (color) {
+      case 'green': return 'bg-emerald-200 dark:bg-emerald-900/50';
+      case 'blue': return 'bg-blue-200 dark:bg-blue-900/50';
+      case 'pink': return 'bg-rose-200 dark:bg-rose-900/50';
+      default: return 'bg-yellow-200 dark:bg-yellow-900/50';
+    }
+  };
+
+  const getMarkerClass = (color: string) => {
+    switch (color) {
+      case 'green': return 'bg-emerald-400';
+      case 'blue': return 'bg-blue-400';
+      case 'pink': return 'bg-rose-400';
+      default: return 'bg-yellow-400';
+    }
+  };
+
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 transition-colors">
+    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 transition-colors relative">
+       {/* Centered Error Banner using Flex wrapper */}
+       {showKeyError && (
+         <div className="fixed top-6 inset-x-0 flex justify-center z-[100] px-4 pointer-events-none animate-slide-up">
+           <div className="bg-red-600 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-red-500 pointer-events-auto max-w-md w-full">
+             <Key size={20} className="shrink-0" />
+             <div className="text-xs font-bold leading-snug">API KEY REQUIRED: Please enter your own Gemini API Key in Settings or Chat to use the AI audio reader.</div>
+             <button onClick={() => setShowKeyError(false)} className="p-1 hover:bg-white/20 rounded-full"><X size={16}/></button>
+           </div>
+         </div>
+       )}
+
        <header className="bg-white dark:bg-slate-950 border-b dark:border-slate-800 p-4 sticky top-0 z-10 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
            <div className="flex items-center gap-2 w-full md:w-auto">
                <button onClick={onMenuClick} className="p-2 -ml-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"><ArrowLeft size={24} /></button>
                <div className="bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-xl text-emerald-600 dark:text-emerald-400"><Book size={20} /></div>
                <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100 font-serif-text">{displayBookName} {chapter}</h1>
-               <button onClick={() => setIsPlaying(!isPlaying)} className={`ml-2 p-2 rounded-full transition-all ${isPlaying ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>{audioLoading ? <Loader2 size={20} className="animate-spin" /> : isPlaying ? <Pause size={20} fill="currentColor"/> : <Volume1 size={20}/>}</button>
+               <button onClick={handleAudioToggle} className={`ml-2 p-2 rounded-full transition-all ${isPlaying ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>{audioLoading ? <Loader2 size={20} className="animate-spin" /> : isPlaying ? <Pause size={20} fill="currentColor"/> : <Volume1 size={20}/>}</button>
            </div>
            <div className="flex items-center gap-2 w-full md:w-auto">
                <select value={selectedBookId} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => { setSelectedBookId(e.target.value); setChapter(1); }} className="flex-1 md:w-48 p-2.5 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none">
@@ -56,20 +101,25 @@ const BibleReader: React.FC<{ language: string, onSaveItem: (item: SavedItem) =>
                {loading ? (<div className="flex flex-col items-center justify-center h-64 text-slate-400"><Loader2 size={40} className="animate-spin mb-4"/><p className="text-sm font-bold uppercase tracking-widest">{t('bible.loading')}</p></div>) : data ? (
                    <div className="font-serif-text leading-[2] text-lg text-slate-800 dark:text-slate-200 pb-20">
                        <h2 className="text-3xl font-bold mb-8 text-center text-slate-900 dark:text-white border-b dark:border-slate-700 pb-6">{displayBookName} {chapter}</h2>
-                       {data.verses.map((v: any) => (
-                           <span key={v.verse} onClick={() => setActiveVerse(activeVerse === v.verse ? null : v.verse)} className={`relative inline cursor-pointer rounded px-1 transition-all mx-0.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 ${highlights.find((h: BibleHighlight)=>h.ref===`${selectedBookId} ${chapter}:${v.verse}`) ? 'bg-yellow-100 dark:bg-yellow-900/30' : ''}`}>
-                               <sup className="text-[10px] font-sans mr-1 text-slate-400 font-black">{v.verse}</sup>{v.text}
-                               {activeVerse === v.verse && (
-                                   <span className="absolute -top-14 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-900 border dark:border-slate-700 rounded-2xl shadow-2xl p-2 flex gap-1 items-center z-20 whitespace-nowrap animate-scale-in">
-                                       <button onClick={() => onAddHighlight({id: uuidv4(), ref:`${selectedBookId} ${chapter}:${v.verse}`, color:'yellow'})} className="w-7 h-7 rounded-full bg-yellow-400 hover:scale-110 shadow-sm"></button>
-                                       <button onClick={() => {onOpenComposer(v.text, `${displayBookName} ${chapter}:${v.verse}`); setActiveVerse(null);}} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-purple-600 transition-colors"><Image size={16}/></button>
-                                       <button onClick={() => {onSaveItem({id: uuidv4(), type:'verse', content:v.text, reference:`${displayBookName} ${chapter}:${v.verse}`, date:Date.now()}); setActiveVerse(null);}} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-rose-500 transition-colors"><Heart size={16}/></button>
-                                       <div className="w-px h-6 bg-slate-100 dark:bg-slate-700 mx-1"></div>
-                                       <button onClick={() => setActiveVerse(null)} className="p-1.5 text-slate-400"><X size={16}/></button>
-                                   </span>
-                               )}
-                           </span>
-                       ))}
+                       {data.verses.map((v: any) => {
+                           const highlight = highlights.find((h: BibleHighlight)=>h.ref===`${selectedBookId} ${chapter}:${v.verse}`);
+                           return (
+                               <span key={v.verse} onClick={() => setActiveVerse(activeVerse === v.verse ? null : v.verse)} className={`relative inline cursor-pointer rounded px-1 transition-all mx-0.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 ${highlight ? getColorClass(highlight.color) : ''}`}>
+                                   <sup className="text-[10px] font-sans mr-1 text-slate-400 font-black">{v.verse}</sup>{v.text}
+                                   {activeVerse === v.verse && (
+                                       <span className="absolute -top-14 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-900 border dark:border-slate-700 rounded-2xl shadow-2xl p-2 flex gap-1.5 items-center z-20 whitespace-nowrap animate-scale-in">
+                                           {(['yellow', 'green', 'blue', 'pink'] as const).map((color) => (
+                                              <button key={color} onClick={(e) => { e.stopPropagation(); onAddHighlight({id: uuidv4(), ref:`${selectedBookId} ${chapter}:${v.verse}`, color}); setActiveVerse(null); }} className={`w-7 h-7 rounded-full ${getMarkerClass(color)} hover:scale-125 transition-transform shadow-sm border dark:border-white/20`}></button>
+                                           ))}
+                                           <div className="w-px h-6 bg-slate-100 dark:bg-slate-700 mx-0.5"></div>
+                                           <button onClick={(e) => { e.stopPropagation(); onOpenComposer(v.text, `${displayBookName} ${chapter}:${v.verse}`); setActiveVerse(null);}} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-purple-600 transition-colors"><Image size={16}/></button>
+                                           <button onClick={(e) => { e.stopPropagation(); onSaveItem({id: uuidv4(), type:'verse', content:v.text, reference:`${displayBookName} ${chapter}:${v.verse}`, date:Date.now()}); setActiveVerse(null);}} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-rose-500 transition-colors"><Heart size={16}/></button>
+                                           <button onClick={(e) => { e.stopPropagation(); onRemoveHighlight(`${selectedBookId} ${chapter}:${v.verse}`); setActiveVerse(null); }} className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 rounded-lg transition-colors"><X size={16}/></button>
+                                       </span>
+                                   )}
+                               </span>
+                           );
+                       })}
                    </div>
                ) : <div className="text-center text-red-400 p-8 flex flex-col items-center gap-3"><AlertTriangle size={40}/><p>{t('bible.error')}</p></div>}
            </div>

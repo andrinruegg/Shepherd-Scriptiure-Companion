@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import ChatInterface from './components/ChatInterface';
@@ -27,6 +26,7 @@ import { sendMessageStream, generateChatTitle } from './services/geminiService';
 import { supabase } from './services/supabase';
 import { db } from './services/db';
 import { updateStreak } from './services/dailyVerseService';
+import { AlertCircle, X, Key, Sparkles } from 'lucide-react';
 
 const App: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -53,6 +53,7 @@ const App: React.FC = () => {
   const [shareId, setShareId] = useState<string>('');
   const [totalNotifications, setTotalNotifications] = useState(0);
   const [hasApiKey, setHasApiKey] = useState<boolean>(false); 
+  const [showKeyWarning, setShowKeyWarning] = useState(false);
 
   const bibleTranslation = 'NIV';
 
@@ -104,6 +105,11 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const triggerKeyWarning = () => {
+    setShowKeyWarning(true);
+    setTimeout(() => setShowKeyWarning(false), 10000);
+  };
+
   const handleSelectApiKey = async () => {
     setIsSettingsOpen(true);
   };
@@ -113,6 +119,7 @@ const App: React.FC = () => {
         if (key.trim()) {
           localStorage.setItem('shepherd_api_key', key.trim());
           setHasApiKey(true);
+          setShowKeyWarning(false);
         } else {
           localStorage.removeItem('shepherd_api_key');
           verifyKey();
@@ -132,7 +139,11 @@ const App: React.FC = () => {
       const langCodeMap: Record<string, string> = { 
           'English': 'en', 
           'German': 'de', 
-          'Romanian': 'ro'
+          'Romanian': 'ro',
+          'Spanish': 'es',
+          'French': 'fr',
+          'Portuguese': 'pt',
+          'Italian': 'it'
       };
       const code = langCodeMap[language] || 'en';
       if (i18n.language !== code) {
@@ -571,8 +582,29 @@ const App: React.FC = () => {
   const brandName = "Shepherd";
 
   return (
-    <div className={`${isDarkMode ? 'dark' : ''} animate-fade-in ${session ? 'h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'}`}>
+    <div className={`${isDarkMode ? 'dark' : ''} animate-fade-in ${session ? 'h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'} relative`}>
       
+      {/* GLOBAL API KEY WARNING BANNER - CENTERED VIEWPORT WRAPPER */}
+      {showKeyWarning && (
+          <div className="fixed top-6 inset-x-0 flex justify-center z-[300] px-4 pointer-events-none animate-pop-in">
+              <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl p-4 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex items-center gap-4 border border-white/50 dark:border-white/5 pointer-events-auto max-w-sm w-full">
+                  <div className="bg-indigo-600 p-2.5 rounded-full text-white shadow-lg shadow-indigo-500/30">
+                      <Key size={20} strokeWidth={2.5} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-0.5">{t('chat.missingKeyTitle')}</h4>
+                      <p className="text-[11px] font-bold text-slate-600 dark:text-slate-300 leading-tight">{t('chat.keyWarningSubtitle')}</p>
+                  </div>
+                  <button onClick={() => { setIsSettingsOpen(true); setShowKeyWarning(false); }} className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 rounded-full text-[10px] font-black uppercase tracking-wider hover:bg-indigo-100 transition-colors shrink-0">
+                      {t('common.fix')}
+                  </button>
+                  <button onClick={() => setShowKeyWarning(false)} className="p-1 text-slate-400 hover:text-slate-600 transition-colors shrink-0">
+                      <X size={16} />
+                  </button>
+              </div>
+          </div>
+      )}
+
       {/* SPLASH SCREEN OVERLAY */}
       <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-black transition-all duration-1000 ease-[cubic-bezier(0.76,0,0.24,1)] ${!showSplash ? 'opacity-0 scale-110 pointer-events-none blur-2xl' : 'opacity-100 scale-100 blur-0'}`}>
          <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 animate-aurora opacity-90"></div>
@@ -621,7 +653,7 @@ const App: React.FC = () => {
           <Login isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} language={language} onSetLanguage={(lang: string) => handleUpdatePreference('language', lang)} /> 
       ) : (
         <Suspense fallback={<div className="h-full w-full flex items-center justify-center bg-slate-900 text-white">{t('common.loading')}</div>}>
-            <div className="flex h-full overflow-hidden relative z-0">
+            <div className={`flex h-full overflow-hidden relative z-0 transition-all duration-500`}>
             {currentView === 'home' && (
                 <div className="flex-1 w-full h-full">
                     <HomeView 
@@ -669,6 +701,7 @@ const App: React.FC = () => {
                         onRemoveHighlight={handleRemoveHighlight} 
                         onOpenComposer={(text: string, ref: string) => setComposerData({ text, reference: ref })} 
                         hasApiKey={hasApiKey}
+                        onTriggerKeyWarning={triggerKeyWarning}
                     /> 
                 </div>
             )}
@@ -689,6 +722,7 @@ const App: React.FC = () => {
                         language={language} 
                         onMenuClick={() => setCurrentView('home')} 
                         hasApiKey={hasApiKey}
+                        onTriggerKeyWarning={triggerKeyWarning}
                     />
                 </div> 
             )}

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Moon, Sun, LogOut, User, Globe, Info, Edit2, Check, Camera, Snowflake, Key, ExternalLink, Crown } from 'lucide-react';
 import { UserPreferences } from '../types';
@@ -21,6 +20,10 @@ const LANGUAGES = [
   { id: 'en', name: 'English' },
   { id: 'ro', name: 'Română' },
   { id: 'de', name: 'Deutsch' },
+  { id: 'es', name: 'Español' },
+  { id: 'fr', name: 'Français' },
+  { id: 'pt', name: 'Português' },
+  { id: 'it', name: 'Italiano' }
 ];
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -65,7 +68,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       const mapLegacy: Record<string, string> = { 
           'en': 'English', 
           'de': 'German', 
-          'ro': 'Romanian'
+          'ro': 'Romanian',
+          'es': 'Spanish',
+          'fr': 'French',
+          'pt': 'Portuguese',
+          'it': 'Italian'
       };
       onUpdatePreference('language', mapLegacy[code] || 'English');
   };
@@ -171,7 +178,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 )}
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mt-1">{userEmail}</p>
 
-                {/* BIO SECTION */}
                 <div className="mt-4 w-full text-center">
                     {isEditingBio ? (
                         <div className="flex flex-col gap-2">
@@ -215,14 +221,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                           <p className="text-[10px] font-black text-slate-500 uppercase mb-2">{t('settings.apiKey.howTo')}</p>
                           <ul className="text-[10px] text-slate-500 space-y-1.5 ml-1">
                             <li className="flex gap-2">
-                                <span className="font-bold text-indigo-500">1.</span>
-                                <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noreferrer" className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline flex items-center gap-1">
-                                    Visit Google AI Studio <ExternalLink size={10} />
+                                <span className="font-bold text-indigo-500 text-[10px]">1.</span>
+                                <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noreferrer" className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline flex items-center gap-1.5">
+                                    {t('settings.apiKey.step1')} <ExternalLink size={10} />
                                 </a>
                             </li>
-                            <li className="flex gap-2"><span className="font-bold text-indigo-500">2.</span> Sign in with your account</li>
-                            <li className="flex gap-2"><span className="font-bold text-indigo-500">3.</span> Click 'Get API Key' then 'Create API Key'</li>
-                            <li className="flex gap-2"><span className="font-bold text-indigo-500">4.</span> Copy the code and paste it above</li>
+                            <li className="flex gap-2"><span className="font-bold text-indigo-500 text-[10px]">2.</span> {t('settings.apiKey.step2')}</li>
+                            <li className="flex gap-2"><span className="font-bold text-indigo-500 text-[10px]">3.</span> {t('settings.apiKey.step3')}</li>
+                            <li className="flex gap-2"><span className="font-bold text-indigo-500 text-[10px]">4.</span> {t('settings.apiKey.step4')}</li>
                           </ul>
                         </div>
                     </form>
@@ -243,7 +249,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     </div>
                 </div>
 
-                {/* WINTER MODE */}
                 <div className="flex flex-col gap-3">
                     <button onClick={() => onUpdatePreference('winterTheme', !preferences.winterTheme)} className={`p-5 rounded-[2rem] border transition-all flex flex-col items-center gap-2 ${preferences.winterTheme ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-400 text-blue-600' : 'bg-slate-50 dark:bg-slate-800/50 border-transparent text-slate-400'}`}>
                         <Snowflake size={24} /><span className="text-[10px] font-black uppercase tracking-widest">{t('settings.winter.title')}</span>
@@ -258,7 +263,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     )}
                 </div>
 
-                {/* PRINCESS MODE */}
                 <div className="flex flex-col gap-3">
                     <button onClick={() => onUpdatePreference('princessTheme', !preferences.princessTheme)} className={`p-5 rounded-[2rem] border transition-all flex flex-col items-center gap-2 ${preferences.princessTheme ? 'bg-pink-50 dark:bg-pink-900/20 border-pink-400 text-pink-600' : 'bg-slate-50 dark:bg-slate-800/50 border-transparent text-slate-400'}`}>
                         <Crown size={24} /><span className="text-[10px] font-black uppercase tracking-widest">{t('settings.princess.title')}</span>

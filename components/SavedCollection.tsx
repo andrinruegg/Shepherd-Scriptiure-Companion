@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Trash2, Heart, BookOpen, Feather, Image, ArrowLeft, MessageSquare } from 'lucide-react';
 import { SavedItem } from '../types';
@@ -121,7 +120,7 @@ const SavedCollection: React.FC<SavedCollectionProps> = ({ savedItems, onRemoveI
                                 <button
                                     onClick={() => onOpenComposer(item.content, item.reference)}
                                     className="p-2.5 text-slate-300 hover:text-purple-500 hover:bg-purple-900/20 rounded-xl transition-all"
-                                    title="Create Image"
+                                    title={t('dailyVerse.createImage')}
                                 >
                                     <Image size={18} />
                                 </button>

@@ -4,7 +4,7 @@ import { Message } from '../types';
 import { User, RotateCw, Heart, Languages, Image, Quote } from 'lucide-react';
 import ShepherdLogo from './ShepherdLogo';
 import { translateContent } from '../services/geminiService';
-import { translations } from '../utils/translations';
+import { useTranslation } from 'react-i18next';
 
 interface ChatMessageProps {
   message: Message;
@@ -29,6 +29,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     onOpenComposer,
     onOpenSettings 
 }) => {
+  const { t } = useTranslation();
   const isUser = message.role === 'user';
   const [isSaved, setIsSaved] = useState(false);
   const [translatedText, setTranslatedText] = useState<string | null>(null);
@@ -130,7 +131,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                 
                 {translatedText && (
                     <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/10 text-sm italic opacity-90">
-                        <div className="text-[10px] uppercase font-black mb-1 opacity-60 tracking-[0.2em] text-indigo-600 dark:text-indigo-400">Translated:</div>
+                        <div className="text-[10px] uppercase font-black mb-1 opacity-60 tracking-[0.2em] text-indigo-600 dark:text-indigo-400">{t('common.translated')}:</div>
                         {translatedText}
                     </div>
                 )}
@@ -150,7 +151,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                       onClick={handleTranslate}
                       disabled={isTranslating}
                       className={`p-2 rounded-xl bg-white/60 dark:bg-slate-800 shadow-sm border border-white/60 dark:border-slate-700 backdrop-blur-md transition-all ${isTranslating ? 'text-indigo-400 animate-pulse' : 'text-slate-400 dark:text-slate-500 hover:text-indigo-500'}`}
-                      title="Translate"
+                      title={t('common.translate')}
                   >
                       <Languages size={15} />
                   </button>
@@ -160,7 +161,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                   <button
                       onClick={handleOpenComposer}
                       className="p-2 rounded-xl bg-white/60 dark:bg-slate-800 shadow-sm border border-white/60 dark:border-slate-700 backdrop-blur-md transition-all text-slate-400 dark:text-slate-500 hover:text-purple-500"
-                      title="Create Image"
+                      title={t('dailyVerse.createImage')}
                   >
                       <Image size={15} />
                   </button>
@@ -170,7 +171,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                   <button
                       onClick={handleSave}
                       className={`p-2 rounded-xl bg-white/60 dark:bg-slate-800 shadow-sm border border-white/60 dark:border-slate-700 backdrop-blur-md transition-all ${isSaved ? 'text-rose-500 scale-110' : 'text-slate-400 dark:text-slate-500 hover:text-rose-400'}`}
-                      title="Save to Collection"
+                      title={t('bible.save')}
                   >
                       <Heart size={15} className={isSaved ? 'fill-rose-500' : ''} />
                   </button>
@@ -181,6 +182,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                      onClick={onRegenerate}
                      disabled={isRegenerating}
                      className="p-2 rounded-xl bg-white/60 dark:bg-slate-800 shadow-sm border border-white/60 dark:border-slate-700 backdrop-blur-md transition-all text-slate-400 dark:text-slate-500 hover:text-indigo-500"
+                     title={t('chat.regenerate')}
                   >
                      <RotateCw size={15} className={isRegenerating ? 'animate-spin' : ''} />
                   </button>

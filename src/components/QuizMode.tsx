@@ -17,9 +17,15 @@ const QuizMode: React.FC<{ language: string, onMenuClick: () => void }> = ({ lan
     
     const getLangKey = () => {
         const code = i18n.language.split('-')[0];
-        if (code === 'de') return 'German';
-        if (code === 'ro') return 'Romanian';
-        return 'English';
+        const map: Record<string, string> = {
+            'de': 'German', 
+            'ro': 'Romanian', 
+            'es': 'Spanish',
+            'fr': 'French',
+            'pt': 'Portuguese',
+            'it': 'Italian'
+        };
+        return map[code] || 'English';
     };
 
     const questions = (STATIC_QUIZ_DATA[getLangKey()] || STATIC_QUIZ_DATA['English'])[difficulty];

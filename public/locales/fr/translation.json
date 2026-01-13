@@ -1,4 +1,3 @@
-
 {
   "common": {
     "shepherd": "Berger",
@@ -16,6 +15,7 @@
     "remove": "Enlever",
     "done": "Terminé",
     "error": "Erreur",
+    "fix": "Réparer",
     "confirmDelete": "Voulez-vous vraiment supprimer ceci ?"
   },
   "login": {
@@ -39,7 +39,12 @@
     "successCreated": "Compte créé ! Vérifiez vos e-mails.",
     "checkEmail": "Vérifiez vos e-mails",
     "verificationSuccess": "Vérification réussie",
-    "hasAccountBtn": "Déjà un compte ? Se connecter"
+    "hasAccountBtn": "Déjà un compte ? Se connecter",
+    "setNewPassword": "Nouveau Mot de Passe",
+    "passwordUpdated": "Mot de Passe Mis à Jour !",
+    "loggingOut": "Déconnexion pour redémarrer...",
+    "updatePassword": "Mettre à jour",
+    "newPassword": "Nouveau Mot de Passe"
   },
   "home": {
     "goodMorning": "Bon matin",
@@ -89,6 +94,7 @@
     "retry": "Réessayer",
     "missingKeyTitle": "Clé API requise",
     "missingKeyDesc": "Vous avez besoin d'une clé Google API gratuite.",
+    "keyWarningSubtitle": "Requis pour l'audio et les histoires IA",
     "disclaimer": "La clé reste sur l'appareil.",
     "setupKey": "Configurer la clé",
     "instructions": "Instructions",
@@ -149,20 +155,212 @@
       "step4": "4. Collez ici"
     }
   },
+  "stories": {
+    "title": "Témoins Bibliques",
+    "subtitle": "Histoires de Foi",
+    "readMore": "Lire l'histoire",
+    "back": "Retour",
+    "startRoleplay": "Commencer la discussion",
+    "history": "Biographie",
+    "encounterLabel": "Rencontre",
+    "deleteEncounter": "Supprimer rencontre ?",
+    "disclaimer": "Représentation IA",
+    "pastConversations": "Anciennes Discussions",
+    "inputPlaceholder": "Parlez au témoin...",
+    "needKey": "Clé API requise.",
+    "intro": {
+      "peter": "Je me souviens de l'odeur du sel... Comment puis-je vous aider ?",
+      "paul": "Grâce et paix vous soient données de la part de Dieu notre Père."
+    }
+  },
+  "social": {
+    "title": "Social & Mises à jour",
+    "profile": {
+      "title": "Mon Profil",
+      "streak": "Série Quotidienne",
+      "achievements": "Succès",
+      "locked": "Verrouillé",
+      "about": "À propos",
+      "message": "Message",
+      "unfriend": "Retirer ami",
+      "addFriend": "Ajouter ami"
+    },
+    "tabs": {
+      "inbox": "Boîte",
+      "friends": "Amis",
+      "add": "Ajouter",
+      "me": "Moi"
+    },
+    "inbox": {
+      "title": "Notifications",
+      "requests": "Demandes d'ami",
+      "noRequests": "Aucune demande",
+      "updates": "Mises à jour"
+    },
+    "friends": {
+      "title": "Mes Amis",
+      "loading": "Chargement...",
+      "empty": "Aucun ami pour le moment.",
+      "streak": "Série"
+    },
+    "add": {
+      "title": "Ajouter Ami",
+      "yourId": "Votre ID",
+      "shareText": "Partagez cet ID avec vos amis.",
+      "enterId": "Entrez l'ID",
+      "search": "Chercher"
+    },
+    "status": {
+      "online": "En ligne",
+      "offline": "Hors ligne",
+      "activeNow": "Actif maintenant",
+      "lastSeen": "Vu le",
+      "ago": "il y a"
+    },
+    "chat": {
+      "placeholder": "Message...",
+      "paintMode": "Mode Dessin"
+    },
+    "achievementList": {
+      "perfect-easy": { "title": "Érudit", "description": "100% au Quiz Facile" },
+      "perfect-medium": { "title": "Disciple", "description": "100% au Quiz Moyen" },
+      "perfect-hard": { "title": "Théologien", "description": "100% au Quiz Difficile" }
+    },
+    "updatesList": [
+      { "version": "1.7.0", "date": "25.03.2025", "title": "Nouveau Tableau de bord", "changes": ["Vue Accueil ajoutée", "Navigation améliorée"] },
+      { "version": "1.6.0", "date": "15.03.2025", "title": "Mise à jour Lecteur", "changes": ["Correction Bible", "Changement de chapitre instantané", "Lecture hors ligne"] },
+      { "version": "1.5.0", "date": "05.03.2025", "title": "Quiz & Succès", "changes": ["Mode Trivia", "Succès ajoutés", "Séries d'amis"] },
+      { "version": "1.4.0", "date": "25.02.2025", "title": "Perfection Graffiti", "changes": ["Correction sauvegarde", "Fluidité améliorée"] },
+      { "version": "1.3.0", "date": "15.02.2025", "title": "Chat Social", "changes": ["Messages temps réel", "Photos et audio"] },
+      { "version": "1.2.0", "date": "05.02.2025", "title": "Hiver", "changes": ["Mode festif", "Visuels améliorés"] },
+      { "version": "1.1.0", "date": "25.01.2025", "title": "Lecteur", "changes": ["Lecteur complet", "Favoris"] },
+      { "version": "1.0.0", "date": "15.01.2025", "title": "Lancement", "changes": ["Chat Berger IA", "Moteur de Guidage Spirituel"] }
+    ]
+  },
+  "saved": {
+    "title": "Favoris",
+    "empty": "Aucun favori pour le moment.",
+    "itemsCount_zero": "0 éléments",
+    "itemsCount_one": "1 élément",
+    "itemsCount_other": "{{count}} éléments",
+    "filterAll": "Tout",
+    "filterVerse": "Versets",
+    "filterChat": "Chats",
+    "filterPrayer": "Prières",
+    "chatMessage": "Message Chat",
+    "bibleVerse": "Verset Biblique",
+    "prayerItem": "Prière"
+  },
+  "feedback": {
+    "title": "Feedback",
+    "desc": "Bugs ou suggestions ?",
+    "type": "Type",
+    "bug": "Erreur",
+    "feature": "Fonction",
+    "suggestion": "Suggestion",
+    "other": "Autre",
+    "subject": "Sujet",
+    "subjectPlaceholder": "Sujet",
+    "message": "Message",
+    "messagePlaceholder": "Détails...",
+    "submit": "Envoyer",
+    "success": "Succès",
+    "error": "Erreur",
+    "requiredField": "Champ requis",
+    "targetEmail": "andrinruegg732@gmail.com"
+  },
+  "composer": {
+    "title": "Compositeur Visuel",
+    "theme": "Thème",
+    "content": "Contenu",
+    "background": "Arrière-plan",
+    "typography": "Typographie",
+    "textColor": "Couleur Texte",
+    "quickSelect": "Sélection Rapide",
+    "selectPlaceholder": "Choisir un verset...",
+    "message": "Message",
+    "reference": "Référence",
+    "download": "Télécharger",
+    "processing": "Traitement...",
+    "securityWarning": "Blocage de sécurité",
+    "presets": [
+      { "ref": "Psaumes 23:1", "text": "L'Éternel est mon berger : je ne manquerai de rien." },
+      { "ref": "Jérémie 29:11", "text": "Car je connais les projets que j'ai formés pour vous, dit l'Éternel, projets de paix et non de malheur." },
+      { "ref": "Philippiens 4:13", "text": "Je puis tout par celui qui me fortifie." },
+      { "ref": "Jean 3:16", "text": "Car Dieu a tant aimé le monde qu'il a donné son Fils unique." },
+      { "ref": "Romains 8:28", "text": "Nous savons, du reste, que toutes choses concourent au bien de ceux qui aiment Dieu." }
+    ],
+    "themes": {
+      "midnight": "Minuit",
+      "sunset": "Coucher de soleil",
+      "forest": "Forêt",
+      "paper": "Papier",
+      "clean": "Épuré",
+      "mountains": "Montagnes",
+      "mist": "Brume",
+      "valley": "Vallée",
+      "canyon": "Canyon",
+      "desert": "Désert",
+      "field": "Champ",
+      "ocean": "Océan",
+      "waterfall": "Cascade",
+      "rain": "Pluie",
+      "coast": "Côte",
+      "stars": "Étoiles",
+      "aurora": "Aurore",
+      "clouds": "Nuages",
+      "nebula": "Nébuleuse",
+      "bloom": "Fleur",
+      "lavender": "Lavande",
+      "winter": "Hiver",
+      "autumn": "Automne",
+      "leaves": "Feuilles",
+      "palm": "Palmier",
+      "cross": "Croix"
+    }
+  },
+  "topics": {
+    "title": "Explorer un Thème",
+    "anxiety": { "label": "Anxiété", "query": "Je me sens anxieux. Aide-moi." },
+    "love": { "label": "Amour", "query": "Parle-moi de l'amour." },
+    "hope": { "label": "Espérance", "query": "J'ai besoin d'espoir." },
+    "sadness": { "label": "Tristeza", "query": "Je suis triste." },
+    "gratitude": { "label": "Gratitude", "query": "Je veux rendre grâce." },
+    "strength": { "label": "Force", "query": "Je me sens faible." },
+    "joy": { "label": "Joie", "query": "Je veux me réjouir." },
+    "forgiveness": { "label": "Pardon", "query": "Parle-moi du pardon." }
+  },
+  "bible": {
+    "oldTestament": "Ancien Testament",
+    "newTestament": "Nouveau Testament",
+    "loading": "Chargement...",
+    "error": "Erreur de chargement",
+    "save": "Sauvegarder",
+    "prev": "Préc.",
+    "next": "Suiv.",
+    "audio": { "play": "Écouter", "pause": "Pause" },
+    "needKey": "Clé API requise."
+  },
+  "dailyVerse": {
+    "title": "Verset du Jour",
+    "copy": "Copier",
+    "copied": "Copié !",
+    "createImage": "Créer Image"
+  },
   "sanctuary": {
     "title": "Sanctuaire",
     "rain": "Pluie",
     "fire": "Feu",
     "stream": "Rivière",
     "volume": "Volume",
-    "active": "Lecture de l'ambiance sonore"
+    "active": "Ambiance sonore active"
   },
   "prayer": {
     "title": "Journal de Prière",
-    "placeholder": "Qu'y a-t-il dans votre cœur ?",
+    "placeholder": "Qu'avez-vous sur le cœur ?",
     "amen": "Amen",
     "answered": "Exaucée",
-    "active": "Requêtes actives",
+    "active": "Requêtes Actives",
     "tabs": {
       "journal": "Mon Journal",
       "community": "Mur de Prière"
@@ -170,16 +368,16 @@
     "privacy": {
       "private": "Privé",
       "friends": "Amis",
-      "specific": "Sélectionnés",
+      "specific": "Sélect.",
       "public": "Public",
       "anonymous": "Anonyme",
-      "publicId": "Voir l'ID"
+      "publicId": "Voir ID"
     }
   },
   "quiz": {
     "title": "Trivia Biblique",
-    "start": "Commencer le Quiz",
-    "difficulty": "Choisir la difficulté",
+    "start": "Commencer",
+    "difficulty": "Choisir difficulté",
     "mode": "Quiz",
     "easy": "Facile",
     "medium": "Moyen",
@@ -191,7 +389,7 @@
     "time": "Temps",
     "correct": "Correct !",
     "incorrect": "Incorrect",
-    "next": "Question suivante",
+    "next": "Suivant",
     "home": "Accueil",
     "playAgain": "Rejouer"
   }

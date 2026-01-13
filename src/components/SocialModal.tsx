@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { X, UserPlus, Users, Bell, Search, Check, AlertCircle, Copy, User, MessageCircle, ArrowLeft, Trash2, Flame, Award, Book, Scroll, Trophy, Info } from 'lucide-react';
+import { X, UserPlus, Users, Bell, Search, Check, AlertCircle, Copy, User, MessageCircle, ArrowLeft, Trash2, Flame, Award, Book, Scroll, Trophy, Info, Circle } from 'lucide-react';
 import { UserProfile, FriendRequest, Achievement, SocialTab } from '../types';
 import { db } from '../services/db';
 import FriendChat from './FriendChat';
@@ -14,6 +13,11 @@ const SocialModal: React.FC<{ isOpen: boolean, onClose: () => void, initialTab?:
   const [friends, setFriends] = useState<UserProfile[]>([]);
   const [currentUserProfile, setCurrentUserProfile] = useState<UserProfile | null>(null);
   const [loadingData, setLoadingData] = useState(false);
+
+  // Fetch the translated updates log from i18n
+  const updatesLog: any[] = Array.isArray(t('social.updatesList', { returnObjects: true })) 
+    ? (t('social.updatesList', { returnObjects: true }) as any[]) 
+    : [];
 
   useEffect(() => { if (isOpen) loadSocialData(); }, [isOpen, currentView]);
 
@@ -45,6 +49,24 @@ const SocialModal: React.FC<{ isOpen: boolean, onClose: () => void, initialTab?:
                             <div key={req.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-2xl border dark:border-slate-700 shadow-sm"><div className="flex items-center gap-4"><div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center overflow-hidden">{req.requester?.avatar ? <img src={req.requester.avatar} className="w-full h-full object-cover" /> : <User size={20}/>}</div><div><div className="text-sm font-bold dark:text-white">{req.requester?.display_name}</div><div className="text-xs text-slate-400 font-mono tracking-tighter">ID: {req.requester?.share_id}</div></div></div><div className="flex gap-2"><button onClick={() => db.social.respondToRequest(req.id, true).then(loadSocialData)} className="p-2 bg-emerald-100 text-emerald-600 rounded-xl"><Check size={18}/></button><button onClick={() => db.social.respondToRequest(req.id, false).then(loadSocialData)} className="p-2 bg-slate-100 text-slate-500 rounded-xl"><X size={18}/></button></div></div>
                         ))}</div>
                     )}
+                    
+                    <div>
+                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4">{t('social.inbox.updates')}</h3>
+                        <div className="space-y-3">
+                            {updatesLog.map((update: any, idx: number) => (
+                                <div key={idx} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 p-4 animate-slide-up" style={{ animationDelay: `${0.2 + (idx * 0.1)}s` }}>
+                                    <div className="flex justify-between items-start mb-2">
+                                        <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">v{update.version}</span>
+                                        <span className="text-xs text-slate-400">{update.date}</span>
+                                    </div>
+                                    <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">{update.title}</h4>
+                                    <ul className="text-xs text-slate-600 dark:text-slate-400 list-disc ml-4 space-y-1">
+                                        {update.changes.map((c: string, i: number) => <li key={i}>{c}</li>)}
+                                    </ul>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             )}
             {currentView === 'friends' && (

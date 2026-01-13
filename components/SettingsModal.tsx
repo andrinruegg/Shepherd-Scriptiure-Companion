@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Moon, Sun, LogOut, User, Globe, Info, Edit2, Check, Camera, Snowflake, Key, ExternalLink, Crown } from 'lucide-react';
 import { UserPreferences } from '../types';
@@ -19,7 +20,7 @@ interface SettingsModalProps {
 const LANGUAGES = [
   { id: 'en', name: 'English' },
   { id: 'ro', name: 'Română' },
-  { id: 'de', name: 'Deutsch' },
+  { id: 'de', name: 'Deutsch' }
 ];
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -213,14 +214,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                           <p className="text-[10px] font-black text-slate-500 uppercase mb-2">{t('settings.apiKey.howTo')}</p>
                           <ul className="text-[10px] text-slate-500 space-y-1.5 ml-1">
                             <li className="flex gap-2">
-                                <span className="font-bold text-indigo-500">1.</span>
+                                <span className="font-bold text-indigo-500 text-[10px]">1.</span>
                                 <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noreferrer" className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline flex items-center gap-1.5">
-                                    Visit Google AI Studio <ExternalLink size={10} />
+                                    {t('settings.apiKey.step1')} <ExternalLink size={10} />
                                 </a>
                             </li>
-                            <li className="flex gap-2"><span className="font-bold text-indigo-500">2.</span> Sign in with your account</li>
-                            <li className="flex gap-2"><span className="font-bold text-indigo-500">3.</span> Click 'Get API Key' then 'Create API Key'</li>
-                            <li className="flex gap-2"><span className="font-bold text-indigo-500">4.</span> Copy the code and paste it above</li>
+                            <li className="flex gap-2"><span className="font-bold text-indigo-500 text-[10px]">2.</span> {t('settings.apiKey.step2')}</li>
+                            <li className="flex gap-2"><span className="font-bold text-indigo-500 text-[10px]">3.</span> {t('settings.apiKey.step3')}</li>
+                            <li className="flex gap-2"><span className="font-bold text-indigo-500 text-[10px]">4.</span> {t('settings.apiKey.step4')}</li>
                           </ul>
                         </div>
                     </form>

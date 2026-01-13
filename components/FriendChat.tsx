@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import { ArrowLeft, Send, Image as ImageIcon, Mic, Loader2, Trash2, Check, CheckCheck, Palette, X, AlertCircle, ExternalLink, Languages } from 'lucide-react';
+import { ArrowLeft, Send, Image as ImageIcon, Mic, Loader2, Trash2, Check, CheckCheck, Palette, X, AlertCircle, User, Languages } from 'lucide-react';
 import { UserProfile, DirectMessage } from '../types';
 import { db } from '../services/db';
 import DrawingCanvas from './DrawingCanvas';
@@ -355,7 +354,7 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
       if (diff < 60 * 60 * 1000) return `${t('social.status.lastSeen')} ${Math.floor(diff / 60000)}m ${t('social.status.ago')}`;
       return t('social.status.offline');
   };
-  const isOnline = getStatusText() === t('social.status.online');
+  const isOnlineStatus = getStatusText() === t('social.status.online');
 
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 overflow-hidden relative">
@@ -370,18 +369,18 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
       )}
 
       <div className="flex items-center gap-3 p-4 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 shadow-sm z-30 relative shrink-0">
-         <button onClick={handleBack} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
+         <button onClick={handleBack} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500" title={t('stories.back')}>
              <ArrowLeft size={20} />
          </button>
          <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden relative">
-             {friend.avatar ? <img src={friend.avatar} className="w-full h-full object-cover" /> : null}
-             {isOnline && <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full"></div>}
+             {friend.avatar ? <img src={friend.avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-400"><User size={20}/></div>}
+             {isOnlineStatus && <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full"></div>}
          </div>
          <div className="flex-1">
              <h3 className="font-bold text-slate-800 dark:text-white leading-tight">{friend.display_name}</h3>
              <div className="flex items-center gap-1.5">
-                <p className={`text-xs ${isOnline ? 'text-emerald-600 font-medium' : 'text-slate-500'}`}>
-                    {isOnline ? t('social.status.activeNow') : getStatusText()}
+                <p className={`text-xs ${isOnlineStatus ? 'text-emerald-600 font-medium' : 'text-slate-500'}`}>
+                    {isOnlineStatus ? t('social.status.activeNow') : getStatusText()}
                 </p>
              </div>
          </div>
@@ -389,7 +388,7 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
 
       <div 
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900 relative p-4 space-y-4 pb-20 scroll-smooth"
+        className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900 relative p-4 space-y-4 pb-20 scroll-smooth no-scrollbar"
       >
         {graffitiUrl && !showGraffitiCanvas && (
             <img 
@@ -464,9 +463,9 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
                                         <span title="Delivered"><Check size={14} className="opacity-70" /></span>
                                     )}
                                     <button 
-                                        onClick={(e) => handleDeleteMessage(msg.id, e)}
+                                        onClick={(e) => { e.stopPropagation(); handleDeleteMessage(msg.id, e); }}
                                         className="ml-2 p-1.5 bg-red-600/20 hover:bg-red-600 text-white rounded-full transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100"
-                                        title="Delete Message"
+                                        title={t('common.delete')}
                                         type="button"
                                     >
                                         <Trash2 size={12} />
@@ -499,7 +498,7 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
                      <div className="w-3 h-3 bg-red-600 rounded-full animate-bounce"></div>
                      <span className="font-mono font-bold">{Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}</span>
                  </div>
-                 <button onClick={stopRecording} className="p-2 bg-red-600 text-white rounded-full hover:bg-red-700 shadow-lg">
+                 <button onClick={stopRecording} className="p-2 bg-red-600 text-white rounded-full hover:bg-red-700 shadow-lg" title={t('common.done')}>
                      <Send size={18} />
                  </button>
              </div>
@@ -513,7 +512,7 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
                      <Palette size={20} />
                  </button>
 
-                 <label className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer transition-colors">
+                 <label className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer transition-colors" title={t('common.upload')}>
                      <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
                      <ImageIcon size={20} />
                  </label>
@@ -530,7 +529,7 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
                  </div>
 
                  {inputText.trim() ? (
-                     <button onClick={handleSendText} disabled={loading} className="p-2.5 bg-indigo-600 text-white rounded-full hover:bg-indigo-700">
+                     <button onClick={handleSendText} disabled={loading} className="p-2.5 bg-indigo-600 text-white rounded-full hover:bg-indigo-700" title={t('common.shepherd')}>
                          {loading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
                      </button>
                  ) : (
@@ -538,6 +537,7 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
                         onClick={startRecording} 
                         disabled={requestingMic}
                         className={`p-2.5 rounded-full transition-all ${requestingMic ? 'bg-indigo-100 text-indigo-500 dark:bg-indigo-900/30 dark:text-indigo-400' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-700 active:scale-95'}`}
+                        title={t('common.mic')}
                      >
                          {requestingMic ? <Loader2 size={20} className="animate-spin" /> : <Mic size={20} />}
                      </button>
@@ -550,7 +550,7 @@ const FriendChat: React.FC<FriendChatProps> = ({ friend, onBack, currentUserShar
           <div className="absolute inset-0 bg-black/20 flex items-center justify-center z-50">
               <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-xl flex items-center gap-3">
                   <Loader2 className="animate-spin text-indigo-600" />
-                  <span className="text-sm font-medium dark:text-white">Sending...</span>
+                  <span className="text-sm font-medium dark:text-white">{t('common.loading')}</span>
               </div>
           </div>
       )}

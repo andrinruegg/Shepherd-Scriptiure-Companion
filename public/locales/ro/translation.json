@@ -1,3 +1,4 @@
+
 {
   "common": {
     "shepherd": "Păstorul",
@@ -15,6 +16,7 @@
     "remove": "Elimină",
     "done": "Gata",
     "error": "Eroare",
+    "fix": "Rezolvă",
     "confirmDelete": "Ești sigur că vrei să ștergi?"
   },
   "login": {
@@ -54,7 +56,7 @@
     "roleplayDesc": "Discută cu figuri biblice",
     "bibleTitle": "Citește Biblia",
     "bibleDesc": "Explorează scripturile",
-    "prayerTitle": "Jurnal Rugăciune",
+    "prayerTitle": "Journal Rugăciune",
     "prayerDesc": "Scrie & partajează",
     "quizTitle": "Trivia Biblică",
     "quizDesc": "Testează cunoștințele",
@@ -84,20 +86,21 @@
     "subtitle": "Partener Scriptural",
     "placeholder": "Întreabă Păstorul despre un verset, subiect sau sfat...",
     "placeholderShort": "Întreabă Păstorul...",
-    "regenerate": "Regenerează",
+    "regenerate": "Regenează",
     "retry": "Reîncearcă",
     "missingKeyTitle": "Cheie API Necesară",
     "missingKeyDesc": "Ai nevoie de o cheie gratuită Google Gemini API.",
+    "keyWarningSubtitle": "Necesar pentru AI Audio și Povești",
     "disclaimer": "Cheia rămâne în siguranță pe dispozitiv.",
     "setupKey": "Setare Cheie API",
     "instructions": "Instrucțiuni",
     "activateBtn": "Activează Păstorul",
     "invalidKey": "Cheie invalidă.",
     "howTo": {
-      "step1": "1. Vizitează Google AI Studio",
-      "step2": "2. Conectează-te cu contul tău",
-      "step3": "3. Apasă 'Get API Key'",
-      "step4": "4. Copiază codul mai jos"
+      "step1": "Vizitează Google AI Studio",
+      "step2": "Conectează-te cu contul tău",
+      "step3": "Apasă 'Get API Key' apoi 'Create API Key'",
+      "step4": "Copiază codul și lipește-l mai sus"
     }
   },
   "settings": {
@@ -142,10 +145,10 @@
       "openStudio": "Deschide AI Studio",
       "invalidLength": "Lungime invalidă.",
       "howTo": "Cum obții o cheie:",
-      "step1": "1. Vizitează Google AI Studio",
-      "step2": "2. Conectează-te cu Google",
-      "step3": "3. Apasă 'Get API Key'",
-      "step4": "4. Lipește aici"
+      "step1": "Vizitează Google AI Studio",
+      "step2": "Conectează-te cu contul tău",
+      "step3": "Apasă 'Get API Key' apoi 'Create API Key'",
+      "step4": "Copiază codul și lipește-l mai sus"
     }
   },
   "stories": {
@@ -157,7 +160,7 @@
     "history": "Biografie",
     "encounterLabel": "Întâlnire",
     "deleteEncounter": "Ștergi conversația?",
-    "disclaimer": "Vorbești cu o reprezentare AI a acestei figuri biblice.",
+    "disclaimer": "Vorbești cu o reprezentare AI de această figură biblică.",
     "pastConversations": "Conversații anterioare",
     "inputPlaceholder": "Vorbește cu martorul...",
     "needKey": "Cheie API necesară.",
@@ -177,6 +180,12 @@
       "message": "Mesaj",
       "unfriend": "Elimină prieten",
       "addFriend": "Adaugă prieten"
+    },
+    "tabs": {
+      "inbox": "Mesaje",
+      "friends": "Prieteni",
+      "add": "Adaugă",
+      "me": "Eu"
     },
     "inbox": {
       "title": "Notificări",
@@ -212,7 +221,17 @@
       "perfect-easy": { "title": "Savant Biblic", "description": "Scor 100% la Quiz Ușor" },
       "perfect-medium": { "title": "Ucenic", "description": "Scor 100% la Quiz Mediu" },
       "perfect-hard": { "title": "Teolog", "description": "Scor 100% la Quiz Greu" }
-    }
+    },
+    "updatesList": [
+      { "version": "1.7.0", "date": "14.12.2025", "title": "Panou de bord nou", "changes": ["Vizualizare Acasă adăugată", "Navigație îmbunătățită"] },
+      { "version": "1.6.0", "date": "12.12.2025", "title": "Upgrade Cititor Biblie", "changes": ["Reparat încărcarea Bibliei Cornilescu", "Schimbare instantanee a capitolelor", "Text biblic disponibil offline"] },
+      { "version": "1.5.0", "date": "11.12.2025", "title": "Quiz și Realizări", "changes": ["Adăugat modul Trivia Biblică", "Câștigă realizări pentru scoruri perfecte", "Vizualizează seriile și insignele prietenilor", "Urmărire progres globală"] },
+      { "version": "1.4.0", "date": "10.12.2025", "title": "Perfecțiune Graffiti", "changes": ["Reparat probleme de salvare în modul Graffiti", "Experiență de desenat mai fluidă", "Fiabilitate îmbunătățită a încărcării"] },
+      { "version": "1.3.0", "date": "09.12.2025", "title": "Chat Social", "changes": ["Mesagerie în timp real cu prietenii", "Partajare fotografii", "Mesaje vocale", "Status Online și Confirmări de citire"] },
+      { "version": "1.2.0", "date": "09.12.2025", "title": "Actualizare de Iarnă", "changes": ["Adăugat modul festiv de Iarnă", "Vizualuri îmbunătățite la ecranul de pornire", "Remedieri de erori pentru conectivitatea API"] },
+      { "version": "1.1.0", "date": "08.12.2025", "title": "Cititor Biblie", "changes": ["Adăugat cititorul complet al Bibliei", "Suport pentru evidențiere", "Salvează versete în colecție"] },
+      { "version": "1.0.0", "date": "08.12.2025", "title": "Lansare Inițială", "changes": ["Chat Shepherd AI", "Integrare Supabase"] }
+    ]
   },
   "saved": {
     "title": "Favorite",
@@ -271,7 +290,7 @@
       { "ref": "Matei 11:28", "text": "Veniți la Mine, toți cei trudiți și împovărați, și Eu vă voi da odihnă." },
       { "ref": "1 Corinteni 13:4", "text": "Dragostea este îndelung răbdătoare, este plină de bunătate; dragostea nu pizmuiește; dragostea nu se laudă, nu se umflă de mândrie." },
       { "ref": "Iosua 1:9", "text": "Nu ți-am poruncit Eu oare: Întărește-te și îmbărbătează-te! Nu te îngrozi și nu te speria, căci Domnul Dumnezeul tău este cu tine în tot ce vei face." },
-      { "ref": "Psalmul 46:1", "text": "Dumnezeu este adăpostul și sprijinul nostru, un ajutor care nu lipsește niciodată în nevoi." },
+      { "ref": "Psalmul 46:1", "text": "Dumnezeu este adăpostul și sprijinul nostru, un ajutor care nu lipește niciodată în nevoi." },
       { "ref": "Romani 12:2", "text": "Să nu vă potriviți chipului veacului acestuia, ci să vă prefaceți prin înnoirea minții voastre." },
       { "ref": "Plângerile lui Ieremia 3:22", "text": "Bunătățile Domnului nu s-au sfârșit, îndurările Lui nu sunt la capăt." },
       { "ref": "Psalmul 119:105", "text": "Cuvântul Tău este o candelă pentru picioarele mele și o lumină pe cărarea mea." },
@@ -349,8 +368,11 @@
     "active": "Redare sunet ambiental"
   },
   "prayer": {
-    "title": "Jurnal Rugăciune",
+    "title": "Păstorul",
     "placeholder": "Ce ai pe inimă?",
+    "communityTitle": "Zidul Rugăciunii",
+    "communitySubtitle": "Alătură-te rugăciunii alături de alții din întreaga lume.",
+    "communityEmpty": "Zidul este liniștit momentan. Fii primul care împărtășește o rugăciune!",
     "amen": "Amin",
     "answered": "Împlinită",
     "active": "Cereri Active",

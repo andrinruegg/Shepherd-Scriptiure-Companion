@@ -15,7 +15,10 @@
     "remove": "Remove",
     "done": "Done",
     "error": "Error",
-    "confirmDelete": "Are you sure you want to delete this?"
+    "fix": "Fix",
+    "confirmDelete": "Are you sure you want to delete this?",
+    "mic": "Microphone",
+    "upload": "Upload"
   },
   "login": {
     "welcomeBack": "Welcome Back",
@@ -88,16 +91,17 @@
     "retry": "Retry",
     "missingKeyTitle": "API Key Required",
     "missingKeyDesc": "To chat with Shepherd, you need a free Google Gemini API key.",
+    "keyWarningSubtitle": "Required for AI Audio & Stories",
     "disclaimer": "Your key stays safely on your device.",
     "setupKey": "Setup API Key",
     "instructions": "Instructions",
     "activateBtn": "Activate Shepherd",
     "invalidKey": "Invalid API Key.",
     "howTo": {
-      "step1": "1. Visit Google AI Studio",
-      "step2": "2. Sign in with your account",
-      "step3": "3. Click 'Get API Key'",
-      "step4": "4. Copy and paste the key below"
+      "step1": "Visit Google AI Studio",
+      "step2": "Sign in with your account",
+      "step3": "Click 'Get API Key' then 'Create API Key'",
+      "step4": "Copy the code and paste it above"
     }
   },
   "settings": {
@@ -142,10 +146,10 @@
       "openStudio": "Open AI Studio",
       "invalidLength": "Invalid key length.",
       "howTo": "How to get a free key:",
-      "step1": "1. Visit Google AI Studio",
-      "step2": "2. Sign in with Google",
-      "step3": "3. Click 'Get API Key'",
-      "step4": "4. Paste it here"
+      "step1": "Visit Google AI Studio",
+      "step2": "Sign in with your account",
+      "step3": "Click 'Get API Key' then 'Create API Key'",
+      "step4": "Copy the code and paste it above"
     }
   },
   "stories": {
@@ -177,6 +181,12 @@
       "message": "Message",
       "unfriend": "Unfriend",
       "addFriend": "Add Friend"
+    },
+    "tabs": {
+      "inbox": "Inbox",
+      "friends": "Friends",
+      "add": "Add",
+      "me": "Me"
     },
     "inbox": {
       "title": "Notifications",
@@ -212,7 +222,17 @@
       "perfect-easy": { "title": "Bible Scholar", "description": "Score 100% on Easy Quiz" },
       "perfect-medium": { "title": "Disciple", "description": "Score 100% on Medium Quiz" },
       "perfect-hard": { "title": "Theologian", "description": "Score 100% on Hard Quiz" }
-    }
+    },
+    "updatesList": [
+      { "version": "1.7.0", "date": "25.03.2025", "title": "New Dashboard", "changes": ["Added Home View", "Improved Navigation"] },
+      { "version": "1.6.0", "date": "18.03.2025", "title": "Bible Reader Upgrade", "changes": ["Fixed Bible loading", "Instant chapter switching", "Offline-ready Bible text"] },
+      { "version": "1.5.0", "date": "10.03.2025", "title": "Quiz & Achievements", "changes": ["Added Bible Trivia mode", "Earn achievements", "View friend streaks"] },
+      { "version": "1.4.0", "date": "01.03.2025", "title": "Graffiti Perfection", "changes": ["Fixed Graffiti Mode issues", "Smoother drawing", "Improved upload"] },
+      { "version": "1.3.0", "date": "20.02.2025", "title": "Social Chat", "changes": ["Real-time messaging", "Photo sharing", "Voice messages"] },
+      { "version": "1.2.0", "date": "10.02.2025", "title": "Winter Update", "changes": ["Added festive Winter Mode", "Bug fixes"] },
+      { "version": "1.1.0", "date": "01.02.2025", "title": "Bible Reader", "changes": ["Added full Bible reader", "Highlighting support"] },
+      { "version": "1.0.0", "date": "15.01.2025", "title": "Initial Launch", "changes": ["Shepherd AI Chat", "Supabase Integration"] }
+    ]
   },
   "saved": {
     "title": "Favorites",
@@ -265,23 +285,7 @@
       { "ref": "Jeremiah 29:11", "text": "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future." },
       { "ref": "Philippians 4:13", "text": "I can do all this through him who gives me strength." },
       { "ref": "John 3:16", "text": "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life." },
-      { "ref": "Romans 8:28", "text": "And we know that in all things God works for the good of those who love him, who have been called according to his purpose." },
-      { "ref": "Proverbs 3:5", "text": "Trust in the Lord with all your heart and lean not on your own understanding." },
-      { "ref": "Isaiah 41:10", "text": "So do not fear, for I am with you; do not be dismayed, for I am your God. I will strengthen you and help you; I will uphold you with my righteous right hand." },
-      { "ref": "Matthew 11:28", "text": "Come to me, all you who are weary and burdened, and I will give you rest." },
-      { "ref": "1 Corinthians 13:4", "text": "Love is patient, love is kind. It does not envy, it does not boast, it is not proud." },
-      { "ref": "Joshua 1:9", "text": "Have I not commanded you? Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go." },
-      { "ref": "Psalm 46:1", "text": "God is our refuge and strength, an ever-present help in trouble." },
-      { "ref": "Romans 12:2", "text": "Do not conform to the pattern of this world, but be transformed by the renewing of your mind." },
-      { "ref": "Lamentations 3:22", "text": "Because of the Lord’s great love we are not consumed, for his compassions never fail." },
-      { "ref": "Psalm 119:105", "text": "Your word is a lamp for my feet, a light on my path." },
-      { "ref": "Matthew 6:33", "text": "But seek first his kingdom and his righteousness, and all these things will be given to you as well." },
-      { "ref": "Hebrews 11:1", "text": "Now faith is confidence in what we hope for and assurance about what we do not see." },
-      { "ref": "2 Timothy 1:7", "text": "For the Spirit God gave us does not make us timid, but gives us power, love and self-discipline." },
-      { "ref": "Galatians 5:22", "text": "But the fruit of the Spirit is love, joy, peace, forbearance, kindness, goodness, faithfulness." },
-      { "ref": "Psalm 37:4", "text": "Take delight in the Lord, and he will give you the desires of your heart." },
-      { "ref": "Revelation 21:4", "text": "He will wipe every tear from their eyes. There will be no more death or mourning or crying or pain, for the old order of things has passed away." },
-      { "ref": "1 Peter 5:7", "text": "Cast all your anxiety on him because he cares for you." }
+      { "ref": "Romans 8:28", "text": "And we know that in all things God works for the good of those who love him, who have been called according to his purpose." }
     ],
     "themes": {
       "midnight": "Midnight",
@@ -341,7 +345,7 @@
     "createImage": "Create Image"
   },
   "sanctuary": {
-    "title": "Sanctuar",
+    "title": "Sanctuary",
     "rain": "Rain",
     "fire": "Fire",
     "stream": "River",

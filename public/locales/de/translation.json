@@ -1,3 +1,4 @@
+
 {
   "common": {
     "shepherd": "Hirte",
@@ -15,6 +16,7 @@
     "remove": "Entfernen",
     "done": "Fertig",
     "error": "Fehler",
+    "fix": "Beheben",
     "confirmDelete": "Möchten Sie dies wirklich löschen?"
   },
   "login": {
@@ -86,18 +88,19 @@
     "placeholderShort": "Frag Hirte...",
     "regenerate": "Neu generieren",
     "retry": "Wiederholen",
-    "missingKeyTitle": "Schlüssel erforderlich",
+    "missingKeyTitle": "API-Schlüssel erforderlich",
     "missingKeyDesc": "Kostenloser Google API-Schlüssel nötig.",
+    "keyWarningSubtitle": "Erforderlich für KI-Audio & Geschichten",
     "disclaimer": "Schlüssel bleibt auf dem Gerät.",
     "setupKey": "Schlüssel einrichten",
     "instructions": "Anleitung",
     "activateBtn": "Hirte aktivieren",
     "invalidKey": "Ungültiger Schlüssel.",
     "howTo": {
-      "step1": "1. Google AI Studio besuchen",
-      "step2": "2. Melden Sie sich an",
-      "step3": "3. Klicken Sie auf 'Get API Key'",
-      "step4": "4. Kopieren Sie den Code"
+      "step1": "Besuchen Sie Google AI Studio",
+      "step2": "Melden Sie sich mit Ihrem Konto an",
+      "step3": "Klicken Sie auf 'Get API Key' und dann auf 'Create API Key'",
+      "step4": "Kopieren Sie den Code und fügen Sie ihn oben ein"
     }
   },
   "settings": {
@@ -114,7 +117,7 @@
       "desc": "Festliche Animationen",
       "snow": "Schnee",
       "lights": "Lichter",
-      "icicles": "Eiszapfen"
+      "icicles": "Glaçons"
     },
     "princess": {
       "title": "Prinzessinnen-Modus",
@@ -142,10 +145,10 @@
       "openStudio": "KI Studio öffnen",
       "invalidLength": "Ungültige Länge.",
       "howTo": "So erhalten Sie einen Schlüssel:",
-      "step1": "1. Google AI Studio besuchen",
-      "step2": "2. Mit Google anmelden",
-      "step3": "3. 'Get API Key' klicken",
-      "step4": "4. Hier einfügen"
+      "step1": "Besuchen Sie Google AI Studio",
+      "step2": "Melden Sie sich mit Ihrem Konto an",
+      "step3": "Klicken Sie auf 'Get API Key' und dann auf 'Create API Key'",
+      "step4": "Kopieren Sie den Code und fügen Sie ihn oben ein"
     }
   },
   "stories": {
@@ -178,6 +181,12 @@
       "unfriend": "Entfreunden",
       "addFriend": "Freund hinzufügen"
     },
+    "tabs": {
+      "inbox": "Eingang",
+      "friends": "Freunde",
+      "add": "Hinzufügen",
+      "me": "Ich"
+    },
     "inbox": {
       "title": "Benachrichtigungen",
       "requests": "Freundschaftsanfragen",
@@ -191,7 +200,7 @@
       "streak": "Serie"
     },
     "add": {
-      "title": "Freund hinzufügen",
+      "title": "Add Friend",
       "yourId": "Deine Share-ID",
       "shareText": "Teile diese ID mit deinen Freunden.",
       "enterId": "ID eingeben",
@@ -212,7 +221,17 @@
       "perfect-easy": { "title": "Bibel-Gelehrter", "description": "100% im einfachen Quiz" },
       "perfect-medium": { "title": "Jünger", "description": "100% im mittleren Quiz" },
       "perfect-hard": { "title": "Theologe", "description": "100% im schweren Quiz" }
-    }
+    },
+    "updatesList": [
+      { "version": "1.7.0", "date": "14.12.2025", "title": "Neues Dashboard", "changes": ["Home-Ansicht hinzugefügt", "Verbesserte Navigation"] },
+      { "version": "1.6.0", "date": "12.12.2025", "title": "Bibel-Reader Upgrade", "changes": ["Rumänische Bibel (Cornilescu) Laden korrigiert", "Sofortiger Kapitelwechsel", "Offline-fähiger Bibeltext"] },
+      { "version": "1.5.0", "date": "11.12.2025", "title": "Quiz & Erfolge", "changes": ["Bibel-Trivia Modus hinzugefügt", "Erfolge für perfekte Punktzahlen", "Freundes-Streaks ansehen", "Globales Tracking"] },
+      { "version": "1.4.0", "date": "10.12.2025", "title": "Graffiti Perfektion", "changes": ["Probleme beim Speichern im Graffiti-Modus behoben", "Flüssigeres Zeichnen", "Verbesserte Upload-Zuverlässigkeit"] },
+      { "version": "1.3.0", "date": "09.12.2025", "title": "Sozialer Chat", "changes": ["Echtzeit-Messaging mit Freunden", "Foto-Sharing", "Sprachnachrichten", "Online-Status & Lesebestätigungen"] },
+      { "version": "1.2.0", "date": "09.12.2025", "title": "Winter Update", "changes": ["Festlicher Wintermodus hinzugefügt", "Verbesserte Splash-Screen Visuals", "Bugfixes für API-Verbindung"] },
+      { "version": "1.1.0", "date": "08.12.2025", "title": "Bibel Reader", "changes": ["Vollständiger Bibel-Reader hinzugefügt", "Hervorhebungs-Unterstützung", "Verse in Sammlung speichern"] },
+      { "version": "1.0.0", "date": "08.12.2025", "title": "Initialer Launch", "changes": ["Hirte KI Chat", "Supabase Integration"] }
+    ]
   },
   "saved": {
     "title": "Favoriten",
@@ -279,7 +298,7 @@
       { "ref": "Hebräer 11,1", "text": "Es ist aber der Glaube eine feste Zuversicht auf das, was man hofft, und ein Nichtzweifeln an dem, was man nicht sieht." },
       { "ref": "2. Timothy 1,7", "text": "Denn Gott hat uns nicht gegeben den Geist der Furcht, sondern der Kraft und der Liebe und der Besonnenheit." },
       { "ref": "Galater 5,22", "text": "Die Frucht aber des Geistes ist Liebe, Freude, Friede, Geduld, Freundlichkeit, Güte, Treue." },
-      { "ref": "Psalm 37,4", "text": "Habe deine Lust am HERRN; der wird dir geben, was dein Herz wünscht." },
+      { "ref": "Psalm 37,4", "text": "Take delight in the Lord, and he will give you the desires of your heart." },
       { "ref": "Offenbarung 21,4", "text": "Gott wird abwischen alle Tränen von ihren Augen, und der Tod wird nicht mehr sein, noch Leid noch Geschrei noch Schmerz wird mehr sein." },
       { "ref": "1. Petrus 5,7", "text": "Alle eure Sorge werft auf ihn; denn er sorgt für euch." }
     ],

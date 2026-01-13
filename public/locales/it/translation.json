@@ -1,4 +1,3 @@
-
 {
   "common": {
     "shepherd": "Pastore",
@@ -16,6 +15,7 @@
     "remove": "Rimuovi",
     "done": "Fatto",
     "error": "Errore",
+    "fix": "Correggi",
     "confirmDelete": "Sei sicuro di voler eliminare?"
   },
   "login": {
@@ -34,12 +34,17 @@
     "noAccount": "Non hai un account? Registrati",
     "hasAccount": "Hai già un account? Accedi",
     "forgotPassword": "Password dimenticata?",
-    "sendReset": "Invia link di ripristino",
+    "sendReset": "Invia link",
     "resetText": "Inserisci la tua email per il link di ripristino.",
     "successCreated": "Account creato! Controlla la tua email.",
     "checkEmail": "Controlla la tua Email",
     "verificationSuccess": "Verifica completata",
-    "hasAccountBtn": "Hai già un account? Accedi"
+    "hasAccountBtn": "Hai già un account? Accedi",
+    "setNewPassword": "Nuova Password",
+    "passwordUpdated": "Password Aggiornata!",
+    "loggingOut": "Disconnessione per riavvio...",
+    "updatePassword": "Aggiorna",
+    "newPassword": "Nuova Password"
   },
   "home": {
     "goodMorning": "Buongiorno",
@@ -47,15 +52,15 @@
     "goodEvening": "Buonasera",
     "welcome": "Bentornato, {{name}}",
     "dailyVerse": "Versetto del Giorno",
-    "streak": "Giorni consecutivi",
+    "streak": "Serie",
     "jumpTo": "Vai a...",
     "chatTitle": "Chiedi al Pastore",
     "chatDesc": "Guida spirituale",
     "roleplayTitle": "Storie IA",
     "roleplayDesc": "Parla con figure bibliche",
-    "bibleTitle": "Leggi la Bibbia",
+    "bibleTitle": "Leggi Biblia",
     "bibleDesc": "Esplora le scritture",
-    "prayerTitle": "Diario di Preghiera",
+    "prayerTitle": "Diario Preghiera",
     "prayerDesc": "Scrivi e condividi",
     "quizTitle": "Trivia Biblica",
     "quizDesc": "Testa le tue conoscenze",
@@ -63,14 +68,14 @@
     "friendsDesc": "Chatta e Connettiti",
     "favoritesTitle": "Preferiti",
     "favoritesDesc": "I tuoi preferiti salvati",
-    "feedback": "Feedback",
+    "feedback": "Suggerimenti",
     "subtitle": "Il tuo compagno di pace nelle scritture"
   },
   "sidebar": {
     "home": "Dashboard",
     "newChat": "Nuova Chat",
     "history": "Cronologia",
-    "noChats": "Nessuna cronologia trovata.",
+    "noChats": "Nessuna cronologia.",
     "deleteConfirm": "Elimina conversazione?",
     "delete": "Elimina",
     "rename": "Rinomina",
@@ -89,6 +94,7 @@
     "retry": "Riprova",
     "missingKeyTitle": "Chiave API richiesta",
     "missingKeyDesc": "Hai bisogno di una chiave Google Gemini gratuita.",
+    "keyWarningSubtitle": "Richiesto per audio e storie IA",
     "disclaimer": "La tua chiave rimane sul dispositivo.",
     "setupKey": "Configura Chiave",
     "instructions": "Istruzioni",
@@ -113,22 +119,22 @@
     "winter": {
       "title": "Modalità Inverno",
       "desc": "Animazioni festive",
-      "snow": "Neve che cade",
-      "lights": "Luci di Natale",
+      "snow": "Neve",
+      "lights": "Luci",
       "icicles": "Ghiaccioli"
     },
     "princess": {
       "title": "Modalità Principessa",
       "desc": "Cuori e magia",
       "hearts": "Cuori",
-      "aurora": "Aurora Magica",
+      "aurora": "Aurora",
       "lightOnly": "Solo in Modalità Chiaro",
-      "activateHint": "L'attivazione passerà alla Modalità Chiaro"
+      "activateHint": "L'attivazione passerate alla Modalità Chiaro"
     },
     "account": "Account",
     "signOut": "Disconnetti",
     "about": "Informazioni sul Pastore",
-    "aboutText": "Il Pastore Scripture Companion è stato sviluppato con la missione di aiutare i credenti ad avvicinarsi a Dio attraverso la Parola.",
+    "aboutText": "Il Pastore Scripture Companion è stato sviluppato per aiutare i credenti ad avvicinarsi a Dio attraverso lo studio della Parola.",
     "displayName": "Nome visualizzato",
     "bio": "Bio / Descrizione",
     "noBio": "Nessuna descrizione.",
@@ -141,13 +147,205 @@
       "change": "Cambia Chiave",
       "save": "Salva Chiave",
       "openStudio": "Apri AI Studio",
-      "invalidLength": "Lunghezza chiave non valida.",
+      "invalidLength": "Lunghezza non valida.",
       "howTo": "Come ottenere una chiave gratis:",
       "step1": "1. Visita Google AI Studio",
       "step2": "2. Accedi con Google",
       "step3": "3. Clicca 'Get API Key'",
       "step4": "4. Incolla qui"
     }
+  },
+  "stories": {
+    "title": "Testimoni Biblici",
+    "subtitle": "Storie di Fede",
+    "readMore": "Leggi Storia",
+    "back": "Indietro",
+    "startRoleplay": "Inizia Conversazione",
+    "history": "Biografia",
+    "encounterLabel": "Incontro",
+    "deleteEncounter": "Elimina incontro?",
+    "disclaimer": "Rappresentazione IA",
+    "pastConversations": "Conversazioni Passate",
+    "inputPlaceholder": "Parla con il testimone...",
+    "needKey": "Chiave API richiesta.",
+    "intro": {
+      "peter": "Ricordo l'odore del sale... Come posso aiutarti?",
+      "paul": "Grazia e pace a voi da Dio nostro Padre."
+    }
+  },
+  "social": {
+    "title": "Social e Aggiornamenti",
+    "profile": {
+      "title": "Mio Profilo",
+      "streak": "Serie Giornaliera",
+      "achievements": "Obiettivi",
+      "locked": "Bloccato",
+      "about": "Informazioni",
+      "message": "Messaggio",
+      "unfriend": "Rimuovi amico",
+      "addFriend": "Aggiungi amico"
+    },
+    "tabs": {
+      "inbox": "Posta",
+      "friends": "Amici",
+      "add": "Aggiungi",
+      "me": "Io"
+    },
+    "inbox": {
+      "title": "Notifiche",
+      "requests": "Richieste di Amicizia",
+      "noRequests": "Nessuna richiesta",
+      "updates": "Aggiornamenti di Sistema"
+    },
+    "friends": {
+      "title": "I Miei Amici",
+      "loading": "Caricamento amici...",
+      "empty": "Ancora nessun amico.",
+      "streak": "Serie"
+    },
+    "add": {
+      "title": "Aggiungi Amico",
+      "yourId": "Tuo ID",
+      "shareText": "Condividi questo ID con i tuoi amici.",
+      "enterId": "Inserisci ID",
+      "search": "Cerca"
+    },
+    "status": {
+      "online": "Online",
+      "offline": "Offline",
+      "activeNow": "Attivo ora",
+      "lastSeen": "Ultima volta",
+      "ago": "fa"
+    },
+    "chat": {
+      "placeholder": "Messaggio...",
+      "paintMode": "Modalità Pittura"
+    },
+    "achievementList": {
+      "perfect-easy": { "title": "Studioso Biblico", "description": "100% in Quiz Facile" },
+      "perfect-medium": { "title": "Discepolo", "description": "100% in Quiz Medio" },
+      "perfect-hard": { "title": "Teologo", "description": "100% in Quiz Difficile" }
+    },
+    "updatesList": [
+      { "version": "1.7.0", "date": "25.03.2025", "title": "Nuova Dashboard", "changes": ["Vista Home aggiunta", "Navigazione migliorata"] },
+      { "version": "1.6.0", "date": "15.03.2025", "title": "Aggiornamento Lettore", "changes": ["Fix caricamento Bibbia", "Bibbia disponibile offline"] },
+      { "version": "1.5.0", "date": "05.03.2025", "title": "Quiz e Obiettivi", "changes": ["Modalità Trivia", "Obiettivi per punteggi perfetti"] },
+      { "version": "1.4.0", "date": "25.02.2025", "title": "Perfezione Graffiti", "changes": ["Fix salvataggio", "Disegno fluido"] },
+      { "version": "1.3.0", "date": "15.02.2025", "title": "Chat Social", "changes": ["Messaggi tempo reale", "Stato online"] },
+      { "version": "1.2.0", "date": "05.02.2025", "title": "Aggiornamento Inverno", "changes": ["Modalità festiva", "Visual migliorati"] },
+      { "version": "1.1.0", "date": "25.01.2025", "title": "Lettore Biblia", "changes": ["Lettore completo", "Salva preferiti"] },
+      { "version": "1.0.0", "date": "15.01.2025", "title": "Lancio Iniziale", "changes": ["Chat Pastore IA", "Integrazione Supabase"] }
+    ]
+  },
+  "saved": {
+    "title": "Preferiti",
+    "empty": "Ancora nessun preferito.",
+    "itemsCount_zero": "0 elementi",
+    "itemsCount_one": "1 elemento",
+    "itemsCount_other": "{{count}} elementi",
+    "filterAll": "Tutti",
+    "filterVerse": "Versetti",
+    "filterChat": "Chat",
+    "filterPrayer": "Preghiere",
+    "chatMessage": "Messaggio Chat",
+    "bibleVerse": "Versetto Biblico",
+    "prayerItem": "Preghiera"
+  },
+  "feedback": {
+    "title": "Feedback",
+    "desc": "Bug o suggerimenti ?",
+    "type": "Tipo",
+    "bug": "Errore",
+    "feature": "Funzione",
+    "suggestion": "Suggerimento",
+    "other": "Altro",
+    "subject": "Oggetto",
+    "subjectPlaceholder": "Oggetto",
+    "message": "Messaggio",
+    "messagePlaceholder": "Dettagli...",
+    "submit": "Invia",
+    "success": "Successo",
+    "error": "Errore",
+    "requiredField": "Campo richiesto",
+    "targetEmail": "andrinruegg732@gmail.com"
+  },
+  "composer": {
+    "title": "Compositore Visivo",
+    "theme": "Tema",
+    "content": "Contenuto",
+    "background": "Sfondo",
+    "typography": "Tipografia",
+    "textColor": "Colore Testo",
+    "quickSelect": "Selezione Rapida",
+    "selectPlaceholder": "Scegli un versetto...",
+    "message": "Messaggio",
+    "reference": "Riferimento",
+    "download": "Scarica",
+    "processing": "Elaborazione...",
+    "securityWarning": "Blocco sicurezza",
+    "presets": [
+      { "ref": "Salmi 23:1", "text": "Il Signore è il mio pastore: nulla mi manca." },
+      { "ref": "Geremia 29:11", "text": "Infatti io so i pensieri che medito per voi, pensieri di pace e non di male." },
+      { "ref": "Filippesi 4:13", "text": "Io posso ogni cosa in colui che mi fortifica." },
+      { "ref": "Giovanni 3:16", "text": "Perché Dio ha tanto amato il mondo, che ha dato il suo unigenito Figlio." },
+      { "ref": "Romani 8:28", "text": "Or sappiamo che tutte le cose cooperano al bene di quelli che amano Dio." }
+    ],
+    "themes": {
+      "midnight": "Mezzanotte",
+      "sunset": "Tramonto",
+      "forest": "Foresta",
+      "paper": "Carta",
+      "clean": "Pulito",
+      "mountains": "Montagne",
+      "mist": "Nebbia",
+      "valley": "Valle",
+      "canyon": "Canyon",
+      "desert": "Deserto",
+      "field": "Campo",
+      "ocean": "Océano",
+      "waterfall": "Cascata",
+      "rain": "Pioggia",
+      "coast": "Costa",
+      "stars": "Stelle",
+      "aurora": "Aurora",
+      "clouds": "Nuvole",
+      "nebula": "Nebulosa",
+      "bloom": "Fiori",
+      "lavender": "Lavanda",
+      "winter": "Inverno",
+      "autumn": "Autunno",
+      "leaves": "Foglie",
+      "palm": "Palma",
+      "cross": "Croce"
+    }
+  },
+  "topics": {
+    "title": "Esplora un Argomento",
+    "anxiety": { "label": "Ansia", "query": "Mi sento ansioso. Aiutami." },
+    "love": { "label": "Amore", "query": "Parlami dell'amore." },
+    "hope": { "label": "Speranza", "query": "Ho bisogno di speranza." },
+    "sadness": { "label": "Tristezza", "query": "Sono triste." },
+    "gratitude": { "label": "Gratitudine", "query": "Voglio ringraziare." },
+    "strength": { "label": "Forza", "query": "Mi sento debole." },
+    "joy": { "label": "Gioia", "query": "Voglio gioire." },
+    "forgiveness": { "label": "Perdono", "query": "Parlami del perdono." }
+  },
+  "bible": {
+    "oldTestament": "Antico Testamento",
+    "newTestament": "Nuovo Testamento",
+    "loading": "Caricamento...",
+    "error": "Errore di caricamento",
+    "save": "Salva",
+    "prev": "Prec.",
+    "next": "Succ.",
+    "audio": { "play": "Ascolta", "pause": "Pausa" },
+    "needKey": "Chiave API richiesta."
+  },
+  "dailyVerse": {
+    "title": "Versetto del Giorno",
+    "copy": "Copia",
+    "copied": "Copiato!",
+    "createImage": "Crea Immagine"
   },
   "sanctuary": {
     "title": "Santuario",
@@ -159,7 +357,7 @@
   },
   "prayer": {
     "title": "Diario di Preghiera",
-    "placeholder": "Cosa c'è nel tuo cuore?",
+    "placeholder": "Cosa hai nel cuore?",
     "amen": "Amen",
     "answered": "Esaudita",
     "active": "Richieste Attive",
