@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import { Send, Menu, Trash2, Plus, Key, ExternalLink, Sparkles, Check, AlertCircle, X } from 'lucide-react';
 import { Message } from '../types';
@@ -49,7 +50,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <div className="flex items-center gap-1">
           <button onClick={onMenuClick} className="p-2 -ml-2 text-slate-600 dark:text-slate-400 md:hidden"><Menu size={24} /></button>
           <div className="flex items-center gap-3 select-none ml-1 md:ml-2">
-              <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-xl text-white shadow-lg"><ShepherdLogo size={24} /></div>
+              <div className="bg-gradient-to-br from-[#7c4a32] to-[#54362d] p-2 rounded-xl text-white shadow-lg"><ShepherdLogo size={24} /></div>
               <div className="hidden md:block"><h1 className="text-xl font-bold text-slate-800 dark:text-white font-serif-text leading-tight">{t('common.shepherd')}</h1><p className="text-[10px] text-slate-500 dark:text-slate-400 font-black uppercase tracking-[0.2em]">{t('chat.subtitle')}</p></div>
               <div className="md:hidden font-serif-text font-bold text-lg text-slate-800 dark:text-white truncate max-w-[100px]">{t('common.shepherd')}</div>
           </div>
@@ -65,36 +66,36 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           {!hasApiKey ? (
               <div className="flex-1 flex flex-col items-center justify-center animate-fade-in">
                   <div className="bg-white/80 dark:bg-slate-900/90 backdrop-blur-3xl p-8 rounded-[3rem] border dark:border-slate-800 shadow-xl max-w-xl w-full text-center relative overflow-hidden">
-                      <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/30 rounded-[2rem] flex items-center justify-center text-indigo-600 dark:text-indigo-400 mx-auto mb-6"><Key size={28} /></div>
+                      <div className="w-16 h-16 bg-amber-50 dark:bg-amber-900/30 rounded-[2rem] flex items-center justify-center text-amber-600 dark:text-amber-400 mx-auto mb-6"><Key size={28} /></div>
                       <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 font-serif-text">{t('chat.missingKeyTitle')}</h2>
                       <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 font-medium">{t('chat.missingKeyDesc')}</p>
                       <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 mb-8 text-left border dark:border-slate-700">
-                         <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2"><Sparkles size={12} className="text-indigo-400" />{t('chat.instructions')}</h4>
+                         <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2"><Sparkles size={12} className="text-amber-400" />{t('chat.instructions')}</h4>
                          <ul className="space-y-4">
                             <li className="flex gap-4">
-                                <span className="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-black">1</span>
+                                <span className="flex-shrink-0 w-6 h-6 bg-amber-100 dark:bg-amber-900 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center text-xs font-black">1</span>
                                 <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noreferrer" className="text-sm text-slate-600 dark:text-slate-300 font-bold hover:underline flex items-center gap-1.5">
                                     {t('chat.howTo.step1')} <ExternalLink size={14} />
                                 </a>
                             </li>
                             <li className="flex gap-4">
-                                <span className="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-black">2</span>
+                                <span className="flex-shrink-0 w-6 h-6 bg-amber-100 dark:bg-amber-900 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center text-xs font-black">2</span>
                                 <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">{t('chat.howTo.step2')}</p>
                             </li>
                             <li className="flex gap-4">
-                                <span className="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-black">3</span>
+                                <span className="flex-shrink-0 w-6 h-6 bg-amber-100 dark:bg-amber-900 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center text-xs font-black">3</span>
                                 <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">{t('chat.howTo.step3')}</p>
                             </li>
                             <li className="flex gap-4">
-                                <span className="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-black">4</span>
+                                <span className="flex-shrink-0 w-6 h-6 bg-amber-100 dark:bg-amber-900 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center text-xs font-black">4</span>
                                 <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">{t('chat.howTo.step4')}</p>
                             </li>
                          </ul>
                       </div>
                       <form onSubmit={(e)=>{e.preventDefault(); if(keyInputValue.length < 30) setValidationError(t('chat.invalidKey')); else onUpdateManualKey(keyInputValue.trim());}} className="space-y-4">
-                          <input type="password" value={keyInputValue} onChange={e=>setKeyInputValue(e.target.value)} placeholder="AIzaSy..." className="w-full p-4 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-2xl text-center focus:ring-2 focus:ring-indigo-500 outline-none text-slate-900 dark:text-white"/>
+                          <input type="password" value={keyInputValue} onChange={e=>setKeyInputValue(e.target.value)} placeholder="AIzaSy..." className="w-full p-4 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-2xl text-center focus:ring-2 focus:ring-amber-500 outline-none text-slate-900 dark:text-white"/>
                           {validationError && <p className="text-red-500 text-xs font-bold">{validationError}</p>}
-                          <button type="submit" className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg transition-transform active:scale-95">{t('chat.activateBtn')}</button>
+                          <button type="submit" className="w-full py-4 bg-[#7c4a32] text-white rounded-2xl font-bold shadow-lg transition-transform active:scale-95">{t('chat.activateBtn')}</button>
                       </form>
                   </div>
               </div>

@@ -165,9 +165,12 @@
     "pastConversations": "Past Conversations",
     "inputPlaceholder": "Speak to the witness...",
     "needKey": "API Key needed for stories.",
+    "biographyLabel": "Biography",
+    "tip": "Tip: Ask them about their experiences!",
     "intro": {
       "peter": "I remember the smell of salt and the rough texture of the nets... I was a simple fisherman until the Master looked at me. How can I guide you today?",
-      "paul": "Grace and peace to you from God our Father. I was once blind, but now I see the unsearchable riches of Christ. What is on your heart?"
+      "paul": "Grace and peace to you from God our Father. I was once blind, but now I see the unsearchable riches of Christ. What is on your heart?",
+      "mary": "Greetings, favored one! The Lord is with you. My soul magnifies the Lord, for He has done great things for me. How can I share His peace with you?"
     }
   },
   "social": {
@@ -328,13 +331,18 @@
     "forgiveness": { "label": "Forgiveness", "query": "Tell me about forgiveness." }
   },
   "bible": {
+    "selectBook": "Select Book",
+    "chapter": "Chapter",
+    "chapters": "Chapters",
     "oldTestament": "Old Testament",
     "newTestament": "New Testament",
+    "searchBooks": "Search books...",
     "loading": "Loading...",
     "error": "Error loading chapter",
     "save": "Save",
     "prev": "Prev",
     "next": "Next",
+    "removeHighlight": "Remove Highlight",
     "audio": { "play": "Listen", "pause": "Pause" },
     "needKey": "API Key needed for audio."
   },
@@ -348,16 +356,16 @@
     "title": "Sanctuary",
     "rain": "Rain",
     "fire": "Fire",
-    "stream": "River",
+    "stream": "Stream",
     "volume": "Volume",
-    "active": "Playing Ambient Audio"
+    "active": "Playing ambient sound"
   },
   "prayer": {
     "title": "Prayer Journal",
-    "placeholder": "What is on your heart?",
+    "placeholder": "What's on your heart?",
     "communityTitle": "Prayer Wall",
-    "communitySubtitle": "Join your voice in prayer with others around the world.",
-    "communityEmpty": "The wall is currently quiet. Be the first to share a prayer!",
+    "communitySubtitle": "Join in prayer with others around the world.",
+    "communityEmpty": "The wall is quiet right now. Be the first to share a prayer!",
     "amen": "Amen",
     "answered": "Answered",
     "active": "Active Requests",

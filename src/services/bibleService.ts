@@ -2,7 +2,10 @@
 import { BibleBook, BibleChapter } from '../types';
 import { getBibleChapterFromAI } from './geminiService';
 
+// Static list of all 66 Bible books with metadata and translations
+// ORDER IS CRITICAL: Must match standard Protestant canon for API index mapping (1-66)
 export const BIBLE_BOOKS: (BibleBook & { names: { en: string, ro: string, de: string } })[] = [
+  // OLD TESTAMENT
   { id: 'GEN', name: 'Genesis', names: { en: 'Genesis', ro: 'Geneza', de: '1. Mose' }, chapters: 50, testament: 'OT' },
   { id: 'EXO', name: 'Exodus', names: { en: 'Exodus', ro: 'Exodul', de: '2. Mose' }, chapters: 40, testament: 'OT' },
   { id: 'LEV', name: 'Leviticus', names: { en: 'Leviticus', ro: 'Leviticul', de: '3. Mose' }, chapters: 27, testament: 'OT' },
@@ -42,6 +45,7 @@ export const BIBLE_BOOKS: (BibleBook & { names: { en: string, ro: string, de: st
   { id: 'HAG', name: 'Haggai', names: { en: 'Haggai', ro: 'Hagai', de: 'Haggai' }, chapters: 2, testament: 'OT' },
   { id: 'ZEC', name: 'Zechariah', names: { en: 'Zechariah', ro: 'Zaharia', de: 'Sacharja' }, chapters: 14, testament: 'OT' },
   { id: 'MAL', name: 'Malachi', names: { en: 'Malachi', ro: 'Maleahi', de: 'Maleachi' }, chapters: 4, testament: 'OT' },
+  // NEW TESTAMENT
   { id: 'MAT', name: 'Matthew', names: { en: 'Matthew', ro: 'Matei', de: 'Matthäus' }, chapters: 28, testament: 'NT' },
   { id: 'MRK', name: 'Mark', names: { en: 'Mark', ro: 'Marcu', de: 'Markus' }, chapters: 16, testament: 'NT' },
   { id: 'LUK', name: 'Luke', names: { en: 'Luke', ro: 'Luca', de: 'Lukas' }, chapters: 24, testament: 'NT' },
@@ -97,6 +101,7 @@ async function getCornilescuData() {
         cornilescuCache = data;
         return data;
     } catch (e) {
+        console.warn("Failed to download Romanian Bible JSON. Fallback to AI.");
         return null;
     }
 }
@@ -114,17 +119,20 @@ export const fetchChapter = async (
 ): Promise<BibleChapter | null> => {
     const bookIndex = BIBLE_BOOKS.findIndex(b => b.name === bookName || b.names.en === bookName || b.names.de === bookName || b.names.ro === bookName);
     if (bookIndex === -1) return null;
-    
+
     const bookData = BIBLE_BOOKS[bookIndex];
     let mappedVerses: { verse: number, text: string }[] = [];
     let translationId = 'NIV';
 
+    const langCode = language.toLowerCase();
+
     try {
-        const norm = language.toLowerCase();
-        if (norm.includes('roman') || norm === 'ro') {
+        if (langCode.includes('roman') || langCode === 'ro') {
             translationId = 'Cornilescu'; 
             const fullBible = await getCornilescuData();
             if (fullBible && Array.isArray(fullBible)) {
+                // Determine book index in fullBible
+                // Usually order matches, but we verify with name
                 let bookObj = fullBible.length === 66 ? fullBible[bookIndex] : null;
                 if (!bookObj) {
                     const targets = [superNormalize(bookData.names.ro), superNormalize(bookData.names.en), superNormalize(bookData.name)];
@@ -137,10 +145,21 @@ export const fetchChapter = async (
                     }
                 }
             }
-        } else if (norm.includes('german') || norm === 'de') {
+        } else if (langCode.includes('german') || langCode === 'de') {
             translationId = 'LUT';
-            mappedVerses = await fetchFromBolls('LUT', bookIndex + 1, chapter);
+            try {
+                const encodedBook = encodeURIComponent(bookData.names.en);
+                let url = `https://cdn.jsdelivr.net/gh/seven1m/bible@master/files/de-schlachter/${encodedBook}/${chapter}.json`;
+                let response = await fetchWithMultiProxy(url);
+                const data = await response.json();
+                if (typeof data === 'object') {
+                     Object.keys(data).forEach(key => { mappedVerses.push({ verse: parseInt(key), text: data[key] }); });
+                     mappedVerses.sort((a,b) => a.verse - b.verse);
+                }
+            } catch (e) {}
+            if (mappedVerses.length === 0) mappedVerses = await fetchFromBolls('LUT', bookIndex + 1, chapter);
         } else {
+            // Default English/NIV via Bolls
             translationId = 'NIV';
             mappedVerses = await fetchFromBolls('NIV', bookIndex + 1, chapter);
         }
@@ -148,6 +167,7 @@ export const fetchChapter = async (
         console.warn("External Bible fetch failed, falling back to AI.");
     }
 
+    // Fallback to AI if external sources failed
     if (mappedVerses.length === 0) { 
         try {
             mappedVerses = await getBibleChapterFromAI(bookData.names.en, chapter, translationId, language);
@@ -156,9 +176,8 @@ export const fetchChapter = async (
 
     if (mappedVerses.length > 0) {
         let displayBookName = bookData.names.en;
-        const norm = language.toLowerCase();
-        if (norm.includes('german') || norm === 'de') displayBookName = bookData.names.de;
-        else if (norm.includes('roman') || norm === 'ro') displayBookName = bookData.names.ro;
+        if (langCode.includes('german') || langCode === 'de') displayBookName = bookData.names.de;
+        else if (langCode.includes('roman') || langCode === 'ro') displayBookName = bookData.names.ro;
 
         return {
             reference: `${displayBookName} ${chapter}`,

@@ -132,7 +132,7 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowSplash(false), 5000);
+    const timer = setTimeout(() => setShowSplash(false), 6000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -602,36 +602,62 @@ const App: React.FC = () => {
           </div>
       )}
 
-      {/* SPLASH SCREEN OVERLAY */}
-      <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-black transition-all duration-1000 ease-[cubic-bezier(0.76,0,0.24,1)] ${!showSplash ? 'opacity-0 scale-110 pointer-events-none blur-2xl' : 'opacity-100 scale-100 blur-0'}`}>
-         <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 animate-aurora opacity-90"></div>
+      {/* SPLASH SCREEN OVERLAY - UPGRADED KINETIC ORBITS */}
+      <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-[#070403] transition-all duration-1000 ease-[cubic-bezier(0.76,0,0.24,1)] ${!showSplash ? 'opacity-0 scale-110 pointer-events-none blur-2xl' : 'opacity-100 scale-100 blur-0'}`}>
+         {/* Deep Layered Aurora */}
+         <div className="absolute inset-0 bg-gradient-to-b from-[#1a110e] via-[#0c0705] to-[#070403] animate-aurora opacity-90"></div>
          <div className="absolute inset-0 opacity-60">
-             <div className="absolute top-[20%] left-[20%] w-1 h-1 bg-white rounded-full animate-twinkle"></div>
-             <div className="absolute top-[60%] left-[80%] w-1.5 h-1.5 bg-amber-200 rounded-full animate-twinkle [animation-delay:1.5s]"></div>
+             <div className="absolute top-[20%] left-[20%] w-1 h-1 bg-[#f5f1e8] rounded-full animate-twinkle"></div>
+             <div className="absolute top-[60%] left-[80%] w-1.5 h-1.5 bg-[#d2b48c] rounded-full animate-twinkle [animation-delay:1.5s]"></div>
+             <div className="absolute top-[30%] left-[70%] w-1 h-1 bg-[#f5f1e8] rounded-full animate-twinkle [animation-delay:0.5s]"></div>
+             {/* New faint infinity orbits */}
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] border border-white/5 rounded-[100%] rotate-45 animate-pulse"></div>
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] border border-white/5 rounded-[100%] -rotate-45 animate-pulse [animation-delay:2s]"></div>
          </div>
-         <div className="relative z-10 flex flex-col items-center justify-center mb-8">
-            <div className="relative flex items-center justify-center w-64 h-64 perspective-1000 preserve-3d">
-                <div className="absolute inset-0 w-full h-full border-[1.5px] border-amber-400/30 rounded-full animate-orbit-x shadow-[0_0_15px_rgba(251,191,36,0.1)]"></div>
-                <div className="absolute inset-0 w-full h-full border-[1.5px] border-white/20 rounded-full animate-orbit-y shadow-[0_0_15px_rgba(255,255,255,0.1)]"></div>
-                <div className="absolute inset-0 w-full h-full border-[1.5px] border-indigo-400/20 rounded-full animate-orbit-z"></div>
-                <div className="relative z-20 animate-cross-pulse">
-                    <svg width="100" height="120" viewBox="0 0 100 120" fill="none" className="drop-shadow-[0_0_30px_rgba(255,215,0,0.6)]">
+         
+         <div className="relative z-10 flex flex-col items-center justify-center mb-12">
+            <div className="relative flex items-center justify-center w-80 h-80 perspective-1000 preserve-3d">
+                {/* UPGRADED RINGS */}
+                {/* 1. Foundation: Thick Robe Brown with slow shimmering highlight */}
+                <div className="absolute inset-0 w-full h-full border-[3px] border-[#7c4a32]/20 rounded-full shadow-[0_0_30px_rgba(124,74,50,0.1)]"></div>
+                <div className="absolute inset-0 w-full h-full border-[1px] border-[#7c4a32]/60 rounded-full animate-orbit-x"></div>
+                
+                {/* 2. Kinetic: Dashed traveling lights in Tan */}
+                <svg className="absolute inset-0 w-full h-full animate-orbit-y rotate-12" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="48" fill="none" stroke="#d2b48c" strokeWidth="0.5" strokeDasharray="1, 8" className="animate-dash-move opacity-80" />
+                </svg>
+
+                {/* 3. Elegance: Thin counter-rotating Cream ring */}
+                <div className="absolute inset-4 border-[0.5px] border-[#f5f1e8]/40 rounded-full animate-orbit-rev"></div>
+
+                {/* 4. Core: Glowing Halo behind the Cross */}
+                <div className="absolute w-24 h-24 bg-[#d2b48c]/10 blur-3xl rounded-full animate-pulse"></div>
+
+                <div className="relative z-20 animate-cross-pulse scale-125">
+                    <svg width="100" height="120" viewBox="0 0 100 120" fill="none" className="drop-shadow-[0_0_35px_rgba(210,180,140,0.6)]">
                         <path d="M50 10V110M30 40H70" stroke="url(#crossGradient)" strokeWidth="6" strokeLinecap="round" />
-                        <defs><linearGradient id="crossGradient" x1="50" y1="0" x2="50" y2="120" gradientUnits="userSpaceOnUse"><stop offset="0%" stopColor="#FFF" /><stop offset="50%" stopColor="#FDE68A" /><stop offset="100%" stopColor="#D97706" /></linearGradient></defs>
+                        <defs>
+                          <linearGradient id="crossGradient" x1="50" y1="0" x2="50" y2="120" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stopColor="#f5f1e8" />
+                            <stop offset="50%" stopColor="#d2b48c" />
+                            <stop offset="100%" stopColor="#7c4a32" />
+                          </linearGradient>
+                        </defs>
                     </svg>
                 </div>
             </div>
          </div>
-         <div className="relative z-20 text-center flex flex-col items-center -mt-4">
-             <h1 className="text-5xl md:text-8xl font-bold text-white font-serif-text tracking-tight drop-shadow-[0_0_20px_rgba(255,215,0,0.4)] flex gap-1 justify-center mb-2">
+
+         <div className="relative z-20 text-center flex flex-col items-center">
+             <h1 className="text-5xl md:text-8xl font-bold text-white font-serif-text tracking-tight drop-shadow-[0_0_30px_rgba(210,180,140,0.5)] flex gap-1 justify-center mb-4">
                 {brandName.split('').map((char, i) => (
-                    <span key={i} className="animate-letter-reveal" style={{ animationDelay: `${0.3 + i * 0.08}s` }}>{char}</span>
+                    <span key={i} className="animate-letter-reveal" style={{ animationDelay: `${0.4 + i * 0.1}s` }}>{char}</span>
                 ))}
              </h1>
-             <div className="flex items-center justify-center gap-4 animate-tracking-expand opacity-0" style={{ animationDelay: '1.2s', animationFillMode: 'forwards' }}>
-                <div className="h-[2px] w-8 md:w-24 bg-gradient-to-r from-transparent via-amber-200 to-transparent shadow-[0_0_8px_rgba(253,230,138,0.6)]"></div>
-                <p className="text-amber-100 text-base md:text-2xl font-semibold uppercase tracking-[0.25em] font-sans drop-shadow-md whitespace-nowrap">{t('chat.subtitle')}</p>
-                <div className="h-[2px] w-8 md:w-24 bg-gradient-to-r from-transparent via-amber-200 to-transparent shadow-[0_0_8px_rgba(253,230,138,0.6)]"></div>
+             <div className="flex items-center justify-center gap-6 animate-tracking-expand opacity-0" style={{ animationDelay: '1.5s', animationFillMode: 'forwards' }}>
+                <div className="h-[1px] w-12 md:w-32 bg-gradient-to-r from-transparent via-[#d2b48c]/60 to-transparent"></div>
+                <p className="text-[#f5f1e8]/80 text-xs md:text-xl font-medium uppercase tracking-[0.4em] font-sans drop-shadow-md whitespace-nowrap">{t('chat.subtitle')}</p>
+                <div className="h-[1px] w-12 md:w-32 bg-gradient-to-r from-transparent via-[#d2b48c]/60 to-transparent"></div>
              </div>
          </div>
       </div>

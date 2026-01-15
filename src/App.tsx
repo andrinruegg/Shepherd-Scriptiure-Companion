@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import ChatInterface from './components/ChatInterface';
@@ -588,26 +589,27 @@ const App: React.FC = () => {
       {showKeyWarning && (
           <div className="fixed top-6 inset-x-0 flex justify-center z-[300] px-4 pointer-events-none animate-pop-in">
               <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl p-4 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex items-center gap-4 border border-white/50 dark:border-white/5 pointer-events-auto max-w-sm w-full">
-                  <div className="bg-indigo-600 p-2.5 rounded-full text-white shadow-lg shadow-indigo-500/30">
+                  <div className="bg-amber-700 p-2.5 rounded-full text-white shadow-lg shadow-amber-500/30">
                       <Key size={20} strokeWidth={2.5} />
                   </div>
                   <div className="flex-1 min-w-0">
-                      <h4 className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-0.5">{t('chat.missingKeyTitle')}</h4>
-                      <p className="text-[11px] font-bold text-slate-600 dark:text-slate-300 leading-tight">{t('chat.keyWarningSubtitle')}</p>
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-amber-700 dark:text-amber-400 mb-0.5">{t('chat.missingKeyTitle')}</h4>
+                      <p className="text-[11px] font-bold text-stone-600 dark:text-stone-300 leading-tight">{t('chat.keyWarningSubtitle')}</p>
                   </div>
-                  <button onClick={() => { setIsSettingsOpen(true); setShowKeyWarning(false); }} className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 rounded-full text-[10px] font-black uppercase tracking-wider hover:bg-indigo-100 transition-colors shrink-0">
+                  <button onClick={() => { setIsSettingsOpen(true); setShowKeyWarning(false); }} className="px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full text-[10px] font-black uppercase tracking-wider hover:bg-amber-100 transition-colors shrink-0">
                       {t('common.fix')}
                   </button>
-                  <button onClick={() => setShowKeyWarning(false)} className="p-1 text-slate-400 hover:text-slate-600 transition-colors shrink-0">
+                  <button onClick={() => setShowKeyWarning(false)} className="p-1 text-stone-400 hover:text-stone-600 transition-colors shrink-0">
                       <X size={16} />
                   </button>
               </div>
           </div>
       )}
 
-      {/* SPLASH SCREEN OVERLAY */}
+      {/* SPLASH SCREEN OVERLAY - UPDATED TO WARM THEME */}
       <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-black transition-all duration-1000 ease-[cubic-bezier(0.76,0,0.24,1)] ${!showSplash ? 'opacity-0 scale-110 pointer-events-none blur-2xl' : 'opacity-100 scale-100 blur-0'}`}>
-         <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 animate-aurora opacity-90"></div>
+         {/* Updated warm gradient background */}
+         <div className="absolute inset-0 bg-gradient-to-b from-stone-900 via-stone-800 to-stone-950 animate-aurora opacity-90"></div>
          <div className="absolute inset-0 opacity-60">
              <div className="absolute top-[20%] left-[20%] w-1 h-1 bg-white rounded-full animate-twinkle"></div>
              <div className="absolute top-[60%] left-[80%] w-1.5 h-1.5 bg-amber-200 rounded-full animate-twinkle [animation-delay:1.5s]"></div>
@@ -616,7 +618,7 @@ const App: React.FC = () => {
             <div className="relative flex items-center justify-center w-64 h-64 perspective-1000 preserve-3d">
                 <div className="absolute inset-0 w-full h-full border-[1.5px] border-amber-400/30 rounded-full animate-orbit-x shadow-[0_0_15px_rgba(251,191,36,0.1)]"></div>
                 <div className="absolute inset-0 w-full h-full border-[1.5px] border-white/20 rounded-full animate-orbit-y shadow-[0_0_15px_rgba(255,255,255,0.1)]"></div>
-                <div className="absolute inset-0 w-full h-full border-[1.5px] border-indigo-400/20 rounded-full animate-orbit-z"></div>
+                <div className="absolute inset-0 w-full h-full border-[1.5px] border-orange-400/20 rounded-full animate-orbit-z"></div>
                 <div className="relative z-20 animate-cross-pulse">
                     <svg width="100" height="120" viewBox="0 0 100 120" fill="none" className="drop-shadow-[0_0_30px_rgba(255,215,0,0.6)]">
                         <path d="M50 10V110M30 40H70" stroke="url(#crossGradient)" strokeWidth="6" strokeLinecap="round" />
@@ -626,7 +628,7 @@ const App: React.FC = () => {
             </div>
          </div>
          <div className="relative z-20 text-center flex flex-col items-center -mt-4">
-             <h1 className="text-5xl md:text-8xl font-bold text-white font-serif-text tracking-tight drop-shadow-[0_0_20px_rgba(255,215,0,0.4)] flex gap-1 justify-center mb-2">
+             <h1 className="text-5xl md:text-8xl font-bold text-amber-50 font-serif-text tracking-tight drop-shadow-[0_0_20px_rgba(251,191,36,0.4)] flex gap-1 justify-center mb-2">
                 {brandName.split('').map((char, i) => (
                     <span key={i} className="animate-letter-reveal" style={{ animationDelay: `${0.3 + i * 0.08}s` }}>{char}</span>
                 ))}
@@ -643,16 +645,16 @@ const App: React.FC = () => {
       {isPrincessMode && !isWinterMode && <PrincessOverlay showHearts={isPrincessHearts} showSparkles={isPrincessSparkles} />}
       
       {loadingAuth ? (
-          <div className="fixed inset-0 bg-slate-950 flex items-center justify-center z-40">
+          <div className="fixed inset-0 bg-stone-900 flex items-center justify-center z-40">
                <div className="flex flex-col items-center gap-4">
-                  <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-slate-400 text-sm animate-pulse">{t('common.loading')}</p>
+                  <div className="w-8 h-8 border-4 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
+                  <p className="text-stone-400 text-sm animate-pulse">{t('common.loading')}</p>
                </div>
           </div>
       ) : !session ? ( 
           <Login isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} language={language} onSetLanguage={(lang: string) => handleUpdatePreference('language', lang)} /> 
       ) : (
-        <Suspense fallback={<div className="h-full w-full flex items-center justify-center bg-slate-900 text-white">{t('common.loading')}</div>}>
+        <Suspense fallback={<div className="h-full w-full flex items-center justify-center bg-stone-900 text-white">{t('common.loading')}</div>}>
             <div className={`flex h-full overflow-hidden relative z-0 transition-all duration-500`}>
             {currentView === 'home' && (
                 <div className="flex-1 w-full h-full">

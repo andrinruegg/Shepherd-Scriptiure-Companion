@@ -166,10 +166,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 ) : (
                     <div className="flex items-center gap-2 group">
                         <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{preferences.displayName || t('common.guest')}</h3>
-                        <button onClick={() => setIsEditingName(true)} className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity"><Edit2 size={14}/></button>
+                        <button onClick={() => setIsEditingName(true)} className="text-[#7c4a32] opacity-0 group-hover:opacity-100 transition-opacity"><Edit2 size={14}/></button>
                     </div>
                 )}
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mt-1">{userEmail}</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#d2b48c] mt-1">{userEmail}</p>
 
                 <div className="mt-4 w-full text-center">
                     {isEditingBio ? (
@@ -182,7 +182,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                                 placeholder={t('settings.bio')}
                             />
                             <div className="flex gap-2">
-                              <button onClick={handleSaveBio} className="flex-1 bg-indigo-600 text-white py-2 rounded-lg text-xs font-bold">{t('common.save')}</button>
+                              <button onClick={handleSaveBio} className="flex-1 bg-[#7c4a32] text-white py-2 rounded-lg text-xs font-bold">{t('common.save')}</button>
                               <button onClick={() => setIsEditingBio(false)} className="flex-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 py-2 rounded-lg text-xs font-bold">{t('common.cancel')}</button>
                             </div>
                         </div>
@@ -191,7 +191,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                             <p className="text-sm text-slate-500 dark:text-slate-400 italic line-clamp-2">
                                 {preferences.bio || t('settings.noBio')}
                             </p>
-                            <button onClick={() => setIsEditingBio(true)} className="absolute -top-1 -right-2 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity p-1"><Edit2 size={12}/></button>
+                            <button onClick={() => setIsEditingBio(true)} className="absolute -top-1 -right-2 text-[#7c4a32] opacity-0 group-hover:opacity-100 transition-opacity p-1"><Edit2 size={12}/></button>
                         </div>
                     )}
                 </div>
@@ -199,74 +199,47 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
             <div className="space-y-4">
                 <div className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-200 dark:border-slate-800">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4 flex items-center justify-between">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[#7c4a32] mb-4 flex items-center justify-between">
                         <span>{t('settings.apiKey.title')}</span>
-                        <span className={hasApiKey ? 'text-emerald-500' : 'text-amber-500'}>{hasApiKey ? t('settings.apiKey.custom') : t('settings.apiKey.missing')}</span>
+                        <span className={hasApiKey ? 'text-emerald-600' : 'text-amber-600'}>{hasApiKey ? t('settings.apiKey.custom') : t('settings.apiKey.missing')}</span>
                     </p>
                     <form onSubmit={handleUpdateKey} className="space-y-3">
                         <div className="flex gap-2">
-                            <input type="password" value={manualKeyInput} onChange={e => setManualKeyInput(e.target.value)} placeholder="AIzaSy..." className="flex-1 bg-white dark:bg-slate-900 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs font-mono outline-none dark:text-white" />
-                            <button type="submit" className="bg-indigo-600 text-white px-4 rounded-xl font-bold text-xs shadow-sm">{t('settings.apiKey.save')}</button>
+                            <input type="password" value={manualKeyInput} onChange={e => setManualKeyInput(e.target.value)} placeholder="AIzaSy..." className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs font-mono outline-none dark:text-white" />
+                            <button type="submit" className="bg-[#7c4a32] text-white px-4 rounded-xl font-bold text-xs shadow-sm">{t('settings.apiKey.save')}</button>
                         </div>
                         {validationError && <p className="text-[9px] text-red-500 font-bold px-1">{validationError}</p>}
                         
                         <div className="bg-slate-100 dark:bg-slate-900/50 rounded-xl p-3 mt-4">
-                          <p className="text-[10px] font-black text-slate-500 uppercase mb-2">{t('settings.apiKey.howTo')}</p>
+                          <p className="text-[10px] font-black text-[#7c4a32] uppercase mb-2">{t('settings.apiKey.howTo')}</p>
                           <ul className="text-[10px] text-slate-500 space-y-1.5 ml-1">
                             <li className="flex gap-2">
-                                <span className="font-bold text-indigo-500 text-[10px]">1.</span>
-                                <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noreferrer" className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline flex items-center gap-1.5">
+                                <span className="font-bold text-[#7c4a32] text-[10px]">1.</span>
+                                <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noreferrer" className="text-[#7c4a32] dark:text-[#d2b48c] font-bold hover:underline flex items-center gap-1.5">
                                     {t('settings.apiKey.step1')} <ExternalLink size={10} />
                                 </a>
                             </li>
-                            <li className="flex gap-2"><span className="font-bold text-indigo-500 text-[10px]">2.</span> {t('settings.apiKey.step2')}</li>
-                            <li className="flex gap-2"><span className="font-bold text-indigo-500 text-[10px]">3.</span> {t('settings.apiKey.step3')}</li>
-                            <li className="flex gap-2"><span className="font-bold text-indigo-500 text-[10px]">4.</span> {t('settings.apiKey.step4')}</li>
+                            <li className="flex gap-2"><span className="font-bold text-[#7c4a32] text-[10px]">2.</span> {t('settings.apiKey.step2')}</li>
+                            <li className="flex gap-2"><span className="font-bold text-[#7c4a32] text-[10px]">3.</span> {t('settings.apiKey.step3')}</li>
+                            <li className="flex gap-2"><span className="font-bold text-[#7c4a32] text-[10px]">4.</span> {t('settings.apiKey.step4')}</li>
                           </ul>
                         </div>
                     </form>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-3xl">
-                    <div className="flex items-center gap-3"><Globe className="text-indigo-500" size={20} /><span className="text-sm font-bold dark:text-white">{t('settings.language')}</span></div>
-                    <select value={i18n.language.substring(0, 2)} onChange={handleLanguageChange} className="bg-transparent text-sm font-bold text-indigo-600 outline-none">
+                    <div className="flex items-center gap-3"><Globe className="text-[#7c4a32]" size={20} /><span className="text-sm font-bold dark:text-white">{t('settings.language')}</span></div>
+                    <select value={i18n.language.substring(0, 2)} onChange={handleLanguageChange} className="bg-transparent text-sm font-bold text-[#7c4a32] outline-none">
                         {LANGUAGES.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
                     </select>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-3xl">
-                    <div className="flex items-center gap-3">{isDarkMode ? <Moon className="text-indigo-500" size={20} /> : <Sun className="text-amber-500" size={20} />}<span className="text-sm font-bold dark:text-white">{t('settings.appearance')}</span></div>
+                    <div className="flex items-center gap-3">{isDarkMode ? <Moon className="text-[#7c4a32]" size={20} /> : <Sun className="text-amber-500" size={20} />}<span className="text-sm font-bold dark:text-white">{t('settings.appearance')}</span></div>
                     <div className="flex bg-slate-200 dark:bg-slate-700 p-1 rounded-xl">
-                        <button onClick={() => onUpdatePreference('theme', 'light')} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${!isDarkMode ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500'}`}>{t('settings.light')}</button>
-                        <button onClick={() => onUpdatePreference('theme', 'dark')} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${isDarkMode ? 'bg-slate-900 shadow-sm text-white' : 'text-slate-500'}`}>{t('settings.dark')}</button>
+                        <button onClick={() => onUpdatePreference('theme', 'light')} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${!isDarkMode ? 'bg-white shadow-sm text-[#7c4a32]' : 'text-slate-500'}`}>{t('settings.light')}</button>
+                        <button onClick={() => onUpdatePreference('theme', 'dark')} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${isDarkMode ? 'bg-[#7c4a32] shadow-sm text-white' : 'text-slate-500'}`}>{t('settings.dark')}</button>
                     </div>
-                </div>
-
-                <div className="flex flex-col gap-3">
-                    <button onClick={() => onUpdatePreference('winterTheme', !preferences.winterTheme)} className={`p-5 rounded-[2rem] border transition-all flex flex-col items-center gap-2 ${preferences.winterTheme ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-400 text-blue-600' : 'bg-slate-50 dark:bg-slate-800/50 border-transparent text-slate-400'}`}>
-                        <Snowflake size={24} /><span className="text-[10px] font-black uppercase tracking-widest">{t('settings.winter.title')}</span>
-                    </button>
-                    
-                    {preferences.winterTheme && (
-                        <div className="grid grid-cols-3 gap-2 px-2 animate-slide-up">
-                            <button onClick={() => onUpdatePreference('winterSnow', !preferences.winterSnow)} className={`py-2 rounded-xl text-[8px] font-black uppercase border transition-all ${preferences.winterSnow ? 'bg-blue-100 border-blue-200 text-blue-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>{t('settings.winter.snow')}</button>
-                            <button onClick={() => onUpdatePreference('winterLights', !preferences.winterLights)} className={`py-2 rounded-xl text-[8px] font-black uppercase border transition-all ${preferences.winterLights ? 'bg-blue-100 border-blue-200 text-blue-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>{t('settings.winter.lights')}</button>
-                            <button onClick={() => onUpdatePreference('winterIcicles', !preferences.winterIcicles)} className={`py-2 rounded-xl text-[8px] font-black uppercase border transition-all ${preferences.winterIcicles ? 'bg-blue-100 border-blue-200 text-blue-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>{t('settings.winter.icicles')}</button>
-                        </div>
-                    )}
-                </div>
-
-                <div className="flex flex-col gap-3">
-                    <button onClick={() => onUpdatePreference('princessTheme', !preferences.princessTheme)} className={`p-5 rounded-[2rem] border transition-all flex flex-col items-center gap-2 ${preferences.princessTheme ? 'bg-pink-50 dark:bg-pink-900/20 border-pink-400 text-pink-600' : 'bg-slate-50 dark:bg-slate-800/50 border-transparent text-slate-400'}`}>
-                        <Crown size={24} /><span className="text-[10px] font-black uppercase tracking-widest">{t('settings.princess.title')}</span>
-                    </button>
-
-                    {preferences.princessTheme && (
-                        <div className="grid grid-cols-2 gap-2 px-2 animate-slide-up">
-                            <button onClick={() => onUpdatePreference('princessHearts', !preferences.princessHearts)} className={`py-2 rounded-xl text-[8px] font-black uppercase border transition-all ${preferences.princessHearts ? 'bg-pink-100 border-pink-200 text-pink-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>{t('settings.princess.hearts')}</button>
-                            <button onClick={() => onUpdatePreference('princessSparkles', !preferences.princessSparkles)} className={`py-2 rounded-xl text-[8px] font-black uppercase border transition-all ${preferences.princessSparkles ? 'bg-pink-100 border-pink-200 text-pink-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>{t('settings.princess.aurora')}</button>
-                        </div>
-                    )}
                 </div>
             </div>
           </section>

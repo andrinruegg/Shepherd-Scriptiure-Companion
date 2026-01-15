@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { X, Send, AlertCircle, CheckCircle2, MessageSquare, Loader2, Mail } from 'lucide-react';
 import { db } from '../services/db';
@@ -58,7 +57,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, language
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-3">
-              <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-xl text-indigo-600 dark:text-indigo-400">
+              <div className="bg-[#7c4a32]/10 dark:bg-[#7c4a32]/20 p-2 rounded-xl text-[#7c4a32] dark:text-[#d2b48c]">
                 <MessageSquare size={24} />
               </div>
               <h2 className="text-xl font-bold text-slate-800 dark:text-white font-serif-text">{t('feedback.title')}</h2>
@@ -90,7 +89,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, language
                 <select 
                   value={type}
                   onChange={(e) => setType(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white appearance-none cursor-pointer"
+                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#d2b48c] outline-none dark:text-white appearance-none cursor-pointer"
                 >
                   <option value="bug">{t('feedback.bug')}</option>
                   <option value="feature">{t('feedback.feature')}</option>
@@ -106,7 +105,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, language
                   value={subject}
                   onChange={(e) => {setSubject(e.target.value); if(validationError) setValidationError(null);}}
                   placeholder={t('feedback.subjectPlaceholder')}
-                  className={`w-full bg-slate-50 dark:bg-slate-800 border ${validationError && !subject ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'} rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-colors`}
+                  className={`w-full bg-slate-50 dark:bg-slate-800 border ${validationError && !subject ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'} rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#d2b48c] outline-none dark:text-white transition-colors`}
                   required
                 />
               </div>
@@ -118,7 +117,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, language
                   onChange={(e) => {setMessage(e.target.value); if(validationError) setValidationError(null);}}
                   placeholder={t('feedback.messagePlaceholder')}
                   rows={4}
-                  className={`w-full bg-slate-50 dark:bg-slate-800 border ${validationError && !message ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'} rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white resize-none transition-colors`}
+                  className={`w-full bg-slate-50 dark:bg-slate-800 border ${validationError && !message ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'} rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#d2b48c] outline-none dark:text-white resize-none transition-colors`}
                   required
                 />
               </div>
@@ -131,7 +130,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, language
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-4 bg-[#7c4a32] hover:bg-[#54362d] text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {loading ? <Loader2 size={20} className="animate-spin" /> : <><Send size={18} /> {t('feedback.submit')}</>}
               </button>

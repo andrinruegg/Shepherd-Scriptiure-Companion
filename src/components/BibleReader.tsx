@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Book, ChevronLeft, ChevronRight, Heart, X, ArrowLeft, Pause, Volume1, Image, Loader2, AlertTriangle, Key } from 'lucide-react';
 import { BIBLE_BOOKS, fetchChapter } from '../services/bibleService';
@@ -5,7 +6,19 @@ import { BibleChapter, SavedItem, BibleHighlight } from '../types';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 
-const BibleReader: React.FC<{ language: string, onSaveItem: (item: SavedItem) => void, onMenuClick: () => void, highlights: BibleHighlight[], onAddHighlight: (h: BibleHighlight) => void, onRemoveHighlight: (ref: string) => void, onOpenComposer: (t: string, r: string) => void, hasApiKey: boolean, onTriggerKeyWarning?: () => void }> = ({ 
+interface BibleReaderProps {
+    language: string;
+    onSaveItem: (item: SavedItem) => void;
+    onMenuClick: () => void;
+    highlights: BibleHighlight[];
+    onAddHighlight: (h: BibleHighlight) => void;
+    onRemoveHighlight: (ref: string) => void;
+    onOpenComposer: (t: string, r: string) => void;
+    hasApiKey: boolean;
+    onTriggerKeyWarning?: () => void;
+}
+
+const BibleReader: React.FC<BibleReaderProps> = ({ 
     language, onSaveItem, onMenuClick, highlights, onAddHighlight, onRemoveHighlight, onOpenComposer, hasApiKey, onTriggerKeyWarning
 }) => {
   const { t } = useTranslation();
@@ -67,7 +80,6 @@ const BibleReader: React.FC<{ language: string, onSaveItem: (item: SavedItem) =>
 
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 transition-colors relative">
-       {/* Centered Error Banner using Flex wrapper */}
        {showKeyError && (
          <div className="fixed top-6 inset-x-0 flex justify-center z-[100] px-4 pointer-events-none animate-slide-up">
            <div className="bg-red-600 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-red-500 pointer-events-auto max-w-md w-full">

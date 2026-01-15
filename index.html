@@ -34,6 +34,17 @@
               'pop-in': 'popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
               'slide-in-right': 'slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
               'float': 'float 6s ease-in-out infinite',
+              'aurora': 'aurora 20s linear infinite',
+              'twinkle': 'twinkle 4s ease-in-out infinite',
+              'orbit-x': 'orbitX 12s linear infinite',
+              'orbit-y': 'orbitY 15s linear infinite',
+              'orbit-z': 'orbitZ 20s linear infinite',
+              'orbit-rev': 'orbitRev 18s linear infinite',
+              'cross-pulse': 'crossPulse 4s ease-in-out infinite',
+              'letter-reveal': 'letterReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'tracking-expand': 'trackingExpand 3s ease-out forwards',
+              'dash-move': 'dashMove 10s linear infinite',
+              'shimmer': 'shimmer 3s ease-in-out infinite',
             },
             keyframes: {
               fadeIn: {
@@ -59,6 +70,51 @@
               float: {
                 '0%, 100%': { transform: 'translateY(0)' },
                 '50%': { transform: 'translateY(-10px)' },
+              },
+              aurora: {
+                '0%': { backgroundPosition: '50% 0%' },
+                '50%': { backgroundPosition: '50% 100%' },
+                '100%': { backgroundPosition: '50% 0%' },
+              },
+              twinkle: {
+                '0%, 100%': { opacity: '0.3', transform: 'scale(1)' },
+                '50%': { opacity: '1', transform: 'scale(1.2)' },
+              },
+              orbitX: {
+                '0%': { transform: 'rotateX(0deg) rotateY(45deg)' },
+                '100%': { transform: 'rotateX(360deg) rotateY(45deg)' },
+              },
+              orbitY: {
+                '0%': { transform: 'rotateY(0deg) rotateX(-45deg)' },
+                '100%': { transform: 'rotateY(360deg) rotateX(-45deg)' },
+              },
+              orbitZ: {
+                '0%': { transform: 'rotateZ(0deg)' },
+                '100%': { transform: 'rotateZ(360deg)' },
+              },
+              orbitRev: {
+                '0%': { transform: 'rotateZ(360deg)' },
+                '100%': { transform: 'rotateZ(0deg)' },
+              },
+              crossPulse: {
+                '0%, 100%': { transform: 'scale(1)', filter: 'drop-shadow(0 0 20px rgba(210,180,140,0.3))' },
+                '50%': { transform: 'scale(1.05)', filter: 'drop-shadow(0 0 45px rgba(210,180,140,0.6))' },
+              },
+              letterReveal: {
+                '0%': { opacity: '0', transform: 'translateY(20px) scale(0.8)', filter: 'blur(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0) scale(1)', filter: 'drop-shadow(0 0 10px rgba(210,180,140,0.3)) blur(0)' },
+              },
+              trackingExpand: {
+                '0%': { letterSpacing: '0.1em', opacity: '0' },
+                '100%': { letterSpacing: '0.25em', opacity: '1' },
+              },
+              dashMove: {
+                '0%': { strokeDashoffset: '100' },
+                '100%': { strokeDashoffset: '0' }
+              },
+              shimmer: {
+                '0%, 100%': { opacity: '0.4' },
+                '50%': { opacity: '1' }
               }
             }
           }
@@ -91,10 +147,10 @@
   }
 }
 </script>
+<link rel="stylesheet" href="/index.css">
 </head>
   <body>
     <div id="root"></div>
-    <!-- Script path updated to relative for Vite compatibility -->
-    <script type="module" src="./index.tsx"></script>
-  </body>
+    <script type="module" src="/index.tsx"></script>
+</body>
 </html>

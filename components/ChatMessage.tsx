@@ -1,3 +1,4 @@
+
 import React, { memo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Message } from '../types';
@@ -83,7 +84,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
         {!isUser && (
           <div className={`
             flex-shrink-0 w-9 h-9 rounded-2xl flex items-center justify-center shadow-lg mt-1
-            bg-gradient-to-br from-indigo-500 to-indigo-600 text-white transform transition-transform hover:scale-110
+            bg-gradient-to-br from-[#7c4a32] to-[#54362d] text-white transform transition-transform hover:scale-110
           `}>
             <ShepherdLogo size={18} />
           </div>
@@ -93,16 +94,16 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
           <div className={`
             px-6 py-5 shadow-[0_10px_30px_-10px_rgba(79,70,229,0.08)] text-sm md:text-base leading-relaxed break-words w-full relative
             ${isUser 
-              ? 'bg-gradient-to-br from-indigo-600 to-violet-600 text-white rounded-[1.75rem] rounded-tr-none shadow-indigo-500/20' 
-              : 'bg-white/90 dark:bg-slate-900/90 text-slate-800 dark:text-slate-100 rounded-[1.75rem] rounded-tl-none font-serif-text border border-white/60 dark:border-white/10 backdrop-blur-md shadow-[0_15px_30px_-10px_rgba(0,0,0,0.04)] dark:shadow-none border-b-indigo-100/50 dark:border-b-indigo-900/30'}
+              ? 'bg-gradient-to-br from-[#1e1b4b] to-[#312e81] text-white rounded-[1.75rem] rounded-tr-none shadow-indigo-500/20' 
+              : 'bg-white/90 dark:bg-slate-900/90 text-slate-800 dark:text-slate-100 rounded-[1.75rem] rounded-tl-none font-serif-text border border-white/60 dark:border-white/10 backdrop-blur-md shadow-[0_15px_30px_-10px_rgba(0,0,0,0.04)] dark:shadow-none border-b-slate-100 dark:border-b-slate-800'}
             ${message.isError ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300 border-red-100' : ''}
             transition-all duration-300
           `}>
             {isThinking ? (
               <div className="flex items-center space-x-1.5 h-6 px-2">
-                 <div className="w-2.5 h-2.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                 <div className="w-2.5 h-2.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                 <div className="w-2.5 h-2.5 bg-indigo-400 rounded-full animate-bounce"></div>
+                 <div className="w-2.5 h-2.5 bg-amber-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                 <div className="w-2.5 h-2.5 bg-amber-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                 <div className="w-2.5 h-2.5 bg-amber-400 rounded-full animate-bounce"></div>
               </div>
             ) : (
               <div className={`markdown-content ${isUser ? 'text-white' : 'text-slate-800 dark:text-slate-100'} ${message.isError ? 'font-sans text-xs' : ''}`}>
@@ -110,10 +111,10 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                    components={{
                       blockquote: ({node, ...props}) => (
                         <blockquote 
-                           className="border-l-4 border-indigo-400 dark:border-indigo-500 pl-6 py-3 my-4 bg-indigo-50/40 dark:bg-indigo-900/20 italic rounded-r-2xl font-serif-text relative"
+                           className="border-l-4 border-[#d2b48c] dark:border-[#7c4a32] pl-6 py-3 my-4 bg-slate-50 dark:bg-[#1a110e] italic rounded-r-2xl font-serif-text relative"
                            {...props} 
                         >
-                            <Quote size={12} className="absolute left-2 top-2 text-indigo-300 dark:text-indigo-600 opacity-50" />
+                            <Quote size={12} className="absolute left-2 top-2 text-[#7c4a32] dark:text-[#d2b48c] opacity-50" />
                             {props.children}
                         </blockquote>
                       ),
@@ -131,7 +132,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                 
                 {translatedText && (
                     <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/10 text-sm italic opacity-90">
-                        <div className="text-[10px] uppercase font-black mb-1 opacity-60 tracking-[0.2em] text-indigo-600 dark:text-indigo-400">{t('common.translated')}:</div>
+                        <div className="text-[10px] uppercase font-black mb-1 opacity-60 tracking-[0.2em] text-[#7c4a32] dark:text-[#d2b48c]">{t('common.translated')}:</div>
                         {translatedText}
                     </div>
                 )}
@@ -160,7 +161,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
               {!isThinking && !isUser && message.text && (
                   <button
                       onClick={handleOpenComposer}
-                      className="p-2 rounded-xl bg-white/60 dark:bg-slate-800 shadow-sm border border-white/60 dark:border-slate-700 backdrop-blur-md transition-all text-slate-400 dark:text-slate-500 hover:text-purple-500"
+                      className="p-2 rounded-xl bg-white/60 dark:bg-slate-800 shadow-sm border border-white/60 dark:border-slate-700 backdrop-blur-md transition-all text-slate-400 dark:text-slate-500 hover:text-amber-500"
                       title={t('dailyVerse.createImage')}
                   >
                       <Image size={15} />

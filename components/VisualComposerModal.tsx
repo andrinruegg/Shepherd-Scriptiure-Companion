@@ -13,8 +13,8 @@ interface VisualComposerModalProps {
 }
 
 const THEMES = [
-  { id: 'midnight', type: 'color', value: 'bg-gradient-to-br from-slate-900 to-indigo-950', text: 'text-white', overlay: 'bg-black/0' },
-  { id: 'sunset', type: 'color', value: 'bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500', text: 'text-white', overlay: 'bg-black/0' },
+  { id: 'midnight', type: 'color', value: 'bg-gradient-to-br from-[#070403] to-[#1a110e]', text: 'text-white', overlay: 'bg-black/0' },
+  { id: 'sunset', type: 'color', value: 'bg-gradient-to-br from-amber-600 via-orange-500 to-rose-500', text: 'text-white', overlay: 'bg-black/0' },
   { id: 'forest', type: 'color', value: 'bg-gradient-to-br from-emerald-800 to-teal-900', text: 'text-emerald-50', overlay: 'bg-black/0' },
   { id: 'paper', type: 'color', value: 'bg-[#fdf6e3]', text: 'text-slate-800', overlay: 'bg-black/0' },
   { id: 'clean', type: 'color', value: 'bg-white', text: 'text-slate-900', overlay: 'bg-black/0' },
@@ -47,14 +47,13 @@ const TEXT_COLORS = [
     { id: 'black', value: '#0f172a', name: 'Black' },
     { id: 'gold', value: '#fbbf24', name: 'Gold' },
     { id: 'rose', value: '#fb7185', name: 'Rose' },
-    { id: 'indigo', value: '#818cf8', name: 'Indigo' },
+    { id: 'tan', value: '#d2b48c', name: 'Tan' },
     { id: 'emerald', value: '#34d399', name: 'Emerald' },
     { id: 'slate', value: '#94a3b8', name: 'Slate' },
 ];
 
 const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClose, initialText, initialReference }) => {
   const { t } = useTranslation();
-  // Fix: Line 58 - Type cast the return of t() to any[] to avoid $SpecialObject assignment error when returnObjects is true
   const presets: any[] = Array.isArray(t('composer.presets', { returnObjects: true })) ? (t('composer.presets', { returnObjects: true }) as any[]) : [];
 
   const [text, setText] = useState(initialText);
@@ -188,13 +187,13 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                 <div className="flex p-1 bg-slate-800 rounded-lg mb-4">
                     <button 
                         onClick={() => setActiveTab('theme')} 
-                        className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${activeTab === 'theme' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+                        className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${activeTab === 'theme' ? 'bg-[#7c4a32] text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
                     >
                         {t('composer.theme')}
                     </button>
                     <button 
                         onClick={() => setActiveTab('text')} 
-                        className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${activeTab === 'text' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+                        className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${activeTab === 'text' ? 'bg-[#7c4a32] text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
                     >
                         {t('composer.content')}
                     </button>
@@ -216,7 +215,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                                             else if (th.type === 'color' && th.id === 'paper') setTextColor('#1e293b');
                                             else setTextColor('#FFFFFF');
                                         }}
-                                        className={`h-12 rounded-lg border-2 transition-all overflow-hidden relative shadow-sm hover:opacity-100 ${selectedTheme.id === th.id ? 'border-indigo-500 scale-105 ring-2 ring-indigo-500/50' : 'border-slate-700 opacity-70 hover:scale-105'}`}
+                                        className={`h-12 rounded-lg border-2 transition-all overflow-hidden relative shadow-sm hover:opacity-100 ${selectedTheme.id === th.id ? 'border-[#d2b48c] scale-105 ring-2 ring-[#d2b48c]/50' : 'border-slate-700 opacity-70 hover:scale-105'}`}
                                         title={getThemeName(th.id)}
                                     >
                                         {th.type === 'color' ? (
@@ -244,13 +243,13 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                             <div className="flex gap-2 mb-4">
                                 <button 
                                     onClick={() => setFont('serif')}
-                                    className={`flex-1 py-2 rounded-lg border-2 text-sm font-serif-text transition-all ${font === 'serif' ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400' : 'border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600'}`}
+                                    className={`flex-1 py-2 rounded-lg border-2 text-sm font-serif-text transition-all ${font === 'serif' ? 'border-[#7c4a32] bg-[#7c4a32]/10 text-[#d2b48c]' : 'border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600'}`}
                                 >
                                     Serif
                                 </button>
                                 <button 
                                     onClick={() => setFont('sans')}
-                                    className={`flex-1 py-2 rounded-lg border-2 text-sm font-sans transition-all ${font === 'sans' ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400' : 'border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600'}`}
+                                    className={`flex-1 py-2 rounded-lg border-2 text-sm font-sans transition-all ${font === 'sans' ? 'border-[#7c4a32] bg-[#7c4a32]/10 text-[#d2b48c]' : 'border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600'}`}
                                 >
                                     Sans
                                 </button>
@@ -264,7 +263,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                                     <button
                                         key={c.id}
                                         onClick={() => setTextColor(c.value)}
-                                        className={`w-8 h-8 rounded-full border-2 transition-all ${textColor === c.value ? 'border-indigo-500 scale-110' : 'border-transparent hover:scale-105'}`}
+                                        className={`w-8 h-8 rounded-full border-2 transition-all ${textColor === c.value ? 'border-[#d2b48c] scale-110' : 'border-transparent hover:scale-105'}`}
                                         style={{ backgroundColor: c.value }}
                                         title={c.name}
                                     >
@@ -299,7 +298,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                                 <div className="relative">
                                     <select 
                                         onChange={handlePresetSelect}
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 outline-none appearance-none cursor-pointer"
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-slate-200 text-sm focus:ring-2 focus:ring-[#7c4a32] outline-none appearance-none cursor-pointer"
                                         defaultValue=""
                                     >
                                         <option value="" disabled>{t('composer.selectPlaceholder')}</option>
@@ -320,7 +319,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                                 value={text}
                                 onChange={(e) => setText(e.target.value)}
                                 rows={6}
-                                className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
+                                className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-slate-200 text-sm focus:ring-2 focus:ring-[#7c4a32] outline-none resize-none"
                             />
                         </div>
                         <div>
@@ -329,7 +328,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                                 type="text"
                                 value={reference}
                                 onChange={(e) => setReference(e.target.value)}
-                                className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-slate-200 text-sm focus:ring-2 focus:ring-[#7c4a32] outline-none"
                             />
                         </div>
                     </div>
@@ -341,7 +340,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                 <button
                     onClick={handleDownload}
                     disabled={isDownloading}
-                    className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 transition-all transform active:scale-95 disabled:opacity-50"
+                    className="w-full py-3 bg-[#7c4a32] hover:bg-[#54362d] text-white rounded-xl font-bold shadow-lg shadow-[#7c4a32]/20 flex items-center justify-center gap-2 transition-all transform active:scale-95 disabled:opacity-50"
                 >
                     {isDownloading ? (
                         <>{t('composer.processing')}</>

@@ -102,8 +102,8 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
   const getPersonaTheme = (id: string) => {
     if (id === 'peter') return { gradient: 'from-blue-600 via-indigo-600 to-cyan-500', accent: 'text-blue-600', bubble: 'border-l-blue-500' };
     if (id === 'paul') return { gradient: 'from-amber-600 via-orange-600 to-yellow-500', accent: 'text-amber-600', bubble: 'border-l-amber-500' };
-    if (id === 'mary') return { gradient: 'from-rose-500 via-pink-500 to-purple-500', accent: 'text-rose-500', bubble: 'border-l-rose-500' };
-    return { gradient: 'from-indigo-600 to-violet-500', accent: 'text-indigo-600', bubble: 'border-l-indigo-500' };
+    if (id === 'mary') return { gradient: 'from-rose-500 via-pink-500 to-rose-700', accent: 'text-rose-500', bubble: 'border-l-rose-500' };
+    return { gradient: 'from-indigo-600 to-slate-700', accent: 'text-indigo-600', bubble: 'border-l-indigo-500' };
   };
 
   return (
@@ -214,7 +214,7 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
                         </div>
                     </div>
                   </div>
-                  <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-full">
+                  <div className="p-2 bg-amber-50 dark:bg-amber-900/30 text-amber-600 rounded-full">
                      <Sparkles size={18}/>
                   </div>
               </header>
@@ -235,9 +235,9 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
                             `}>
                                 {(!m.text || m.text.trim() === '') && m.role === 'model' ? (
                                     <div className="flex space-x-2 h-6 items-center px-2">
-                                        <div className={`w-2.5 h-2.5 rounded-full animate-bounce [animation-delay:-0.3s] ${personaId === 'peter' ? 'bg-blue-400' : 'bg-indigo-400'}`}/>
-                                        <div className={`w-2.5 h-2.5 rounded-full animate-bounce [animation-delay:-0.15s] ${personaId === 'peter' ? 'bg-blue-400' : 'bg-indigo-400'}`}/>
-                                        <div className={`w-2.5 h-2.5 rounded-full animate-bounce ${personaId === 'peter' ? 'bg-blue-400' : 'bg-indigo-400'}`}/>
+                                        <div className={`w-2.5 h-2.5 rounded-full animate-bounce [animation-delay:-0.3s] ${personaId === 'peter' ? 'bg-blue-400' : 'bg-amber-400'}`}/>
+                                        <div className={`w-2.5 h-2.5 rounded-full animate-bounce [animation-delay:-0.15s] ${personaId === 'peter' ? 'bg-blue-400' : 'bg-amber-400'}`}/>
+                                        <div className={`w-2.5 h-2.5 rounded-full animate-bounce ${personaId === 'peter' ? 'bg-blue-400' : 'bg-amber-400'}`}/>
                                     </div>
                                 ) : (
                                     <div className="markdown-content prose dark:prose-invert prose-sm max-w-none">
