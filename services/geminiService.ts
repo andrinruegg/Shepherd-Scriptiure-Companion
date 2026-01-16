@@ -159,7 +159,7 @@ export const sendMessageStream = async (
         });
         
         // Corrected: Pass the parts array directly as the message value
-        // chat.sendMessageStream expects { message: string | Part | Part[] }
+        // The sendMessageStream API expects message: string | Part | Part[]
         const result = await chat.sendMessageStream({ message: parts });
         for await (const chunk of result) {
             const responseChunk = chunk as GenerateContentResponse;
