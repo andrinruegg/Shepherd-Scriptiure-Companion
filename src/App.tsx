@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import ChatInterface from './components/ChatInterface';
@@ -465,7 +464,7 @@ const App: React.FC = () => {
     window.location.reload(); 
   };
 
-  const handleSendMessage = async (text: string, hiddenContext?: string) => {
+  const handleSendMessage = async (text: string, hiddenContext?: string, imageBlob?: Blob) => {
     if (!activeChatId) return;
 
     if (!hasApiKey) {
@@ -498,7 +497,7 @@ const App: React.FC = () => {
       }
       await db.addMessage(currentChatId, userMessage);
       const historyPayload = [...currentChat.messages, userMessage];
-      await streamAIResponse(currentChatId, aiMessageId, historyPayload, text, hiddenContext, initialAiMessage);
+      await streamAIResponse(currentChatId, aiMessageId, historyPayload, text, hiddenContext, initialAiMessage, imageBlob);
     } catch (e: any) { 
       console.error(e);
       setIsLoading(false);
@@ -542,7 +541,7 @@ const App: React.FC = () => {
     await streamAIResponse(activeChatId, newAiMessageId, historyPayload, lastUserMessage.text, regenContext, newAiMessage);
   };
 
-  const streamAIResponse = async (chatId: string, messageId: string, history: Message[], prompt: string, hiddenContext: string | undefined, baseAiMessage: Message) => {
+  const streamAIResponse = async (chatId: string, messageId: string, history: Message[], prompt: string, hiddenContext: string | undefined, baseAiMessage: Message, imageBlob?: Blob) => {
     let accumulatedText = "";
     await sendMessageStream(
       history, prompt, hiddenContext, bibleTranslation, language, displayName, 
@@ -562,7 +561,9 @@ const App: React.FC = () => {
       },
       (error: any) => {
         setIsLoading(false);
-      }
+      },
+      undefined,
+      imageBlob
     );
   };
 

@@ -1,16 +1,16 @@
-
 import React, { useRef, useEffect, useState } from 'react';
-import { Send, Menu, Trash2, Plus, Key, ExternalLink, Sparkles, ShieldCheck } from 'lucide-react';
+import { Send, Menu, Trash2, Plus, Key, ExternalLink, Sparkles, ShieldCheck, Palette } from 'lucide-react';
 import { Message } from '../types';
 import ChatMessage from './ChatMessage';
 import TopicSelector from './TopicSelector';
 import ShepherdLogo from './ShepherdLogo';
 import { useTranslation } from 'react-i18next';
+import DrawingCanvas from './DrawingCanvas';
 
 interface ChatInterfaceProps {
   messages: Message[];
   isLoading: boolean;
-  onSendMessage: (text: string, hiddenContext?: string) => void;
+  onSendMessage: (text: string, hiddenContext?: string, imageBlob?: Blob) => void;
   onMenuClick: () => void;
   onRegenerate: () => void;
   onDeleteCurrentChat?: (e: React.MouseEvent) => void;
@@ -48,6 +48,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [keyInputValue, setKeyInputValue] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [showCanvas, setShowCanvas] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, isLoading]);
@@ -65,13 +66,27 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setInputValue('');
   };
 
+  const handleSendDrawing = async (blob: Blob) => {
+      setShowCanvas(false);
+      onSendMessage(t('chat.paintMode'), "User sent a drawing.", blob);
+  };
+
   return (
     <div className="flex flex-col h-full relative overflow-hidden bg-transparent">
+      {showCanvas && (
+          <DrawingCanvas 
+            onClose={() => setShowCanvas(false)} 
+            onSend={handleSendDrawing} 
+            width={window.innerWidth} 
+            height={window.innerHeight} 
+          />
+      )}
+
       <header className="glass-header p-4 flex items-center justify-between bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl border-b dark:border-white/5 z-40">
         <div className="flex items-center gap-1">
           <button onClick={onMenuClick} className="p-2 -ml-2 text-slate-600 dark:text-slate-400 md:hidden"><Menu size={24} /></button>
           <div className="flex items-center gap-3 select-none ml-1 md:ml-2">
-              <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-xl text-white shadow-lg"><ShepherdLogo size={24} /></div>
+              <div className="bg-gradient-to-br from-stone-600 to-stone-800 p-2 rounded-xl text-white shadow-lg"><ShepherdLogo size={24} /></div>
               <div className="hidden md:block"><h1 className="text-xl font-bold text-slate-800 dark:text-white font-serif-text leading-tight">{t('common.shepherd')}</h1><p className="text-[10px] text-slate-500 dark:text-slate-400 font-black uppercase tracking-[0.2em]">{t('chat.subtitle')}</p></div>
               <div className="md:hidden font-serif-text font-bold text-lg text-slate-800 dark:text-white truncate max-w-[100px]">{t('common.shepherd')}</div>
           </div>
@@ -87,7 +102,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           {!hasApiKey ? (
               <div className="flex-1 flex flex-col items-center justify-center py-10 animate-fade-in">
                   <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl max-w-lg w-full text-center relative overflow-hidden">
-                      <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
+                      <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-stone-500 to-stone-700"></div>
                       
                       <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/30 rounded-3xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 mx-auto mb-6">
                           <Key size={32} />
@@ -119,7 +134,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
                       <button 
                         onClick={onSelectApiKey}
-                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-500/20 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3"
+                        className="w-full py-4 bg-stone-700 hover:bg-stone-800 text-white rounded-2xl font-bold shadow-lg shadow-stone-500/20 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3"
                       >
                           <ShieldCheck size={20} />
                           {t('chat.setupKey')}
@@ -159,7 +174,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </main>
 
       <footer className="p-4 md:p-8 pb-safe">
-        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto flex items-end gap-3 bg-white/70 dark:bg-slate-900/80 backdrop-blur-3xl border border-white/80 dark:border-white/10 rounded-[2.25rem] p-2.5 shadow-xl">
+        <div className="max-w-3xl mx-auto flex items-end gap-3 bg-white/70 dark:bg-slate-900/80 backdrop-blur-3xl border border-white/80 dark:border-white/10 rounded-[2.25rem] p-2.5 shadow-xl">
+            <button 
+                onClick={() => setShowCanvas(true)}
+                className="p-3.5 text-stone-500 hover:text-amber-600 transition-colors mb-0.5"
+                title={t('chat.paintMode')}
+            >
+                <Palette size={20} />
+            </button>
             <textarea 
                 value={inputValue} 
                 onChange={e=>setInputValue(e.target.value)} 
@@ -169,13 +191,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault(); handleSubmit();}}}
             />
             <button 
-                type="submit" 
+                onClick={handleSubmit} 
                 disabled={isLoading || (!inputValue.trim() && hasApiKey)} 
                 className={`p-3.5 rounded-full transition-all ${isLoading || (!inputValue.trim() && hasApiKey) ? 'bg-slate-100 dark:bg-slate-800 text-slate-300' : 'bg-indigo-600 text-white hover:scale-105 active:scale-95'}`}
             >
                 {hasApiKey ? <Send size={20} strokeWidth={2.5} /> : <Key size={20} strokeWidth={2.5} />}
             </button>
-        </form>
+        </div>
       </footer>
     </div>
   );

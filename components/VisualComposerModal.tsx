@@ -1,6 +1,5 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Download, Palette, Type, AlignLeft, AlignCenter, AlignRight, Check, Loader2, ChevronDown } from 'lucide-react';
+import { X, Download, Palette, Type, AlignLeft, AlignCenter, AlignRight, Check, ChevronDown } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import ShepherdLogo from './ShepherdLogo';
 import { useTranslation } from 'react-i18next';
@@ -14,8 +13,8 @@ interface VisualComposerModalProps {
 }
 
 const THEMES = [
-  { id: 'midnight', type: 'color', value: 'bg-gradient-to-br from-[#070403] to-[#1a110e]', text: 'text-white', overlay: 'bg-black/0' },
-  { id: 'sunset', type: 'color', value: 'bg-gradient-to-br from-amber-600 via-orange-500 to-rose-500', text: 'text-white', overlay: 'bg-black/0' },
+  { id: 'midnight', type: 'color', value: 'bg-gradient-to-br from-slate-900 to-indigo-950', text: 'text-white', overlay: 'bg-black/0' },
+  { id: 'sunset', type: 'color', value: 'bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500', text: 'text-white', overlay: 'bg-black/0' },
   { id: 'forest', type: 'color', value: 'bg-gradient-to-br from-emerald-800 to-teal-900', text: 'text-emerald-50', overlay: 'bg-black/0' },
   { id: 'paper', type: 'color', value: 'bg-[#fdf6e3]', text: 'text-slate-800', overlay: 'bg-black/0' },
   { id: 'clean', type: 'color', value: 'bg-white', text: 'text-slate-900', overlay: 'bg-black/0' },
@@ -48,13 +47,14 @@ const TEXT_COLORS = [
     { id: 'black', value: '#0f172a', name: 'Black' },
     { id: 'gold', value: '#fbbf24', name: 'Gold' },
     { id: 'rose', value: '#fb7185', name: 'Rose' },
-    { id: 'tan', value: '#d2b48c', name: 'Tan' },
+    { id: 'indigo', value: '#818cf8', name: 'Indigo' },
     { id: 'emerald', value: '#34d399', name: 'Emerald' },
     { id: 'slate', value: '#94a3b8', name: 'Slate' },
 ];
 
 const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClose, initialText, initialReference }) => {
   const { t } = useTranslation();
+  // Fix: Line 58 - Type cast the return of t() to any[] to avoid $SpecialObject assignment error when returnObjects is true
   const presets: any[] = Array.isArray(t('composer.presets', { returnObjects: true })) ? (t('composer.presets', { returnObjects: true }) as any[]) : [];
 
   const [text, setText] = useState(initialText);
@@ -76,7 +76,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
           else if (selectedTheme.id === 'paper') setTextColor('#1e293b');
           else setTextColor('#FFFFFF');
       }
-  }, [isOpen, initialText, initialReference, selectedTheme.id]);
+  }, [isOpen, initialText, initialReference]);
 
   if (!isOpen) return null;
 
@@ -116,8 +116,8 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
   };
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-      <div className="bg-slate-900 w-full max-w-4xl rounded-[2.5rem] shadow-2xl border border-slate-800 animate-scale-in flex flex-col md:flex-row max-h-[90vh] overflow-y-auto md:overflow-hidden md:h-[85vh]">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+      <div className="bg-slate-900 w-full max-w-4xl rounded-3xl shadow-2xl border border-slate-800 animate-scale-in flex flex-col md:flex-row max-h-[90vh] overflow-y-auto md:overflow-hidden md:h-[85vh]">
         
         {/* PREVIEW AREA */}
         <div className="flex-1 bg-slate-950/50 p-6 flex items-center justify-center relative md:overflow-hidden group shrink-0 min-h-[350px]">
@@ -133,7 +133,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
            <div 
               ref={cardRef}
               className={`
-                relative w-full max-w-[400px] aspect-square shadow-2xl flex flex-col justify-center p-8 md:p-12 transition-all duration-500 overflow-hidden rounded-2xl
+                relative w-full max-w-[400px] aspect-square shadow-2xl flex flex-col justify-center p-8 md:p-12 transition-all duration-500 overflow-hidden
                 ${selectedTheme.type === 'color' ? selectedTheme.value : 'bg-slate-900'} 
                 ${selectedTheme.text}
               `}
@@ -172,7 +172,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
 
               <div className="relative z-10 mt-8 flex items-center justify-center gap-2 opacity-70" style={{ color: textColor }}>
                   <ShepherdLogo size={16} className="currentColor" />
-                  <span className="text-[10px] font-bold tracking-widest uppercase">Shepherd</span>
+                  <span className="text-[10px] font-bold tracking-widest uppercase shadow-black">Shepherd</span>
               </div>
            </div>
         </div>
@@ -184,17 +184,17 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                 <button onClick={onClose} className="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800 transition-colors"><X size={20}/></button>
             </div>
 
-            <div className="flex-1 p-4 space-y-6 md:overflow-y-auto no-scrollbar">
-                <div className="flex p-1 bg-slate-800 rounded-xl mb-4">
+            <div className="flex-1 p-4 space-y-6 md:overflow-y-auto custom-scrollbar">
+                <div className="flex p-1 bg-slate-800 rounded-lg mb-4">
                     <button 
                         onClick={() => setActiveTab('theme')} 
-                        className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${activeTab === 'theme' ? 'bg-amber-700 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+                        className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${activeTab === 'theme' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
                     >
                         {t('composer.theme')}
                     </button>
                     <button 
                         onClick={() => setActiveTab('text')} 
-                        className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${activeTab === 'text' ? 'bg-amber-700 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+                        className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${activeTab === 'text' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
                     >
                         {t('composer.content')}
                     </button>
@@ -203,7 +203,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                 {activeTab === 'theme' && (
                     <div className="space-y-6 animate-slide-up">
                         <div>
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 block flex items-center gap-2">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 block flex items-center gap-2">
                                 <Palette size={14} /> {t('composer.background')}
                             </label>
                             <div className="grid grid-cols-3 gap-2">
@@ -212,8 +212,11 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                                         key={th.id}
                                         onClick={() => {
                                             setSelectedTheme(th);
+                                            if (th.type === 'color' && th.id === 'clean') setTextColor('#0f172a');
+                                            else if (th.type === 'color' && th.id === 'paper') setTextColor('#1e293b');
+                                            else setTextColor('#FFFFFF');
                                         }}
-                                        className={`h-12 rounded-xl border-2 transition-all overflow-hidden relative shadow-sm hover:opacity-100 ${selectedTheme.id === th.id ? 'border-amber-500 scale-105 ring-2 ring-amber-500/20' : 'border-slate-800 opacity-60 hover:scale-105'}`}
+                                        className={`h-12 rounded-lg border-2 transition-all overflow-hidden relative shadow-sm hover:opacity-100 ${selectedTheme.id === th.id ? 'border-indigo-500 scale-105 ring-2 ring-indigo-500/50' : 'border-slate-700 opacity-70 hover:scale-105'}`}
                                         title={getThemeName(th.id)}
                                     >
                                         {th.type === 'color' ? (
@@ -227,33 +230,33 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                                                 <Check size={16} className="text-white drop-shadow-md" />
                                             </div>
                                         )}
-                                        <span className="absolute bottom-0 left-0 right-0 bg-black/60 text-[8px] text-white text-center py-0.5 truncate px-1">{getThemeName(th.id)}</span>
+                                        <span className="absolute bottom-0 left-0 right-0 bg-black/50 text-[8px] text-white text-center py-0.5 truncate">{getThemeName(th.id)}</span>
                                     </button>
                                 ))}
                             </div>
                         </div>
 
                         <div>
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 block flex items-center gap-2">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 block flex items-center gap-2">
                                 <Type size={14} /> {t('composer.typography')}
                             </label>
                             
                             <div className="flex gap-2 mb-4">
                                 <button 
                                     onClick={() => setFont('serif')}
-                                    className={`flex-1 py-2 rounded-xl border-2 text-sm font-serif-text transition-all ${font === 'serif' ? 'border-amber-700 bg-amber-700/10 text-amber-500' : 'border-slate-800 bg-slate-800 text-slate-400 hover:border-slate-700'}`}
+                                    className={`flex-1 py-2 rounded-lg border-2 text-sm font-serif-text transition-all ${font === 'serif' ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400' : 'border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600'}`}
                                 >
                                     Serif
                                 </button>
                                 <button 
                                     onClick={() => setFont('sans')}
-                                    className={`flex-1 py-2 rounded-xl border-2 text-sm font-sans transition-all ${font === 'sans' ? 'border-amber-700 bg-amber-700/10 text-amber-500' : 'border-slate-800 bg-slate-800 text-slate-400 hover:border-slate-700'}`}
+                                    className={`flex-1 py-2 rounded-lg border-2 text-sm font-sans transition-all ${font === 'sans' ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400' : 'border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600'}`}
                                 >
                                     Sans
                                 </button>
                             </div>
                             
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 block">
                                 {t('composer.textColor')}
                             </label>
                             <div className="flex gap-2 mb-4 flex-wrap">
@@ -261,7 +264,7 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                                     <button
                                         key={c.id}
                                         onClick={() => setTextColor(c.value)}
-                                        className={`w-8 h-8 rounded-full border-2 transition-all ${textColor === c.value ? 'border-amber-500 scale-110' : 'border-transparent hover:scale-105'}`}
+                                        className={`w-8 h-8 rounded-full border-2 transition-all ${textColor === c.value ? 'border-indigo-500 scale-110' : 'border-transparent hover:scale-105'}`}
                                         style={{ backgroundColor: c.value }}
                                         title={c.name}
                                     >
@@ -270,12 +273,19 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                                         )}
                                     </button>
                                 ))}
+                                <input 
+                                    type="color" 
+                                    value={textColor} 
+                                    onChange={(e) => setTextColor(e.target.value)}
+                                    className="w-8 h-8 rounded-full bg-transparent border-none cursor-pointer p-0" 
+                                    title="Custom Color"
+                                />
                             </div>
 
-                            <div className="flex bg-slate-800 rounded-xl p-1">
-                                <button onClick={() => setAlign('left')} className={`flex-1 p-2 rounded-lg flex justify-center transition-colors ${align === 'left' ? 'bg-slate-700 text-white' : 'text-slate-500'}`}><AlignLeft size={16}/></button>
-                                <button onClick={() => setAlign('center')} className={`flex-1 p-2 rounded-lg flex justify-center transition-colors ${align === 'center' ? 'bg-slate-700 text-white' : 'text-slate-500'}`}><AlignCenter size={16}/></button>
-                                <button onClick={() => setAlign('right')} className={`flex-1 p-2 rounded-lg flex justify-center transition-colors ${align === 'right' ? 'bg-slate-700 text-white' : 'text-slate-500'}`}><AlignRight size={16}/></button>
+                            <div className="flex bg-slate-800 rounded-lg p-1">
+                                <button onClick={() => setAlign('left')} className={`flex-1 p-1.5 rounded flex justify-center ${align === 'left' ? 'bg-slate-700 text-white' : 'text-slate-500'}`}><AlignLeft size={16}/></button>
+                                <button onClick={() => setAlign('center')} className={`flex-1 p-1.5 rounded flex justify-center ${align === 'center' ? 'bg-slate-700 text-white' : 'text-slate-500'}`}><AlignCenter size={16}/></button>
+                                <button onClick={() => setAlign('right')} className={`flex-1 p-1.5 rounded flex justify-center ${align === 'right' ? 'bg-slate-700 text-white' : 'text-slate-500'}`}><AlignRight size={16}/></button>
                             </div>
                         </div>
                     </div>
@@ -285,11 +295,11 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                     <div className="space-y-4 animate-slide-up">
                         {presets.length > 0 && (
                             <div>
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">{t('composer.quickSelect')}</label>
+                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">{t('composer.quickSelect')}</label>
                                 <div className="relative">
                                     <select 
                                         onChange={handlePresetSelect}
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-slate-200 text-sm focus:ring-2 focus:ring-amber-700 outline-none appearance-none cursor-pointer"
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 outline-none appearance-none cursor-pointer"
                                         defaultValue=""
                                     >
                                         <option value="" disabled>{t('composer.selectPlaceholder')}</option>
@@ -302,22 +312,24 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
                             </div>
                         )}
 
+                        <div className="w-full h-px bg-slate-800 my-2"></div>
+
                         <div>
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">{t('composer.message')}</label>
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">{t('composer.message')}</label>
                             <textarea
                                 value={text}
                                 onChange={(e) => setText(e.target.value)}
                                 rows={6}
-                                className="w-full bg-slate-800 border border-slate-700 rounded-2xl p-4 text-slate-200 text-sm focus:ring-2 focus:ring-amber-700 outline-none resize-none"
+                                className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
                             />
                         </div>
                         <div>
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">{t('composer.reference')}</label>
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">{t('composer.reference')}</label>
                             <input
                                 type="text"
                                 value={reference}
                                 onChange={(e) => setReference(e.target.value)}
-                                className="w-full bg-slate-800 border border-slate-700 rounded-2xl p-4 text-slate-200 text-sm focus:ring-2 focus:ring-amber-700 outline-none"
+                                className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
                             />
                         </div>
                     </div>
@@ -325,16 +337,18 @@ const VisualComposerModal: React.FC<VisualComposerModalProps> = ({ isOpen, onClo
 
             </div>
 
-            <div className="p-6 border-t border-slate-800 bg-slate-900 sticky bottom-0 z-10 md:static">
+            <div className="p-4 border-t border-slate-800 bg-slate-900 sticky bottom-0 z-10 md:static">
                 <button
                     onClick={handleDownload}
                     disabled={isDownloading}
-                    className="w-full py-4 bg-amber-700 hover:bg-amber-800 text-white rounded-2xl font-bold shadow-lg shadow-amber-900/20 flex items-center justify-center gap-3 transition-all transform active:scale-95 disabled:opacity-50"
+                    className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 transition-all transform active:scale-95 disabled:opacity-50"
                 >
                     {isDownloading ? (
-                        <><Loader2 size={20} className="animate-spin" /> {t('composer.processing')}</>
+                        <>{t('composer.processing')}</>
                     ) : (
-                        <><Download size={20} /> {t('composer.download')}</>
+                        <>
+                            <Download size={20} /> {t('composer.download')}
+                        </>
                     )}
                 </button>
             </div>

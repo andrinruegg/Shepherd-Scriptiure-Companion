@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { Heart } from 'lucide-react';
 
@@ -13,7 +12,7 @@ const PrincessOverlay: React.FC<PrincessOverlayProps> = ({
 }) => {
   // Generate hearts with distinct Soft Pink/Rose colors
   const hearts = useMemo(() => {
-    return Array.from({ length: 30 }).map((_, i) => {
+    return Array.from({ length: 25 }).map((_, i) => {
       const rand = Math.random();
       let colorClass = 'text-pink-300'; 
       if (rand > 0.5) colorClass = 'text-rose-300'; 
@@ -21,11 +20,11 @@ const PrincessOverlay: React.FC<PrincessOverlayProps> = ({
       return {
         id: i,
         left: Math.random() * 100, 
-        delay: Math.random() * 8, 
-        duration: 10 + Math.random() * 15,
-        size: 15 + Math.random() * 25,
+        delay: Math.random() * 15, 
+        duration: 15 + Math.random() * 20,
+        size: 10 + Math.random() * 20,
         colorClass,
-        opacity: 0.3 + Math.random() * 0.4 
+        opacity: 0.2 + Math.random() * 0.3 
       };
     });
   }, []);
@@ -35,7 +34,7 @@ const PrincessOverlay: React.FC<PrincessOverlayProps> = ({
       
       {/* 1. Sparkly Aurora Background */}
       {showSparkles && (
-          <div className="absolute inset-0 animate-sparkly-aurora pointer-events-none opacity-50"></div>
+          <div className="absolute inset-0 animate-sparkly-aurora pointer-events-none opacity-40"></div>
       )}
 
       {/* 2. Floating Hearts */}

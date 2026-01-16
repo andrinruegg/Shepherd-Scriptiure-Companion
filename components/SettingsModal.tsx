@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Moon, Sun, LogOut, User, Globe, Info, Edit2, Check, Camera, Snowflake, Key, ExternalLink, Crown } from 'lucide-react';
 import { UserPreferences } from '../types';
@@ -19,11 +20,7 @@ interface SettingsModalProps {
 const LANGUAGES = [
   { id: 'en', name: 'English' },
   { id: 'ro', name: 'Română' },
-  { id: 'de', name: 'Deutsch' },
-  { id: 'es', name: 'Español' },
-  { id: 'fr', name: 'Français' },
-  { id: 'pt', name: 'Português' },
-  { id: 'it', name: 'Italiano' }
+  { id: 'de', name: 'Deutsch' }
 ];
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -68,11 +65,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       const mapLegacy: Record<string, string> = { 
           'en': 'English', 
           'de': 'German', 
-          'ro': 'Romanian',
-          'es': 'Spanish',
-          'fr': 'French',
-          'pt': 'Portuguese',
-          'it': 'Italian'
+          'ro': 'Romanian'
       };
       onUpdatePreference('language', mapLegacy[code] || 'English');
   };
@@ -249,42 +242,31 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     </div>
                 </div>
 
-                {/* THEME MODES SECTION */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-3">
-                        <button 
-                            onClick={() => onUpdatePreference('winterTheme', !preferences.winterTheme)} 
-                            className={`p-5 rounded-[2rem] border transition-all flex flex-col items-center gap-2 group relative overflow-hidden ${preferences.winterTheme ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-400 text-blue-600' : 'bg-slate-50 dark:bg-slate-800/50 border-transparent text-slate-400'}`}
-                        >
-                            <Snowflake size={24} className={preferences.winterTheme ? 'animate-spin' : ''} />
-                            <span className="text-[10px] font-black uppercase tracking-widest">{t('settings.winter.title')}</span>
-                        </button>
-                        
-                        {preferences.winterTheme && (
-                            <div className="flex flex-col gap-1.5 px-1 animate-slide-up">
-                                <button onClick={() => onUpdatePreference('winterSnow', !preferences.winterSnow)} className={`py-2 px-3 rounded-xl text-[8px] font-black uppercase border transition-all ${preferences.winterSnow ? 'bg-blue-100 border-blue-200 text-blue-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>{t('settings.winter.snow')}</button>
-                                <button onClick={() => onUpdatePreference('winterLights', !preferences.winterLights)} className={`py-2 px-3 rounded-xl text-[8px] font-black uppercase border transition-all ${preferences.winterLights ? 'bg-blue-100 border-blue-200 text-blue-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>{t('settings.winter.lights')}</button>
-                                <button onClick={() => onUpdatePreference('winterIcicles', !preferences.winterIcicles)} className={`py-2 px-3 rounded-xl text-[8px] font-black uppercase border transition-all ${preferences.winterIcicles ? 'bg-blue-100 border-blue-200 text-blue-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>{t('settings.winter.icicles')}</button>
-                            </div>
-                        )}
-                    </div>
+                <div className="flex flex-col gap-3">
+                    <button onClick={() => onUpdatePreference('winterTheme', !preferences.winterTheme)} className={`p-5 rounded-[2rem] border transition-all flex flex-col items-center gap-2 ${preferences.winterTheme ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-400 text-blue-600' : 'bg-slate-50 dark:bg-slate-800/50 border-transparent text-slate-400'}`}>
+                        <Snowflake size={24} /><span className="text-[10px] font-black uppercase tracking-widest">{t('settings.winter.title')}</span>
+                    </button>
+                    
+                    {preferences.winterTheme && (
+                        <div className="grid grid-cols-3 gap-2 px-2 animate-slide-up">
+                            <button onClick={() => onUpdatePreference('winterSnow', !preferences.winterSnow)} className={`py-2 rounded-xl text-[8px] font-black uppercase border transition-all ${preferences.winterSnow ? 'bg-blue-100 border-blue-200 text-blue-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>{t('settings.winter.snow')}</button>
+                            <button onClick={() => onUpdatePreference('winterLights', !preferences.winterLights)} className={`py-2 rounded-xl text-[8px] font-black uppercase border transition-all ${preferences.winterLights ? 'bg-blue-100 border-blue-200 text-blue-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>{t('settings.winter.lights')}</button>
+                            <button onClick={() => onUpdatePreference('winterIcicles', !preferences.winterIcicles)} className={`py-2 rounded-xl text-[8px] font-black uppercase border transition-all ${preferences.winterIcicles ? 'bg-blue-100 border-blue-200 text-blue-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>{t('settings.winter.icicles')}</button>
+                        </div>
+                    )}
+                </div>
 
-                    <div className="flex flex-col gap-3">
-                        <button 
-                            onClick={() => onUpdatePreference('princessTheme', !preferences.princessTheme)} 
-                            className={`p-5 rounded-[2rem] border transition-all flex flex-col items-center gap-2 group relative overflow-hidden ${preferences.princessTheme ? 'bg-pink-50 dark:bg-pink-900/20 border-pink-400 text-pink-600' : 'bg-slate-50 dark:bg-slate-800/50 border-transparent text-slate-400'}`}
-                        >
-                            <Crown size={24} className={preferences.princessTheme ? 'animate-bounce' : ''} />
-                            <span className="text-[10px] font-black uppercase tracking-widest">{t('settings.princess.title')}</span>
-                        </button>
+                <div className="flex flex-col gap-3">
+                    <button onClick={() => onUpdatePreference('princessTheme', !preferences.princessTheme)} className={`p-5 rounded-[2rem] border transition-all flex flex-col items-center gap-2 ${preferences.princessTheme ? 'bg-pink-50 dark:bg-pink-900/20 border-pink-400 text-pink-600' : 'bg-slate-50 dark:bg-slate-800/50 border-transparent text-slate-400'}`}>
+                        <Crown size={24} /><span className="text-[10px] font-black uppercase tracking-widest">{t('settings.princess.title')}</span>
+                    </button>
 
-                        {preferences.princessTheme && (
-                            <div className="flex flex-col gap-1.5 px-1 animate-slide-up">
-                                <button onClick={() => onUpdatePreference('princessHearts', !preferences.princessHearts)} className={`py-2 px-3 rounded-xl text-[8px] font-black uppercase border transition-all ${preferences.princessHearts ? 'bg-pink-100 border-pink-200 text-pink-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>{t('settings.princess.hearts')}</button>
-                                <button onClick={() => onUpdatePreference('princessSparkles', !preferences.princessSparkles)} className={`py-2 px-3 rounded-xl text-[8px] font-black uppercase border transition-all ${preferences.princessSparkles ? 'bg-pink-100 border-pink-200 text-pink-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>{t('settings.princess.aurora')}</button>
-                            </div>
-                        )}
-                    </div>
+                    {preferences.princessTheme && (
+                        <div className="grid grid-cols-2 gap-2 px-2 animate-slide-up">
+                            <button onClick={() => onUpdatePreference('princessHearts', !preferences.princessHearts)} className={`py-2 rounded-xl text-[8px] font-black uppercase border transition-all ${preferences.princessHearts ? 'bg-pink-100 border-pink-200 text-pink-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>{t('settings.princess.hearts')}</button>
+                            <button onClick={() => onUpdatePreference('princessSparkles', !preferences.princessSparkles)} className={`py-2 rounded-xl text-[8px] font-black uppercase border transition-all ${preferences.princessSparkles ? 'bg-pink-100 border-pink-200 text-pink-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>{t('settings.princess.aurora')}</button>
+                        </div>
+                    )}
                 </div>
             </div>
           </section>

@@ -1,3 +1,4 @@
+
 {
   "common": {
     "shepherd": "Hirte",
@@ -168,7 +169,8 @@
     "intro": {
       "peter": "Ich erinnere mich an den Geruch von Salz... Wie kann ich dir helfen?",
       "paul": "Gnade und Friede sei mit euch von Gott, unserem Vater. Einst war ich blind, doch nun sehe ich den unergründlichen Reichtum Christi. Was liegt dir am Herzen?",
-      "mary": "Sei gegrüßt, du Begnadete! Der Herr ist mit dir. Meine Seele erhebt den Herrn, denn er hat Großes an mir getan. Wie kann ich seinen Frieden mit dir teilen?"
+      "mary": "Sei gegrüßt, du Begnadete! Der Herr ist mit dir. Meine Seele erhebt den Herrn, denn er hat Großes an mir getan. Wie kann ich seinen Frieden mit dir teilen?",
+      "matthew": "Ich war einst Levi und saß an meiner Zollstätte, bis Er mich rief. Ich tauschte mein Kassenbuch gegen Sein Evangelium. Wie kann ich dir heute helfen, den König zu sehen?"
     }
   },
   "social": {
@@ -286,7 +288,7 @@
       { "ref": "Jeremia 29,11", "text": "Denn ich weiß wohl, was ich für Gedanken über euch habe, spricht der HERR: Gedanken des Friedens und nicht des Leides, dass ich euch gebe Zukunft und Hoffnung." },
       { "ref": "Philipper 4,13", "text": "Ich vermag alles durch den, der mich mächtig macht." },
       { "ref": "Johannes 3,16", "text": "Denn also hat Gott die Welt geliebt, dass er seinen eingeborenen Sohn gab, damit alle, die an ihn glauben, nicht verloren werden, sondern das ewige Leben haben." },
-      { "ref": "Römer 8,28", "text": "Wir wissen aber, dass denen, die Gott lieben, alle Dinge zum Besten dienen, denen, die nach seinem Ratschluss berufen sind." }
+      { "ref": "Römer 8,28", "text": "Wir wissen aber, dass denen, die Gott lieben, alle Dinge zum Besten dienen, denen, nach seinem Ratschluss berufen sind." }
     ],
     "themes": {
       "midnight": "Mitternacht",

@@ -1,3 +1,4 @@
+
 {
   "common": {
     "shepherd": "Shepherd",
@@ -170,7 +171,8 @@
     "intro": {
       "peter": "I remember the smell of salt and the rough texture of the nets... I was a simple fisherman until the Master looked at me. How can I guide you today?",
       "paul": "Grace and peace to you from God our Father. I was once blind, but now I see the unsearchable riches of Christ. What is on your heart?",
-      "mary": "Greetings, favored one! The Lord is with you. My soul magnifies the Lord, for He has done great things for me. How can I share His peace with you?"
+      "mary": "Greetings, favored one! The Lord is with you. My soul magnifies the Lord, for He has done great things for me. How can I share His peace with you?",
+      "matthew": "I was once Levi, sitting at my tax booth, until He called. I exchanged my ledger for His Gospel. How can I help you see the King today?"
     }
   },
   "social": {

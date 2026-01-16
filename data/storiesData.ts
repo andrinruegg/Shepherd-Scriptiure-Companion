@@ -32,6 +32,18 @@ export const STORIES_DATA: StoriesData = {
         ]
     },
     {
+        id: 'matthew',
+        name: 'Matthew',
+        role: 'Tax Collector of Capernaum',
+        image: 'https://jnsyoqbkpcziblavorvm.supabase.co/storage/v1/object/public/assets/Matthew-GettyImages-112186109-5787c6175f9b5831b50e48ac.jpg',
+        traits: ['Accountable', 'Precise', 'Observant', 'Literate'],
+        biography: [
+            "I was once Levi, the man at the tax booth. In my world, everything was calculated—profit, loss, and the heavy hand of Rome. Then the Master passed by and said, 'Follow me.'",
+            "I left my ledger and my coins, but I kept my pen. I realized that my ability to record facts and genealogies was exactly what was needed to show Israel that Jesus is indeed the Messiah.",
+            "I have seen the kingdom come not with armies, but with mercy. My heart is no longer set on gold, but on the true treasure of heaven."
+        ]
+    },
+    {
         id: 'mary',
         name: 'Mary',
         role: 'Mother of Jesus',
@@ -73,6 +85,18 @@ export const STORIES_DATA: StoriesData = {
         ]
     },
     {
+        id: 'matthew',
+        name: 'Matthäus',
+        role: 'Zolleinnehmer aus Kapernaum',
+        image: 'https://jnsyoqbkpcziblavorvm.supabase.co/storage/v1/object/public/assets/Matthew-GettyImages-112186109-5787c6175f9b5831b50e48ac.jpg',
+        traits: ['Verantwortungsbewusst', 'Präzise', 'Beobachtend', 'Gebildet'],
+        biography: [
+            "Ich war einst Levi, der Mann an der Zollstätte. In meiner Welt war alles berechnet—Gewinn, Verlust und die schwere Hand Roms. Dann kam der Meister vorbei und sagte: 'Folge mir nach.'",
+            "Ich verließ mein Kassenbuch und meine Münzen, aber ich behielt meine Feder. Ich erkannte, dass meine Fähigkeit, Fakten und Stammbäume festzuhalten, genau das war, was nötig war.",
+            "Ich habe gesehen, dass das Reich Gottes nicht mit Armeen kommt, sondern mit Barmherzigkeit. Mein Herz hängt nicht mehr an Gold, sondern am wahren Schatz des Himmels."
+        ]
+    },
+    {
         id: 'mary',
         name: 'Maria',
         role: 'Mutter von Jesus',
@@ -111,6 +135,18 @@ export const STORIES_DATA: StoriesData = {
             "Dar pe drumul Damascului, deodată a strălucit o lumină din cer împrejurul meu. Am auzit un glas care mi-a zis: 'Saule, Saule, pentru ce Mă prigonești?'",
             "Solzii au căzut de pe ochii mei și am înțeles că lucrurile care pentru mine erau câștiguri, le-am socotit ca o pierdere, din pricina lui Hristos.",
             "Din închisorile Romei până în piețele Atenei, am trăit ca să vestesc un singur mesaj: pe Hristos cel răstignit și înviat. Căci pentru mine a trăi este Hristos, și a muri este un câștig."
+        ]
+    },
+    {
+        id: 'matthew',
+        name: 'Matei',
+        role: 'Vameșul din Capernaum',
+        image: 'https://jnsyoqbkpcziblavorvm.supabase.co/storage/v1/object/public/assets/Matthew-GettyImages-112186109-5787c6175f9b5831b50e48ac.jpg',
+        traits: ['Responsabil', 'Precis', 'Observator', 'Instruit'],
+        biography: [
+            "Am fost cândva Levi, omul de la masa de vamă. În lumea mea, totul era calculat—profit, pierdere și mâna grea a Romei. Apoi Învățătorul a trecut pe lângă mine și a spus: 'Urmează-mă.'",
+            "Mi-am lăsat registrul și monedele, dar mi-am păstrat condeiul. Am realizat că abilitatea mea de a înregistra fapte și genealogii era exact ceea ce era necesar.",
+            "Am văzut că împărăția nu vine cu armate, ci cu milă. Inima mea nu mai este fixată pe aur, ci pe adevărata comoară a cerului."
         ]
     },
     {

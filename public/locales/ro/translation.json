@@ -1,3 +1,4 @@
+
 {
   "common": {
     "shepherd": "Păstorul",
@@ -170,7 +171,8 @@
     "intro": {
       "peter": "Îmi amintesc mirosul sării... Cu ce te pot ajuta?",
       "paul": "Har și pace de la Dumnezeu, Tatăl nostru. Am fost cândva orb, dar acum văd bogățiile nepătrunse ale lui Hristos. Ce ai pe inimă?",
-      "mary": "Te salut, tu căreia ți s-a făcut mare har! Domnul este cu tine. Sufletul meu Îl mărește pe Domnul, căci a făcut lucruri mari pentru mine. Cum pot să-ți împărtășesc pacea Lui?"
+      "mary": "Te salut, tu căreia ți s-a făcut mare har! Domnul este cu tine. Sufletul meu Îl mărește pe Domnul, căci a făcut lucruri mari pentru mine. Cum pot să-ți împărtășesc pacea Lui?",
+      "matthew": "Am fost cândva Levi, stând la masa de vamă, până când El m-a chemat. Mi-am schimbat socotelile pe Evanghelia Lui. Cum te pot ajuta să-L vezi pe Împărat astăzi?"
     }
   },
   "social": {

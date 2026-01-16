@@ -89,9 +89,10 @@ export const generateChatTitle = async (userMessage: string, language: string = 
           model: 'gemini-3-flash-preview',
           contents: `Summarize this user request into a short, elegant 3-5 word title for a journal entry (no quotes).
           
-          CRITICAL INSTRUCTION: You MUST output the title in the "${language}" language. Do NOT use English if the language is different.
-          
           User Message: "${userMessage}"`,
+          config: {
+            systemInstruction: `You MUST output the title in the "${language}" language. Do NOT use English if the language is different.`
+          }
         });
     });
     return response.text ? response.text.trim() : 'New Entry';
@@ -122,7 +123,7 @@ export const sendMessageStream = async (
     
     IMPORTANT PREFERENCES:
     1. QUOTE ALL SCRIPTURE USING THE ${bibleTranslation} TRANSLATION.
-    2. RESPONSE LANGUAGE: You MUST respond in "${userLanguage}". This is non-negotiable. Even if the user types in another language, your explanation and guidance must be in "${userLanguage}".
+    2. RESPONSE LANGUAGE: You MUST respond in "${userLanguage}". This is non-negotiable.
     ${displayName ? `3. GREETING: Address the user as "${displayName}" naturally.` : ''}
     `;
 
@@ -155,26 +156,6 @@ export const sendMessageStream = async (
     console.error("Gemini API Error:", error);
     onError(error);
   }
-};
-
-export const generateSpeech = async (text: string, language: string): Promise<string> => {
-    return await makeRequestWithRetry(async (ai) => {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-tts",
-            contents: [{ parts: [{ text: text }] }],
-            config: {
-                responseModalities: [Modality.AUDIO],
-                speechConfig: {
-                    voiceConfig: {
-                        prebuiltVoiceConfig: { voiceName: 'Fenrir' },
-                    },
-                },
-            },
-        });
-        const audioData = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-        if (!audioData) throw new Error("No audio data returned");
-        return audioData;
-    });
 };
 
 export const translateContent = async (text: string, targetLanguage: string): Promise<string> => {

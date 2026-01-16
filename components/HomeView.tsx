@@ -51,9 +51,9 @@ const HomeView: React.FC<HomeViewProps> = ({
 
     const TOOLS_GRID = [
         { id: 'bible', label: t('home.bibleTitle'), sub: t('home.bibleDesc'), icon: Book, bg: 'from-emerald-500 to-emerald-700', iconColor: 'text-white', delay: '0.2s' },
-        { id: 'prayer', label: t('home.prayerTitle'), sub: t('home.prayerDesc'), icon: Feather, bg: 'from-[#7c4a32] to-[#54362d]', iconColor: 'text-white', delay: '0.25s' },
+        { id: 'prayer', label: t('home.prayerTitle'), sub: t('home.prayerDesc'), icon: Feather, bg: 'from-[#1e1b4b] to-[#312e81]', iconColor: 'text-white', delay: '0.25s' },
         { id: 'quiz', label: t('home.quizTitle'), sub: t('home.quizDesc'), icon: Brain, bg: 'from-amber-500 to-amber-600', iconColor: 'text-white', delay: '0.3s' },
-        { id: 'friends', label: t('home.friendsTitle'), sub: t('home.friendsDesc'), icon: Users, bg: 'from-amber-600 to-amber-700', iconColor: 'text-white', delay: '0.35s', action: onOpenFriends },
+        { id: 'friends', label: t('home.friendsTitle'), sub: t('home.friendsDesc'), icon: Users, bg: 'from-[#7c4a32] to-[#54362d]', iconColor: 'text-white', delay: '0.35s', action: onOpenFriends },
         { id: 'saved', label: t('home.favoritesTitle'), sub: t('home.favoritesDesc'), icon: Heart, bg: 'from-rose-500 to-rose-600', iconColor: 'text-white', delay: '0.4s' }
     ];
 
@@ -137,23 +137,23 @@ const HomeView: React.FC<HomeViewProps> = ({
                     <div className="h-px bg-slate-200/50 dark:bg-slate-800 flex-1"></div>
                 </div>
 
-                {/* AI TOOLS - Replaced Purple with Brown and Green */}
+                {/* AI TOOLS - Brand Indigo & Gold */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-8 md:mb-10">
                     <button 
                         onClick={() => onNavigate('chat')}
-                        className="p-1 rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-[#7c4a32] via-[#54362d] to-[#d2b48c] shadow-xl shadow-[#7c4a32]/10 group hover:shadow-2xl transition-all animate-slide-up"
+                        className="p-1 rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-[#1e1b4b] via-[#3730a3] to-[#4f46e5] shadow-xl shadow-indigo-500/10 group hover:shadow-2xl transition-all animate-slide-up"
                     >
                         <div className="bg-white/95 dark:bg-slate-900/95 h-full rounded-[1.8rem] md:rounded-[2.1rem] p-6 md:p-8 flex items-center justify-between backdrop-blur-2xl transition-all group-hover:bg-white/80 dark:group-hover:bg-slate-800">
                             <div className="flex items-center gap-4 md:gap-6">
-                                <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-3xl bg-[#fdfbf7] dark:bg-[#7c4a32]/20 text-[#7c4a32] dark:text-[#d2b48c] flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
+                                <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-3xl bg-indigo-50 dark:bg-indigo-500/20 text-[#1e1b4b] dark:text-indigo-400 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
                                     <MessageCircle size={32} />
                                 </div>
                                 <div className="text-left">
                                     <h4 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white mb-0.5 md:mb-1">{t('home.chatTitle')}</h4>
-                                    <p className="text-xs md:sm text-slate-500 dark:text-slate-400 font-medium">{t('home.chatDesc')}</p>
+                                    <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 font-medium">{t('home.chatDesc')}</p>
                                 </div>
                             </div>
-                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-[#d2b48c] dark:border-slate-800 flex items-center justify-center text-[#7c4a32] group-hover:bg-[#7c4a32] group-hover:text-white transition-all">
+                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-indigo-100 dark:border-slate-800 flex items-center justify-center text-indigo-500 group-hover:bg-indigo-700 group-hover:text-white transition-all">
                                 <ArrowRight size={20} />
                             </div>
                         </div>
@@ -161,11 +161,11 @@ const HomeView: React.FC<HomeViewProps> = ({
 
                     <button 
                         onClick={() => onNavigate('stories')}
-                        className="p-1 rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 shadow-xl shadow-emerald-500/10 group hover:shadow-2xl transition-all animate-slide-up"
+                        className="p-1 rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 shadow-xl shadow-amber-500/10 group hover:shadow-2xl transition-all animate-slide-up"
                     >
                         <div className="bg-white/95 dark:bg-slate-900/95 h-full rounded-[1.8rem] md:rounded-[2.1rem] p-6 md:p-8 flex items-center justify-between backdrop-blur-2xl transition-all group-hover:bg-white/80 dark:group-hover:bg-slate-800">
                             <div className="flex items-center gap-4 md:gap-6">
-                                <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-3xl bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
+                                <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-3xl bg-amber-50 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
                                     <Scroll size={32} className="animate-pulse" />
                                 </div>
                                 <div className="text-left">
@@ -173,7 +173,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                                     <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 font-medium">{t('home.roleplayDesc')}</p>
                                 </div>
                             </div>
-                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-emerald-100 dark:border-slate-800 flex items-center justify-center text-emerald-500 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-amber-100 dark:border-slate-800 flex items-center justify-center text-amber-500 group-hover:bg-amber-600 group-hover:text-white transition-all">
                                 <ArrowRight size={20} />
                             </div>
                         </div>
@@ -186,7 +186,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                         <button 
                             key={feature.id}
                             onClick={() => feature.action ? feature.action() : onNavigate(feature.id as AppView)}
-                            className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] hover:-translate-y-2 transition-all group text-left flex flex-col justify-between h-44 md:h-52 animate-slide-up border border-white dark:border-slate-800 hover:border-[#d2b48c] dark:hover:border-emerald-500/30 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.04)] hover:shadow-2xl"
+                            className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] hover:-translate-y-2 transition-all group text-left flex flex-col justify-between h-44 md:h-52 animate-slide-up border border-white dark:border-slate-800 hover:border-[#d2b48c] dark:hover:border-indigo-500/30 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.04)] hover:shadow-2xl"
                             style={{ animationDelay: feature.delay }}
                         >
                             <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl md:rounded-3xl bg-gradient-to-br ${feature.bg} flex items-center justify-center shadow-lg transform group-hover:rotate-6 transition-transform mb-3 md:mb-4`}>

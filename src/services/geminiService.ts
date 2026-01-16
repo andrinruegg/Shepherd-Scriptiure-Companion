@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, GenerateContentResponse, Content, Type, Modality } from "@google/genai";
 import { Message, QuizQuestion } from "../types";
 
@@ -82,6 +81,14 @@ const cleanJson = (text: string): string => {
     return text.replace(/```json|```/g, '').trim();
 };
 
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, _) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.readAsDataURL(blob);
+  });
+};
+
 export const generateChatTitle = async (userMessage: string, language: string = 'English'): Promise<string> => {
   try {
     const response = await makeRequestWithRetry(async (ai) => {
@@ -111,7 +118,8 @@ export const sendMessageStream = async (
   onChunk: (text: string) => void,
   onComplete: () => void,
   onError: (error: any) => void,
-  systemOverride?: string 
+  systemOverride?: string,
+  imageBlob?: Blob
 ) => {
   try {
     const recentHistory = history.length > 10 ? history.slice(history.length - 10) : history;
@@ -126,9 +134,19 @@ export const sendMessageStream = async (
     ${displayName ? `3. GREETING: Address the user as "${displayName}" naturally.` : ''}
     `;
 
-    const promptToSend = hiddenContext 
-        ? `${newMessage}\n\n[System Note: ${hiddenContext}]` 
-        : newMessage;
+    const textPart = { text: hiddenContext ? `${newMessage}\n\n[System Note: ${hiddenContext}]` : newMessage };
+    const parts: any[] = [textPart];
+
+    if (imageBlob) {
+        const b64 = await blobToBase64(imageBlob);
+        const data = b64.split(',')[1];
+        parts.push({
+            inlineData: {
+                data: data,
+                mimeType: imageBlob.type
+            }
+        });
+    }
 
     await makeRequestWithRetry(async (ai) => {
         const chat = ai.chats.create({
@@ -140,7 +158,7 @@ export const sendMessageStream = async (
             },
         });
         
-        const result = await chat.sendMessageStream({ message: promptToSend });
+        const result = await chat.sendMessageStream({ message: { parts } });
         for await (const chunk of result) {
             const responseChunk = chunk as GenerateContentResponse;
             if (responseChunk.text) {

@@ -103,11 +103,12 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
     if (id === 'peter') return { gradient: 'from-blue-600 via-indigo-600 to-cyan-500', accent: 'text-blue-600', bubble: 'border-l-blue-500' };
     if (id === 'paul') return { gradient: 'from-amber-600 via-orange-600 to-yellow-500', accent: 'text-amber-600', bubble: 'border-l-amber-500' };
     if (id === 'mary') return { gradient: 'from-rose-500 via-pink-500 to-rose-700', accent: 'text-rose-500', bubble: 'border-l-rose-500' };
+    if (id === 'matthew') return { gradient: 'from-emerald-600 via-green-600 to-teal-500', accent: 'text-emerald-600', bubble: 'border-l-emerald-500' };
     return { gradient: 'from-indigo-600 to-slate-700', accent: 'text-indigo-600', bubble: 'border-l-indigo-500' };
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#fdfaf5] dark:bg-slate-950 transition-colors relative overflow-hidden">
+    <div className="flex flex-col h-full bg-[#fdfbf7] dark:bg-slate-950 transition-colors relative overflow-hidden">
       {view === 'hub' && (
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-10">
               <header className="mb-10 flex items-center gap-4 animate-fade-in">
@@ -210,7 +211,7 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
                             <h2 className="font-bold text-slate-900 dark:text-white leading-tight text-base">
                                 {figures.find((f: any) => f.id === encounters.find((e: any) => e.id === activeEncounterId)?.personaId)?.name}
                             </h2>
-                            <p className="text-[9px] font-black uppercase text-emerald-500 tracking-widest animate-pulse">Online</p>
+                            <p className="text-[9px] font-black uppercase text-emerald-500 tracking-widest animate-pulse">{t('social.status.online')}</p>
                         </div>
                     </div>
                   </div>

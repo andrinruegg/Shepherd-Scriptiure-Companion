@@ -65,6 +65,8 @@ const App: React.FC = () => {
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem('theme');
+    const princessMode = localStorage.getItem('princessMode') === 'true';
+    if (princessMode) return false; // Princess Mode forces Light
     if (savedTheme === 'dark') return true;
     if (savedTheme === 'light') return false;
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -152,11 +154,17 @@ const App: React.FC = () => {
     if (isPrincessMode) {
       document.body.classList.add('princess-mode');
       document.documentElement.classList.add('princess-mode');
+      document.documentElement.classList.remove('dark');
     } else {
       document.body.classList.remove('princess-mode');
       document.documentElement.classList.remove('princess-mode');
+      if (isDarkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
     }
-  }, [isPrincessMode]);
+  }, [isPrincessMode, isDarkMode]);
 
   useEffect(() => {
     const streak = updateStreak();
@@ -187,7 +195,12 @@ const App: React.FC = () => {
       const meta = session.user.user_metadata || {};
       if (!displayName && meta.full_name) setDisplayName(meta.full_name);
       if (meta.language) setLanguage(meta.language);
-      if (meta.theme) setIsDarkMode(meta.theme === 'dark');
+      
+      // Theme Sync with protection for Princess Mode
+      if (meta.theme && !isPrincessMode) {
+        setIsDarkMode(meta.theme === 'dark');
+        localStorage.setItem('theme', meta.theme);
+      }
     };
 
     if (session) {
@@ -281,24 +294,18 @@ const App: React.FC = () => {
     try { await db.deleteHighlight(ref); } catch (e) { console.error(e); }
   };
 
-  useEffect(() => {
-    if (isPrincessMode) {
-      document.documentElement.classList.remove('dark');
-      return;
-    }
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDarkMode, isPrincessMode]);
-
   const toggleDarkMode = () => {
-    if (isPrincessMode) return; 
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
+    
+    // If enabling Dark Mode, we must kill Princess Mode
+    if (newMode) {
+      setIsPrincessMode(false);
+      localStorage.setItem('princessMode', 'false');
+      updateCloudPreference('princessMode', false);
+    }
+
+    localStorage.setItem('theme', newMode ? 'dark' : 'light');
     updateCloudPreference('theme', newMode ? 'dark' : 'light');
   };
 
@@ -315,14 +322,16 @@ const App: React.FC = () => {
     if (key === 'theme') {
       const isDark = value === 'dark';
       setIsDarkMode(isDark);
-      updateCloudPreference('theme', value as string);
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
-
-      if (isDark && isPrincessMode) {
+      
+      if (isDark) {
+        // Enforce exclusion
         setIsPrincessMode(false);
         localStorage.setItem('princessMode', 'false');
         updateCloudPreference('princessMode', false);
       }
+      
+      updateCloudPreference('theme', value as string);
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
     } else if (key === 'winterTheme') {
       const isWinter = value === true;
       setIsWinterMode(isWinter);
@@ -346,21 +355,23 @@ const App: React.FC = () => {
     } else if (key === 'princessTheme') {
       const isPrincess = value === true;
       
-      if (isPrincess && isDarkMode) {
+      // ATOMIC FIX: If enabling Princess, force Light Mode states immediately
+      if (isPrincess) {
           setIsDarkMode(false);
           localStorage.setItem('theme', 'light');
           updateCloudPreference('theme', 'light');
+          
+          if (isWinterMode) {
+              setIsWinterMode(false);
+              localStorage.setItem('winterMode', 'false');
+              updateCloudPreference('winterMode', false);
+          }
       }
 
       setIsPrincessMode(isPrincess);
       localStorage.setItem('princessMode', String(isPrincess));
       updateCloudPreference('princessMode', isPrincess);
 
-      if (isPrincess && isWinterMode) {
-          setIsWinterMode(false);
-          localStorage.setItem('winterMode', 'false');
-          updateCloudPreference('winterMode', false);
-      }
     } else if (key === 'princessHearts') {
       setIsPrincessHearts(value as boolean);
       localStorage.setItem('princessHearts', String(value));
@@ -663,7 +674,7 @@ const App: React.FC = () => {
       </div>
 
       {isWinterMode && !isPrincessMode && <WinterOverlay showSnow={isWinterSnow} showLights={isWinterLights} showIcicles={isWinterIcicles} />}
-      {isPrincessMode && !isWinterMode && <PrincessOverlay showHearts={isPrincessHearts} showSparkles={isPrincessSparkles} />}
+      {isPrincessMode && <PrincessOverlay showHearts={isPrincessHearts} showSparkles={isPrincessSparkles} />}
       
       {loadingAuth ? (
           <div className="fixed inset-0 bg-slate-950 flex items-center justify-center z-40">

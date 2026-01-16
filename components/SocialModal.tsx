@@ -48,6 +48,9 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
   useEffect(() => {
       if (isOpen) {
           setCurrentView(initialTab);
+          // FIX: Reset deep-link states when opening or switching tabs from external triggers
+          setActiveChatFriend(null);
+          setViewingProfile(null);
       }
   }, [isOpen, initialTab]);
 
@@ -258,7 +261,7 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
       return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
              <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={() => setViewingProfile(null)} />
-             <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden animate-scale-in border border-slate-200 dark:border-slate-800 flex flex-col max-h-[85vh] h-[85vh]">
+             <div className="relative w-full max-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden animate-scale-in border border-slate-200 dark:border-slate-800 flex flex-col max-h-[85vh] h-[85vh]">
                  <button onClick={() => setViewingProfile(null)} className="absolute top-4 left-4 p-2 bg-black/20 text-white rounded-full hover:bg-black/30 backdrop-blur-sm z-20 shadow-lg" title={t('common.cancel')}>
                      <ArrowLeft size={20} />
                  </button>
@@ -442,7 +445,7 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
                                                 {friend.avatar ? <img src={friend.avatar} className="w-full h-full object-cover"/> : <User size={24} className="text-slate-400"/>}
                                             </div>
                                             {online && (
-                                                <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full shadow-sm animate-pulse" title="Online"></div>
+                                                <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full shadow-sm animate-pulse" title={t('social.status.online')}></div>
                                             )}
                                         </div>
                                         <div>
