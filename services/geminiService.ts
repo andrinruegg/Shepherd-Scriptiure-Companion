@@ -24,7 +24,7 @@ const mapHistoryToContent = (messages: Message[]): Content[] => {
   return messages
     .filter((m) => !m.isError)
     .map((m) => ({
-      role: m.role,
+      role: m.role === 'model' ? 'model' : 'user',
       parts: [{ text: m.text }], 
     }));
 };
@@ -161,8 +161,7 @@ export const sendMessageStream = async (
             },
         });
         
-        // Fix: Pass 'parts' directly to the message parameter. 
-        // chat.sendMessageStream expects { message: string | Part | Part[] }
+        // Corrected: Pass the parts array directly as the message value
         const result = await chat.sendMessageStream({ message: parts });
         for await (const chunk of result) {
             const responseChunk = chunk as GenerateContentResponse;

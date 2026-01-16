@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import ChatInterface from './components/ChatInterface';
@@ -65,8 +64,6 @@ const App: React.FC = () => {
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem('theme');
-    const princessMode = localStorage.getItem('princessMode') === 'true';
-    if (princessMode) return false; // Princess Mode forces Light
     if (savedTheme === 'dark') return true;
     if (savedTheme === 'light') return false;
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -196,7 +193,6 @@ const App: React.FC = () => {
       if (!displayName && meta.full_name) setDisplayName(meta.full_name);
       if (meta.language) setLanguage(meta.language);
       
-      // Theme Sync with protection for Princess Mode
       if (meta.theme && !isPrincessMode) {
         setIsDarkMode(meta.theme === 'dark');
         localStorage.setItem('theme', meta.theme);
@@ -298,7 +294,6 @@ const App: React.FC = () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
     
-    // If enabling Dark Mode, we must kill Princess Mode
     if (newMode) {
       setIsPrincessMode(false);
       localStorage.setItem('princessMode', 'false');
@@ -324,7 +319,6 @@ const App: React.FC = () => {
       setIsDarkMode(isDark);
       
       if (isDark) {
-        // Enforce exclusion
         setIsPrincessMode(false);
         localStorage.setItem('princessMode', 'false');
         updateCloudPreference('princessMode', false);
@@ -355,7 +349,6 @@ const App: React.FC = () => {
     } else if (key === 'princessTheme') {
       const isPrincess = value === true;
       
-      // ATOMIC FIX: If enabling Princess, force Light Mode states immediately
       if (isPrincess) {
           setIsDarkMode(false);
           localStorage.setItem('theme', 'light');
@@ -575,7 +568,6 @@ const App: React.FC = () => {
 
   const handleNavigate = (view: AppView) => {
     if (view === 'chat') {
-        // Always open a new temporary chat when navigating to AI as requested
         createNewChat(true);
     } else {
         setCurrentView(view);
@@ -592,56 +584,46 @@ const App: React.FC = () => {
   return (
     <div className={`${isDarkMode ? 'dark' : ''} animate-fade-in ${session ? 'h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'} relative`}>
       
-      {/* GLOBAL API KEY WARNING BANNER - CENTERED VIEWPORT WRAPPER */}
       {showKeyWarning && (
           <div className="fixed top-6 inset-x-0 flex justify-center z-[300] px-4 pointer-events-none animate-pop-in">
-              <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl p-4 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex items-center gap-4 border border-white/50 dark:border-white/5 pointer-events-auto max-w-sm w-full">
-                  <div className="bg-indigo-600 p-2.5 rounded-full text-white shadow-lg shadow-indigo-500/30">
+              <div className="bg-white/80 dark:bg-stone-900/80 backdrop-blur-2xl p-4 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex items-center gap-4 border border-white/50 dark:border-white/5 pointer-events-auto max-w-sm w-full">
+                  <div className="bg-amber-700 p-2.5 rounded-full text-white shadow-lg shadow-amber-500/30">
                       <Key size={20} strokeWidth={2.5} />
                   </div>
                   <div className="flex-1 min-w-0">
-                      <h4 className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-0.5">{t('chat.missingKeyTitle')}</h4>
-                      <p className="text-[11px] font-bold text-slate-600 dark:text-slate-300 leading-tight">{t('chat.keyWarningSubtitle')}</p>
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-amber-700 dark:text-amber-400 mb-0.5">{t('chat.missingKeyTitle')}</h4>
+                      <p className="text-[11px] font-bold text-stone-600 dark:text-stone-300 leading-tight">{t('chat.keyWarningSubtitle')}</p>
                   </div>
-                  <button onClick={() => { setIsSettingsOpen(true); setShowKeyWarning(false); }} className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 rounded-full text-[10px] font-black uppercase tracking-wider hover:bg-indigo-100 transition-colors shrink-0">
+                  <button onClick={() => { setIsSettingsOpen(true); setShowKeyWarning(false); }} className="px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full text-[10px] font-black uppercase tracking-wider hover:bg-amber-100 transition-colors shrink-0">
                       {t('common.fix')}
                   </button>
-                  <button onClick={() => setShowKeyWarning(false)} className="p-1 text-slate-400 hover:text-slate-600 transition-colors shrink-0">
+                  <button onClick={() => setShowKeyWarning(false)} className="p-1 text-stone-400 hover:text-stone-600 transition-colors shrink-0">
                       <X size={16} />
                   </button>
               </div>
           </div>
       )}
 
-      {/* SPLASH SCREEN OVERLAY - UPGRADED KINETIC ORBITS */}
       <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-[#070403] transition-all duration-1000 ease-[cubic-bezier(0.76,0,0.24,1)] ${!showSplash ? 'opacity-0 scale-110 pointer-events-none blur-2xl' : 'opacity-100 scale-100 blur-0'}`}>
-         {/* Deep Layered Aurora */}
          <div className="absolute inset-0 bg-gradient-to-b from-[#1a110e] via-[#0c0705] to-[#070403] animate-aurora opacity-90"></div>
          <div className="absolute inset-0 opacity-60">
              <div className="absolute top-[20%] left-[20%] w-1 h-1 bg-[#f5f1e8] rounded-full animate-twinkle"></div>
              <div className="absolute top-[60%] left-[80%] w-1.5 h-1.5 bg-[#d2b48c] rounded-full animate-twinkle [animation-delay:1.5s]"></div>
              <div className="absolute top-[30%] left-[70%] w-1 h-1 bg-[#f5f1e8] rounded-full animate-twinkle [animation-delay:0.5s]"></div>
-             {/* New faint infinity orbits */}
              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] border border-white/5 rounded-[100%] rotate-45 animate-pulse"></div>
-             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] border border-white/5 rounded-[100%] -rotate-45 animate-pulse [animation-delay:2s]"></div>
          </div>
          
          <div className="relative z-10 flex flex-col items-center justify-center mb-12">
             <div className="relative flex items-center justify-center w-80 h-80 perspective-1000 preserve-3d">
-                {/* UPGRADED RINGS */}
-                {/* 1. Foundation: Thick Robe Brown with slow shimmering highlight */}
                 <div className="absolute inset-0 w-full h-full border-[3px] border-[#7c4a32]/20 rounded-full shadow-[0_0_30px_rgba(124,74,50,0.1)]"></div>
                 <div className="absolute inset-0 w-full h-full border-[1px] border-[#7c4a32]/60 rounded-full animate-orbit-x"></div>
                 
-                {/* 2. Kinetic: Dashed traveling lights in Tan */}
                 <svg className="absolute inset-0 w-full h-full animate-orbit-y rotate-12" viewBox="0 0 100 100">
                     <circle cx="50" cy="50" r="48" fill="none" stroke="#d2b48c" strokeWidth="0.5" strokeDasharray="1, 8" className="animate-dash-move opacity-80" />
                 </svg>
 
-                {/* 3. Elegance: Thin counter-rotating Cream ring */}
                 <div className="absolute inset-4 border-[0.5px] border-[#f5f1e8]/40 rounded-full animate-orbit-rev"></div>
 
-                {/* 4. Core: Glowing Halo behind the Cross */}
                 <div className="absolute w-24 h-24 bg-[#d2b48c]/10 blur-3xl rounded-full animate-pulse"></div>
 
                 <div className="relative z-20 animate-cross-pulse scale-125">
@@ -677,16 +659,16 @@ const App: React.FC = () => {
       {isPrincessMode && <PrincessOverlay showHearts={isPrincessHearts} showSparkles={isPrincessSparkles} />}
       
       {loadingAuth ? (
-          <div className="fixed inset-0 bg-slate-950 flex items-center justify-center z-40">
+          <div className="fixed inset-0 bg-stone-950 flex items-center justify-center z-40">
                <div className="flex flex-col items-center gap-4">
-                  <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-slate-400 text-sm animate-pulse">{t('common.loading')}</p>
+                  <div className="w-8 h-8 border-4 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
+                  <p className="text-stone-400 text-sm animate-pulse">{t('common.loading')}</p>
                </div>
           </div>
       ) : !session ? ( 
           <Login isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} language={language} onSetLanguage={(lang: string) => handleUpdatePreference('language', lang)} /> 
       ) : (
-        <Suspense fallback={<div className="h-full w-full flex items-center justify-center bg-slate-900 text-white">{t('common.loading')}</div>}>
+        <Suspense fallback={<div className="h-full w-full flex items-center justify-center bg-stone-900 text-white">{t('common.loading')}</div>}>
             <div className={`flex h-full overflow-hidden relative z-0 transition-all duration-500`}>
             {currentView === 'home' && (
                 <div className="flex-1 w-full h-full">
