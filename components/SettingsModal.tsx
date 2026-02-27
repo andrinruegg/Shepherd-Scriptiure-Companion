@@ -140,8 +140,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
-            <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 flex flex-col max-h-[90vh]">
-                <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 flex-shrink-0">
+            <div className="relative w-full max-w-md glass-panel rounded-[2.5rem] overflow-hidden flex flex-col max-h-[90vh]">
+                <div className="flex items-center justify-between p-6 border-b border-white/10 dark:border-white/5 bg-slate-50/50 dark:bg-slate-950/20 flex-shrink-0">
                     <h2 className="text-xl font-bold text-slate-800 dark:text-white font-serif-text">{t('settings.title')}</h2>
                     <button onClick={onClose} className="p-1 rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"><X size={20} /></button>
                 </div>
@@ -205,7 +205,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                                 </p>
                                 <form onSubmit={handleUpdateKey} className="space-y-3">
                                     <div className="flex gap-2">
-                                        <input type="password" value={manualKeyInput} onChange={e => setManualKeyInput(e.target.value)} placeholder="AIzaSy..." className="flex-1 bg-white dark:bg-slate-900 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs font-mono outline-none dark:text-white" />
+                                        <input type="password" value={manualKeyInput} onChange={e => setManualKeyInput(e.target.value)} placeholder="AIzaSy..." className="flex-1 bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs font-mono outline-none dark:text-white" />
                                         <button type="submit" className="bg-indigo-600 text-white px-4 rounded-xl font-bold text-xs shadow-sm">{t('settings.apiKey.save')}</button>
                                     </div>
                                     {validationError && <p className="text-[9px] text-red-500 font-bold px-1">{validationError}</p>}
@@ -237,7 +237,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                             <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-3xl">
                                 <div className="flex items-center gap-3">{isDarkMode ? <Moon className="text-indigo-500" size={20} /> : <Sun className="text-amber-500" size={20} />}<span className="text-sm font-bold dark:text-white">{t('settings.appearance')}</span></div>
                                 <div className="flex bg-slate-200 dark:bg-slate-700 p-1 rounded-xl">
-                                    <button onClick={() => onUpdatePreference('theme', 'light')} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${!isDarkMode ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500'}`}>{t('settings.light')}</button>
+                                    <button onClick={() => onUpdatePreference('theme', 'light')} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${!isDarkMode ? 'bg-slate-50 shadow-sm text-indigo-600' : 'text-slate-500'}`}>{t('settings.light')}</button>
                                     <button onClick={() => onUpdatePreference('theme', 'dark')} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${isDarkMode ? 'bg-slate-900 shadow-sm text-white' : 'text-slate-500'}`}>{t('settings.dark')}</button>
                                 </div>
                             </div>

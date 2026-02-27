@@ -91,13 +91,13 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onSelectTopic, language }
   ];
 
   const handleSelect = (topicId: string) => {
-      const baseQuery = t(`topics.${topicId}.query`);
-      const specificAngles = subTopics[topicId] || [];
-      const randomAngle = specificAngles[Math.floor(Math.random() * specificAngles.length)];
-      const visiblePrompt = baseQuery;
-      const hiddenContext = `Context-Seed-${uuidv4()}. The user specifically needs a verse regarding: "${randomAngle}". Ensure this is different from previous generic answers.`;
-      
-      onSelectTopic(visiblePrompt, hiddenContext);
+    const baseQuery = t(`topics.${topicId}.query`);
+    const specificAngles = subTopics[topicId] || [];
+    const randomAngle = specificAngles[Math.floor(Math.random() * specificAngles.length)];
+    const visiblePrompt = baseQuery;
+    const hiddenContext = `Context-Seed-${uuidv4()}. The user specifically needs a verse regarding: "${randomAngle}". Ensure this is different from previous generic answers.`;
+
+    onSelectTopic(visiblePrompt, hiddenContext);
   };
 
   return (
@@ -110,7 +110,7 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onSelectTopic, language }
           <button
             key={topic.id}
             onClick={() => handleSelect(topic.id)}
-            className="flex flex-col items-center justify-center p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 group"
+            className="flex flex-col items-center justify-center p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 group"
           >
             <div className={`p-3 rounded-full mb-3 ${topic.color} group-hover:scale-110 transition-transform`}>
               <topic.icon size={24} />

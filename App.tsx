@@ -540,7 +540,7 @@ const App: React.FC = () => {
             {/* Warning Overlay for API Key */}
             {showKeyWarning && (
                 <div className="fixed top-6 inset-x-0 flex justify-center z-[300] px-4 pointer-events-none animate-pop-in">
-                    <div className="bg-white/80 dark:bg-stone-900/80 backdrop-blur-2xl p-4 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex items-center gap-4 border border-white/50 dark:border-white/5 pointer-events-auto max-w-sm w-full">
+                    <div className="glass-panel p-4 rounded-[2rem] flex items-center gap-4 pointer-events-auto max-w-sm w-full">
                         <div className="bg-amber-700 p-2.5 rounded-full text-white shadow-lg shadow-amber-500/30">
                             <Key size={20} strokeWidth={2.5} />
                         </div>
@@ -728,19 +728,26 @@ const App: React.FC = () => {
                         )}
 
                         {currentView === 'learn' && (
-                            <div className="flex-1 w-full h-full flex flex-col">
-                                <GamificationHeader
-                                    xp={xp}
-                                    league={league}
-                                    onOpenLeaderboard={() => setCurrentView('leaderboard')}
-                                />
-                                <LearningPath
-                                    nodes={pathNodes}
-                                    currentXP={xp}
-                                    onNodeClick={handleNodeClick}
-                                />
-                                <div className="p-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur border-t border-slate-200 dark:border-slate-800">
-                                    <button onClick={() => setCurrentView('home')} className="w-full py-3 bg-slate-200 dark:bg-slate-700 rounded-2xl font-bold">{t('stories.back')}</button>
+                            <div className="flex-1 w-full h-full relative">
+                                <div className="absolute inset-0 flex flex-col">
+                                    <GamificationHeader
+                                        xp={xp}
+                                        league={league}
+                                        onOpenLeaderboard={() => setCurrentView('leaderboard')}
+                                    />
+                                    <LearningPath
+                                        nodes={pathNodes}
+                                        currentXP={xp}
+                                        onNodeClick={handleNodeClick}
+                                    />
+                                </div>
+                                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 w-full max-w-xs px-4">
+                                    <button
+                                        onClick={() => setCurrentView('home')}
+                                        className="w-full py-4 glass-panel rounded-2xl font-black uppercase tracking-widest text-xs shadow-2xl hover:scale-105 active:scale-95 transition-all text-slate-800 dark:text-white"
+                                    >
+                                        {t('stories.back')}
+                                    </button>
                                 </div>
                             </div>
                         )}

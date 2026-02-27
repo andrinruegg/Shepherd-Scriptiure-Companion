@@ -50,29 +50,29 @@ const Mascot: React.FC<MascotProps> = ({ mood, message }) => {
             <div className="relative w-24 h-24 shrink-0 transition-transform hover:scale-110 duration-300 cursor-pointer" onClick={() => setVisibleMessage(t('game.mascot.encouragement'))}>
                 <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-xl">
                     {/* Wool/Body */}
-                    <path d="M20 50 Q 10 30 30 20 Q 50 5 70 20 Q 90 30 80 50 Q 90 70 70 85 Q 50 95 30 85 Q 10 70 20 50" fill="#fdfbf7" stroke="#d2b48c" strokeWidth="3" />
-                    <circle cx="25" cy="30" r="8" fill="#fdfbf7" stroke="#d2b48c" strokeWidth="2" />
-                    <circle cx="75" cy="30" r="8" fill="#fdfbf7" stroke="#d2b48c" strokeWidth="2" />
-                    <circle cx="20" cy="50" r="8" fill="#fdfbf7" stroke="#d2b48c" strokeWidth="2" />
-                    <circle cx="80" cy="50" r="8" fill="#fdfbf7" stroke="#d2b48c" strokeWidth="2" />
-                    <circle cx="30" cy="75" r="8" fill="#fdfbf7" stroke="#d2b48c" strokeWidth="2" />
-                    <circle cx="70" cy="75" r="8" fill="#fdfbf7" stroke="#d2b48c" strokeWidth="2" />
-                    
+                    <path d="M20 50 Q 10 30 30 20 Q 50 5 70 20 Q 90 30 80 50 Q 90 70 70 85 Q 50 95 30 85 Q 10 70 20 50" fill="#e8e8e5" stroke="#d2b48c" strokeWidth="3" />
+                    <circle cx="25" cy="30" r="8" fill="#e8e8e5" stroke="#d2b48c" strokeWidth="2" />
+                    <circle cx="75" cy="30" r="8" fill="#e8e8e5" stroke="#d2b48c" strokeWidth="2" />
+                    <circle cx="20" cy="50" r="8" fill="#e8e8e5" stroke="#d2b48c" strokeWidth="2" />
+                    <circle cx="80" cy="50" r="8" fill="#e8e8e5" stroke="#d2b48c" strokeWidth="2" />
+                    <circle cx="30" cy="75" r="8" fill="#e8e8e5" stroke="#d2b48c" strokeWidth="2" />
+                    <circle cx="70" cy="75" r="8" fill="#e8e8e5" stroke="#d2b48c" strokeWidth="2" />
+
                     {/* Face */}
                     <rect x="30" y="30" width="40" height="35" rx="15" fill="#d2b48c" />
-                    
+
                     {/* Ears */}
                     <ellipse cx="25" cy="40" rx="8" ry="12" fill="#7c4a32" transform="rotate(-20 25 40)" />
                     <ellipse cx="75" cy="40" rx="8" ry="12" fill="#7c4a32" transform="rotate(20 75 40)" />
 
                     {getEyes()}
                     {getMouth()}
-                    
+
                     {/* Halo for Holy Vibe */}
                     <ellipse cx="50" cy="15" rx="20" ry="5" stroke="#fbbf24" strokeWidth="2" fill="none" className="animate-pulse" opacity="0.8" />
                 </svg>
             </div>
-            
+
             <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl rounded-bl-none shadow-lg border border-slate-200 dark:border-slate-700 max-w-[200px] mb-4 relative animate-scale-in">
                 <p className="text-sm font-medium text-slate-700 dark:text-slate-200 leading-snug">
                     {visibleMessage}

@@ -30,7 +30,7 @@ const SavedCollection: React.FC<SavedCollectionProps> = ({ savedItems, onRemoveI
 
     return (
         <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 transition-colors">
-            <header className="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 p-6 shadow-sm z-10">
+            <header className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 p-6 shadow-sm z-10">
                 <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                         <button
@@ -73,7 +73,7 @@ const SavedCollection: React.FC<SavedCollectionProps> = ({ savedItems, onRemoveI
                         </div>
                     ) : (
                         filteredItems.map(item => (
-                            <div key={item.id} className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 group hover:shadow-xl transition-all animate-slide-up">
+                            <div key={item.id} className="bg-slate-50 dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 group hover:shadow-xl transition-all animate-slide-up">
                                 <div className="flex items-start gap-4">
                                     <div className={`
                                 flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm

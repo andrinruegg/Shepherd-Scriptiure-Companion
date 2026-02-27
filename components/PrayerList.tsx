@@ -227,7 +227,7 @@ const PrayerList: React.FC<PrayerListProps> = ({
 
     return (
         <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900">
-            <header className="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 p-4 shadow-sm sticky top-0 z-20 flex flex-col items-center">
+            <header className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 p-4 shadow-sm sticky top-0 z-20 flex flex-col items-center">
                 <div className="w-full flex flex-col gap-4">
                     <div className="flex items-center gap-3 w-full">
                         <button
@@ -266,7 +266,7 @@ const PrayerList: React.FC<PrayerListProps> = ({
 
                     {activeTab === 'journal' && (
                         <>
-                            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-700">
+                            <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-700">
                                 <textarea
                                     value={newPrayer}
                                     onChange={(e) => setNewPrayer(e.target.value)}
@@ -358,7 +358,7 @@ const PrayerList: React.FC<PrayerListProps> = ({
                                 ) : (
                                     <div className="space-y-3">
                                         {activePrayers.map(p => (
-                                            <div key={p.id} className="group bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all">
+                                            <div key={p.id} className="group bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all">
                                                 <div className="flex items-start gap-3">
                                                     <button onClick={() => toggleAnswered(p)} className="mt-1 text-slate-300 hover:text-emerald-500 transition-colors">
                                                         <Circle size={20} />

@@ -106,9 +106,9 @@ const HomeView: React.FC<HomeViewProps> = ({
                 {/* FEATURED: VERSE OF THE DAY */}
                 <div
                     onClick={onOpenDailyVerse}
-                    className="relative overflow-hidden rounded-[2rem] md:rounded-[3rem] bg-white dark:bg-slate-900 text-slate-800 dark:text-white shadow-[0_30px_70px_-20px_rgba(0,0,0,0.06)] dark:shadow-none mb-8 md:mb-10 group cursor-pointer animate-scale-in transform transition-all hover:scale-[1.01] hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] border border-white dark:border-white/10"
+                    className="relative overflow-hidden rounded-[2rem] md:rounded-[3rem] glass-panel text-slate-800 dark:text-white mb-8 md:mb-10 group cursor-pointer animate-scale-in transform transition-all hover:scale-[1.01] hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)]"
                 >
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#fdfbf7] via-white to-[#d2b48c]/10 dark:from-[#1a110e] dark:via-slate-900 dark:to-slate-900 opacity-100"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#e8e8e5] via-slate-50 to-[#d2b48c]/10 dark:from-[#1a110e] dark:via-slate-900 dark:to-slate-900 opacity-100"></div>
                     <div className="relative p-8 md:p-14 z-10">
                         <div className="flex justify-between items-start mb-6 md:mb-10">
                             <span className="bg-amber-600 text-white dark:bg-white/10 dark:text-amber-400 px-4 py-1.5 md:px-5 md:py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-xl shadow-amber-600/20 dark:shadow-none border border-transparent dark:border-white/10 flex items-center gap-2">
@@ -131,9 +131,9 @@ const HomeView: React.FC<HomeViewProps> = ({
                 {/* NEW: LEARNING PATH BANNER */}
                 <div
                     onClick={() => onNavigate('learn')}
-                    className="mb-12 p-1 rounded-[2.5rem] bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 shadow-xl shadow-amber-500/20 group hover:shadow-2xl transition-all animate-slide-up cursor-pointer"
+                    className="mb-12 p-1 rounded-[2.5rem] bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 shadow-xl shadow-amber-500/20 group hover:-translate-y-1 transition-all animate-slide-up cursor-pointer"
                 >
-                    <div className="bg-white/95 dark:bg-slate-900/95 rounded-[2.1rem] p-6 md:p-8 flex items-center justify-between backdrop-blur-2xl transition-all group-hover:bg-white/80 dark:group-hover:bg-slate-800">
+                    <div className="glass-panel border-none rounded-[2.1rem] p-6 md:p-8 flex items-center justify-between transition-all group-hover:brightness-110">
                         <div className="flex items-center gap-6">
                             <div className="w-16 h-16 rounded-3xl bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
                                 <Map size={32} />
@@ -161,7 +161,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                         onClick={() => onNavigate('chat')}
                         className="p-1 rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-[#1e1b4b] via-[#3730a3] to-[#4f46e5] shadow-xl shadow-indigo-500/10 group hover:shadow-2xl transition-all animate-slide-up"
                     >
-                        <div className="bg-white/95 dark:bg-slate-900/95 h-full rounded-[1.8rem] md:rounded-[2.1rem] p-6 md:p-8 flex items-center justify-between backdrop-blur-2xl transition-all group-hover:bg-white/80 dark:group-hover:bg-slate-800">
+                        <div className="glass-panel border-none h-full rounded-[1.8rem] md:rounded-[2.1rem] p-6 md:p-8 flex items-center justify-between transition-all group-hover:brightness-110">
                             <div className="flex items-center gap-4 md:gap-6">
                                 <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-3xl bg-indigo-50 dark:bg-indigo-500/20 text-[#1e1b4b] dark:text-indigo-400 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
                                     <MessageCircle size={32} />
@@ -181,7 +181,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                         onClick={() => onNavigate('stories')}
                         className="p-1 rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 shadow-xl shadow-amber-500/10 group hover:shadow-2xl transition-all animate-slide-up"
                     >
-                        <div className="bg-white/95 dark:bg-slate-900/95 h-full rounded-[1.8rem] md:rounded-[2.1rem] p-6 md:p-8 flex items-center justify-between backdrop-blur-2xl transition-all group-hover:bg-white/80 dark:group-hover:bg-slate-800">
+                        <div className="glass-panel border-none h-full rounded-[1.8rem] md:rounded-[2.1rem] p-6 md:p-8 flex items-center justify-between transition-all group-hover:brightness-110">
                             <div className="flex items-center gap-4 md:gap-6">
                                 <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-3xl bg-amber-50 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
                                     <Scroll size={32} className="animate-pulse" />
@@ -204,7 +204,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                         <button
                             key={feature.id}
                             onClick={() => feature.action ? feature.action() : onNavigate(feature.id as AppView)}
-                            className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] hover:-translate-y-2 transition-all group text-left flex flex-col justify-between h-44 md:h-52 animate-slide-up border border-white dark:border-slate-800 hover:border-[#d2b48c] dark:hover:border-indigo-500/30 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.04)] hover:shadow-2xl"
+                            className="glass-panel p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] hover:-translate-y-2 transition-all group text-left flex flex-col justify-between h-44 md:h-52 animate-slide-up hover:border-[#d2b48c] dark:hover:border-indigo-500/30 hover:shadow-2xl"
                             style={{ animationDelay: feature.delay }}
                         >
                             <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl md:rounded-3xl bg-gradient-to-br ${feature.bg} flex items-center justify-center shadow-lg transform group-hover:rotate-6 transition-transform mb-3 md:mb-4`}>

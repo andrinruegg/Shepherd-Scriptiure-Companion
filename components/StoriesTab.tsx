@@ -125,7 +125,7 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
                             const theme = getPersonaTheme(fig.id);
                             return (
                                 <div key={fig.id}
-                                    className="bg-white dark:bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] border border-white dark:border-slate-800 group hover:shadow-2xl transition-all cursor-pointer animate-slide-up"
+                                    className="glass-panel rounded-[2.5rem] overflow-hidden group hover:-translate-y-2 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)] transition-all duration-500 cursor-pointer animate-slide-up"
                                     style={{ animationDelay: `${idx * 0.1}s` }}
                                     onClick={() => { setSelectedPersona(fig); setView('detail'); }}>
                                     <div className="h-56 overflow-hidden relative">
@@ -151,8 +151,8 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
             )}
 
             {view === 'detail' && selectedPersona && (
-                <div className="flex-1 flex flex-col items-center p-4 sm:p-6 md:p-10 animate-fade-in overflow-y-auto bg-transparent">
-                    <div className="w-full bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl border border-white dark:border-slate-800 overflow-hidden flex flex-col md:flex-row h-fit md:h-[600px] mt-4 mb-10">
+                <div className="flex-1 flex flex-col items-center p-4 sm:p-6 md:p-10 animate-fade-in overflow-y-auto bg-transparent relative z-10">
+                    <div className="w-full glass-panel rounded-[3rem] overflow-hidden flex flex-col md:flex-row h-fit md:h-[600px] mt-4 mb-10 shadow-2xl">
                         <div className="w-full md:w-[45%] relative h-64 md:h-full shrink-0">
                             <img src={selectedPersona.image} alt={selectedPersona.name} className="w-full h-full object-cover" style={{ objectPosition: '50% 15%' }} />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -195,8 +195,8 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
             )}
 
             {view === 'chat' && activeEncounterId && (
-                <div className="flex flex-col h-full bg-[#fdfbf7] dark:bg-slate-950 animate-fade-in">
-                    <header className="px-6 py-4 border-b border-black/5 dark:border-slate-800 flex items-center justify-between bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shrink-0">
+                <div className="flex flex-col h-full bg-[#e8e8e5] dark:bg-slate-950 animate-fade-in">
+                    <header className="px-6 py-4 border-b border-black/5 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl shrink-0">
                         <div className="flex items-center gap-4">
                             <button onClick={() => setView('hub')} className="p-2 text-slate-500 hover:bg-black/5 rounded-xl transition-all"><ArrowLeft size={20} /></button>
                             <div className="flex items-center gap-3">
@@ -253,7 +253,7 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
                         <div ref={messagesEndRef} className="h-4" />
                     </div>
 
-                    <div className="p-4 sm:p-6 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-t dark:border-slate-800 flex gap-3 shrink-0">
+                    <div className="p-4 sm:p-6 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-2xl border-t dark:border-slate-800 flex gap-3 shrink-0">
                         <input value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
                             placeholder={t('stories.inputPlaceholder')}

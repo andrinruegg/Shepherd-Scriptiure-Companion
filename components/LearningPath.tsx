@@ -62,31 +62,31 @@ const SpeechBubble: React.FC<{ text: string; side: 'left' | 'right' }> = ({ text
 const ProgressRing: React.FC<{ step: number; status: string }> = ({ step, status }) => {
     const radius = 34; // Radius of the circle
     const circumference = 2 * Math.PI * radius;
-    
+
     // Logic:
     // status 'completed' = Gold, Full.
     // status 'active' & step >= 4 (Ready for Exam) = Green, Full.
     // status 'active' & step < 4 = Green, Percentage based on step/4.
-    
+
     let progress = 0;
     let strokeColor = '#e2e8f0'; // slate-200 default for empty track
 
     if (status === 'completed') {
         progress = 1;
-        strokeColor = '#f59e0b'; // Amber-500 (Gold)
+        strokeColor = '#7c4a32'; // Organic Brown (Completed)
     } else if (status === 'active') {
         if (step >= 4) {
             progress = 1;
-            strokeColor = '#22c55e'; // Emerald-500 (Green) for Exam Ready
+            strokeColor = '#d2b48c'; // Tan/Amber (Ready for Exam)
         } else {
             progress = step / 4;
-            strokeColor = '#22c55e'; // Emerald-500 (Green) for Progress
+            strokeColor = '#d2b48c'; // Tan/Amber (Progress)
         }
     } else {
         // Locked
         progress = 0;
     }
-    
+
     const strokeDashoffset = circumference - progress * circumference;
 
     return (
@@ -104,7 +104,7 @@ const ProgressRing: React.FC<{ step: number; status: string }> = ({ step, status
                 />
                 {/* Colored Progress */}
                 <circle
-                    stroke={strokeColor} 
+                    stroke={strokeColor}
                     strokeWidth="6"
                     strokeLinecap="round"
                     fill="transparent"
@@ -139,24 +139,22 @@ const LearningPath: React.FC<LearningPathProps> = ({ nodes, onNodeClick }) => {
     }, []);
 
     const getNodeStyle = (status: string, step: number) => {
-        switch(status) {
-            case 'completed': 
+        switch (status) {
+            case 'completed':
                 // GOLDEN when exam passed (Step 5+)
                 return 'bg-amber-500 border-amber-600 text-white shadow-[0_4px_0_rgb(217,119,6)]';
-            case 'active': 
+            case 'active':
                 if (step >= 4) {
-                    // GREEN when 4 exercises are done (Ready for Exam)
-                    return 'bg-emerald-500 border-emerald-600 text-white animate-pulse-slow shadow-[0_4px_0_rgb(5,150,105)] ring-4 ring-emerald-200 dark:ring-emerald-900'; 
+                    // AMBER when 4 exercises are done (Ready for Exam)
+                    return 'bg-amber-500 border-amber-600 text-white animate-pulse-slow shadow-[0_4px_0_rgb(217,119,6)] ring-4 ring-amber-200 dark:ring-amber-900/40';
                 }
                 if (step === 0) {
                     // Level 0 (Start): White button, Grey Star
                     return 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-300 dark:text-slate-500 shadow-[0_4px_0_rgb(203,213,225)] hover:bg-slate-50 dark:hover:bg-slate-700';
                 }
-                // IN PROGRESS (1-3): White button, Green ring (handled by ring component), Green Icon? Or keep grey?
-                // Request said "star is great" (referring to grey) but "fills up with green".
-                // Let's make the star Green to indicate progress on the white button.
-                return 'bg-white dark:bg-slate-800 border-emerald-100 dark:border-emerald-900/30 text-emerald-500 shadow-[0_4px_0_rgb(209,250,229)] hover:bg-emerald-50 dark:hover:bg-slate-700';
-            default: 
+                // IN PROGRESS (1-3): White button, Amber ring (handled by ring component)
+                return 'bg-white dark:bg-slate-800 border-amber-100 dark:border-amber-900/30 text-amber-500 shadow-[0_4px_0_rgb(254,243,199)] hover:bg-amber-50 dark:hover:bg-slate-700';
+            default:
                 // LOCKED
                 return 'bg-slate-200 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-400 dark:text-slate-500 shadow-[0_4px_0_rgb(203,213,225)] dark:shadow-[0_4px_0_rgb(51,65,85)]';
         }
@@ -167,10 +165,10 @@ const LearningPath: React.FC<LearningPathProps> = ({ nodes, onNodeClick }) => {
         let pathD = "";
         nodes.forEach((node, i) => {
             const x = node.position === 'center' ? 50 : node.position === 'left' ? 20 : 80;
-            const y = (i * NODE_HEIGHT) + 60; 
+            const y = (i * NODE_HEIGHT) + 60;
             if (i === 0) pathD += `M ${x} ${y}`;
             else {
-                const prevNode = nodes[i-1];
+                const prevNode = nodes[i - 1];
                 const prevX = prevNode.position === 'center' ? 50 : prevNode.position === 'left' ? 20 : 80;
                 const prevY = ((i - 1) * NODE_HEIGHT) + 60;
                 const cp1x = prevX;
@@ -183,7 +181,7 @@ const LearningPath: React.FC<LearningPathProps> = ({ nodes, onNodeClick }) => {
 
         return (
             <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-0" viewBox={`0 0 100 ${nodes.length * 120 + 200}`} preserveAspectRatio="none" style={{ minHeight: nodes.length * 120 + 200 }}>
-                <path d={pathD} fill="none" stroke="rgba(0,0,0,0.05)" strokeWidth="16" vectorEffect="non-scaling-stroke" strokeLinecap="round" className="translate-y-1"/>
+                <path d={pathD} fill="none" stroke="rgba(0,0,0,0.05)" strokeWidth="16" vectorEffect="non-scaling-stroke" strokeLinecap="round" className="translate-y-1" />
                 <path d={pathD} fill="none" stroke="currentColor" strokeWidth="12" vectorEffect="non-scaling-stroke" className="text-slate-300 dark:text-slate-700" strokeLinecap="round" strokeDasharray="20,10" />
             </svg>
         );
@@ -196,13 +194,13 @@ const LearningPath: React.FC<LearningPathProps> = ({ nodes, onNodeClick }) => {
     };
 
     return (
-        <div className="flex flex-col flex-1 bg-[#fdfbf7] dark:bg-slate-950 relative overflow-hidden">
+        <div className="flex flex-col flex-1 bg-[#e8e8e5] dark:bg-slate-950 relative overflow-hidden">
             <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-            <div ref={scrollRef} className="flex-1 overflow-y-auto pb-32 pt-6 px-4 relative z-10 scroll-smooth no-scrollbar overflow-x-hidden">
-                <div className="relative mb-6 max-w-md mx-auto">
+            <div ref={scrollRef} className="flex-1 overflow-y-auto pb-32 pt-6 px-4 relative z-10 scroll-smooth no-scrollbar overflow-x-hidden w-full">
+                <div className="relative mb-6 w-full flex justify-center">
                     <Mascot mood="happy" />
                 </div>
-                <div className="max-w-md mx-auto relative flex flex-col w-full min-h-screen" style={{ minHeight: nodes.length * 120 + 200 }}>
+                <div className="relative flex flex-col w-full min-h-screen" style={{ minHeight: nodes.length * 120 + 200 }}>
                     {renderConnectorPath()}
                     {nodes.map((node, index) => {
                         const isLeft = node.position === 'left';
@@ -214,7 +212,7 @@ const LearningPath: React.FC<LearningPathProps> = ({ nodes, onNodeClick }) => {
                         const step = node.current_step || 0;
                         const isCompleted = node.status === 'completed';
                         const isExamReady = node.status === 'active' && step >= 4;
-                        
+
                         return (
                             <div key={node.id} className="absolute w-full h-20" style={{ top: index * 120 }}>
                                 <div className="absolute top-0 flex flex-col items-center z-10" style={{ left: isLeft ? '20%' : isRight ? '80%' : '50%', transform: 'translateX(-50%)' }}>
