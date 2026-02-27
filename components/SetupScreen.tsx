@@ -27,7 +27,7 @@ const SetupScreen: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4 transition-colors overflow-hidden">
       <div className="w-full h-full flex flex-col items-center justify-center overflow-y-auto no-scrollbar py-12 relative z-10">
-        <div className="max-w-md w-full bg-slate-50 dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 mx-auto shrink-0">
+        <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 mx-auto shrink-0">
           <div className="bg-slate-900 p-8 text-center">
             <div className="mx-auto bg-slate-800 w-16 h-16 rounded-2xl flex items-center justify-center mb-4">
               <Database className="text-emerald-400" size={32} />

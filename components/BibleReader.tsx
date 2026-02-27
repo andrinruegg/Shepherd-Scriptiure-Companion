@@ -128,8 +128,8 @@ const BibleReader: React.FC<BibleReaderProps> = ({
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#e8e8e5] dark:bg-slate-950 transition-colors relative touch-none">
-            <header className="bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 px-4 py-3 sticky top-0 z-20 shadow-sm flex items-center justify-between shrink-0">
+        <div className="flex flex-col h-full bg-[#fdfbf7] dark:bg-slate-950 transition-colors relative touch-none">
+            <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 px-4 py-3 sticky top-0 z-20 shadow-sm flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
                     <button onClick={onMenuClick} className="p-2 -ml-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"><ArrowLeft size={20} /></button>
                     <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>

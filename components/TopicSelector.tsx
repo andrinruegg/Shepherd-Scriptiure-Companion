@@ -110,7 +110,7 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onSelectTopic, language }
           <button
             key={topic.id}
             onClick={() => handleSelect(topic.id)}
-            className="flex flex-col items-center justify-center p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 group"
+            className="flex flex-col items-center justify-center p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 group"
           >
             <div className={`p-3 rounded-full mb-3 ${topic.color} group-hover:scale-110 transition-transform`}>
               <topic.icon size={24} />

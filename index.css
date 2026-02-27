@@ -8,14 +8,12 @@
   /* Organic Shepherd Palette */
   --color-robe: #7c4a32;
   --color-staff: #54362d;
-  --bg-light: #e8e8e5;
-  --bg-light-accent: #dcdcd8;
   --color-tan: #d2b48c;
   --color-cream: #f5f1e8;
 
-  --glass-bg-light: rgba(232, 232, 229, 0.75);
-  --glass-border-light: rgba(210, 180, 140, 0.3);
-  --glass-shadow-light: 0 20px 40px -12px rgba(45, 45, 42, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  --glass-bg-light: rgba(253, 251, 247, 0.75);
+  --glass-border-light: rgba(210, 180, 140, 0.4);
+  --glass-shadow-light: 0 20px 40px -12px rgba(124, 74, 50, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.6);
   --glass-bg-dark: rgba(20, 12, 10, 0.65);
   --glass-border-dark: rgba(210, 180, 140, 0.12);
   --glass-shadow-dark: 0 10px 40px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.05);
@@ -26,8 +24,8 @@
 body {
   font-family: 'Inter', sans-serif;
   transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s ease;
-  /* Deep Grayish Theme: Stone Gray */
-  background: radial-gradient(circle at 50% 0%, #e8e8e5 0%, #dcdcd8 100%);
+  /* Updated Light Mode: Premium Parchment */
+  background: radial-gradient(circle at 50% 0%, #fdfbf7 0%, #ede3d4 100%);
   background-attachment: fixed;
   color: #2b1b15;
   /* Slate-900 / Deep Espresso */

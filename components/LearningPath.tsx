@@ -194,7 +194,7 @@ const LearningPath: React.FC<LearningPathProps> = ({ nodes, onNodeClick }) => {
     };
 
     return (
-        <div className="flex flex-col flex-1 bg-[#e8e8e5] dark:bg-slate-950 relative overflow-hidden">
+        <div className="flex flex-col flex-1 bg-[#fdfbf7] dark:bg-slate-950 relative overflow-hidden">
             <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
             <div ref={scrollRef} className="flex-1 overflow-y-auto pb-32 pt-6 px-4 relative z-10 scroll-smooth no-scrollbar overflow-x-hidden w-full">
                 <div className="relative mb-6 w-full flex justify-center">

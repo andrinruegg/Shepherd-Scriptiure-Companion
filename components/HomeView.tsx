@@ -108,7 +108,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                     onClick={onOpenDailyVerse}
                     className="relative overflow-hidden rounded-[2rem] md:rounded-[3rem] glass-panel text-slate-800 dark:text-white mb-8 md:mb-10 group cursor-pointer animate-scale-in transform transition-all hover:scale-[1.01] hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)]"
                 >
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#e8e8e5] via-slate-50 to-[#d2b48c]/10 dark:from-[#1a110e] dark:via-slate-900 dark:to-slate-900 opacity-100"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#fdfbf7] via-white to-[#d2b48c]/10 dark:from-[#1a110e] dark:via-slate-900 dark:to-slate-900 opacity-100"></div>
                     <div className="relative p-8 md:p-14 z-10">
                         <div className="flex justify-between items-start mb-6 md:mb-10">
                             <span className="bg-amber-600 text-white dark:bg-white/10 dark:text-amber-400 px-4 py-1.5 md:px-5 md:py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-xl shadow-amber-600/20 dark:shadow-none border border-transparent dark:border-white/10 flex items-center gap-2">

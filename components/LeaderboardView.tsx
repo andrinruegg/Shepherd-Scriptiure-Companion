@@ -77,8 +77,8 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ onBack, currentLeague
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#e8e8e5] dark:bg-slate-950 overflow-hidden relative">
-            <header className="px-4 py-4 flex items-center gap-4 bg-slate-50/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 z-10 shrink-0 sticky top-0 shadow-sm">
+        <div className="flex flex-col h-full bg-[#fdfbf7] dark:bg-slate-950 overflow-hidden relative">
+            <header className="px-4 py-4 flex items-center gap-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 z-10 shrink-0 sticky top-0 shadow-sm">
                 <button onClick={onBack} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors">
                     <ArrowLeft size={24} />
                 </button>
@@ -139,7 +139,7 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ onBack, currentLeague
                             <React.Fragment key={entry.user_id}>
                                 {index === 10 && (
                                     <div className="my-6 border-t-2 border-dashed border-slate-200 dark:border-slate-800 relative">
-                                        <span className="absolute left-1/2 -top-2.5 -translate-x-1/2 bg-[#e8e8e5] dark:bg-slate-950 px-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('leaderboard.promotionLine')}</span>
+                                        <span className="absolute left-1/2 -top-2.5 -translate-x-1/2 bg-[#fdfbf7] dark:bg-slate-950 px-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('leaderboard.promotionLine')}</span>
                                     </div>
                                 )}
                                 <div

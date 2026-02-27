@@ -50,13 +50,13 @@ const Mascot: React.FC<MascotProps> = ({ mood, message }) => {
             <div className="relative w-24 h-24 shrink-0 transition-transform hover:scale-110 duration-300 cursor-pointer" onClick={() => setVisibleMessage(t('game.mascot.encouragement'))}>
                 <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-xl">
                     {/* Wool/Body */}
-                    <path d="M20 50 Q 10 30 30 20 Q 50 5 70 20 Q 90 30 80 50 Q 90 70 70 85 Q 50 95 30 85 Q 10 70 20 50" fill="#e8e8e5" stroke="#d2b48c" strokeWidth="3" />
-                    <circle cx="25" cy="30" r="8" fill="#e8e8e5" stroke="#d2b48c" strokeWidth="2" />
-                    <circle cx="75" cy="30" r="8" fill="#e8e8e5" stroke="#d2b48c" strokeWidth="2" />
-                    <circle cx="20" cy="50" r="8" fill="#e8e8e5" stroke="#d2b48c" strokeWidth="2" />
-                    <circle cx="80" cy="50" r="8" fill="#e8e8e5" stroke="#d2b48c" strokeWidth="2" />
-                    <circle cx="30" cy="75" r="8" fill="#e8e8e5" stroke="#d2b48c" strokeWidth="2" />
-                    <circle cx="70" cy="75" r="8" fill="#e8e8e5" stroke="#d2b48c" strokeWidth="2" />
+                    <path d="M20 50 Q 10 30 30 20 Q 50 5 70 20 Q 90 30 80 50 Q 90 70 70 85 Q 50 95 30 85 Q 10 70 20 50" fill="#fdfbf7" stroke="#d2b48c" strokeWidth="3" />
+                    <circle cx="25" cy="30" r="8" fill="#fdfbf7" stroke="#d2b48c" strokeWidth="2" />
+                    <circle cx="75" cy="30" r="8" fill="#fdfbf7" stroke="#d2b48c" strokeWidth="2" />
+                    <circle cx="20" cy="50" r="8" fill="#fdfbf7" stroke="#d2b48c" strokeWidth="2" />
+                    <circle cx="80" cy="50" r="8" fill="#fdfbf7" stroke="#d2b48c" strokeWidth="2" />
+                    <circle cx="30" cy="75" r="8" fill="#fdfbf7" stroke="#d2b48c" strokeWidth="2" />
+                    <circle cx="70" cy="75" r="8" fill="#fdfbf7" stroke="#d2b48c" strokeWidth="2" />
 
                     {/* Face */}
                     <rect x="30" y="30" width="40" height="35" rx="15" fill="#d2b48c" />

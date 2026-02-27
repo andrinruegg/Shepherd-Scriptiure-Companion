@@ -95,7 +95,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
             px-6 py-5 shadow-[0_10px_30px_-10px_rgba(79,70,229,0.08)] text-sm md:text-base leading-relaxed break-words w-full relative
             ${isUser
               ? 'bg-gradient-to-br from-[#1e1b4b] to-[#312e81] text-white rounded-[1.75rem] rounded-tr-none shadow-indigo-500/20'
-              : 'bg-slate-50/90 dark:bg-slate-900/90 text-slate-800 dark:text-slate-100 rounded-[1.75rem] rounded-tl-none font-serif-text border border-white/60 dark:border-white/10 backdrop-blur-md shadow-[0_15px_30px_-10px_rgba(0,0,0,0.04)] dark:shadow-none border-b-slate-100 dark:border-b-slate-800'}
+              : 'bg-white/90 dark:bg-slate-900/90 text-slate-800 dark:text-slate-100 rounded-[1.75rem] rounded-tl-none font-serif-text border border-white/60 dark:border-white/10 backdrop-blur-md shadow-[0_15px_30px_-10px_rgba(0,0,0,0.04)] dark:shadow-none border-b-slate-100 dark:border-b-slate-800'}
             ${message.isError ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300 border-red-100' : ''}
             transition-all duration-300
           `}>
@@ -151,7 +151,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
               <button
                 onClick={handleTranslate}
                 disabled={isTranslating}
-                className={`p-2 rounded-xl bg-slate-100/60 dark:bg-slate-800 shadow-sm border border-white/60 dark:border-slate-700 backdrop-blur-md transition-all ${isTranslating ? 'text-indigo-400 animate-pulse' : 'text-slate-400 dark:text-slate-500 hover:text-indigo-500'}`}
+                className={`p-2 rounded-xl bg-white/60 dark:bg-slate-800 shadow-sm border border-white/60 dark:border-slate-700 backdrop-blur-md transition-all ${isTranslating ? 'text-indigo-400 animate-pulse' : 'text-slate-400 dark:text-slate-500 hover:text-indigo-500'}`}
                 title={t('common.translate')}
               >
                 <Languages size={15} />

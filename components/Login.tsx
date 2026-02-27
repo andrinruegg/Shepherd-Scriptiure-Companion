@@ -128,7 +128,7 @@ const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language, onS
     };
 
     return (
-        <div className="min-h-screen bg-[#e8e8e5] dark:bg-[#070403] flex flex-col items-center justify-center p-4 transition-all duration-700 relative overflow-hidden">
+        <div className="min-h-screen bg-[#fdfbf7] dark:bg-[#070403] flex flex-col items-center justify-center p-4 transition-all duration-700 relative overflow-hidden">
             {/* Background Decorative Elements - Changed to match Shepherd Palette */}
             <div className="absolute top-[-10%] left-[-10%] w-[80%] h-[80%] rounded-full bg-[#d2b48c]/10 dark:bg-[#7c4a32]/10 blur-[120px] animate-pulse pointer-events-none"></div>
             <div className="absolute bottom-[-15%] right-[-10%] w-[80%] h-[80%] rounded-full bg-[#7c4a32]/5 dark:bg-[#54362d]/20 blur-[120px] animate-pulse pointer-events-none" style={{ animationDelay: '2s' }}></div>
@@ -150,7 +150,7 @@ const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language, onS
                                 <button
                                     key={lang.id}
                                     onClick={() => handleLangSelect(lang.id)}
-                                    className={`w-full text-left px-4 py-3 text-sm hover:bg-[#e8e8e5] dark:hover:bg-white/5 transition-colors ${i18n.language === lang.id ? 'text-[#7c4a32] dark:text-[#d2b48c] font-bold' : 'text-slate-600 dark:text-slate-400'}`}
+                                    className={`w-full text-left px-4 py-3 text-sm hover:bg-[#fdfbf7] dark:hover:bg-white/5 transition-colors ${i18n.language === lang.id ? 'text-[#7c4a32] dark:text-[#d2b48c] font-bold' : 'text-slate-600 dark:text-slate-400'}`}
                                 >
                                     {lang.label}
                                 </button>
@@ -184,12 +184,12 @@ const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language, onS
                     {isEmailSent ? (
                         <div className="p-10 text-center animate-fade-in">
                             <div className="flex justify-center mb-8">
-                                <div className="w-20 h-20 bg-[#e8e8e5] dark:bg-[#1a110e] rounded-full flex items-center justify-center text-[#7c4a32] dark:text-[#d2b48c]">
+                                <div className="w-20 h-20 bg-[#fdfbf7] dark:bg-[#1a110e] rounded-full flex items-center justify-center text-[#7c4a32] dark:text-[#d2b48c]">
                                     <Inbox size={42} className="animate-bounce" />
                                 </div>
                             </div>
                             <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4 font-serif-text">{t('login.checkEmail')}</h2>
-                            <div className="bg-[#e8e8e5] dark:bg-white/5 p-6 rounded-2xl border border-[#d2b48c]/20 dark:border-white/5 mb-8">
+                            <div className="bg-[#fdfbf7] dark:bg-white/5 p-6 rounded-2xl border border-[#d2b48c]/20 dark:border-white/5 mb-8">
                                 <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed italic">
                                     "{successMsg}"
                                 </p>
@@ -205,7 +205,7 @@ const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language, onS
                         <>
                             <div className="p-10 pb-6 text-center">
                                 <div className="flex justify-center mb-8">
-                                    <div className="w-20 h-20 bg-gradient-to-br from-[#e8e8e5] to-white dark:from-[#1a110e] dark:to-[#070403] rounded-[2.5rem] flex items-center justify-center shadow-inner border border-[#d2b48c]/20 dark:border-white/5 relative group">
+                                    <div className="w-20 h-20 bg-gradient-to-br from-[#fdfbf7] to-white dark:from-[#1a110e] dark:to-[#070403] rounded-[2.5rem] flex items-center justify-center shadow-inner border border-[#d2b48c]/20 dark:border-white/5 relative group">
                                         <ShepherdLogo size={42} className="relative z-10 transition-transform group-hover:scale-110" />
                                     </div>
                                 </div>
@@ -244,7 +244,7 @@ const Login: React.FC<LoginProps> = ({ isDarkMode, toggleDarkMode, language, onS
                                                     required
                                                     value={displayName}
                                                     onChange={(e) => setDisplayName(e.target.value)}
-                                                    className="w-full pl-12 pr-5 py-4 bg-[#e8e8e5]/50 dark:bg-white/5 border border-[#d2b48c]/20 dark:border-white/10 rounded-[1.5rem] focus:ring-4 focus:ring-[#d2b48c]/10 focus:border-[#7c4a32]/50 focus:bg-white dark:focus:bg-[#1a110e] outline-none transition-all text-slate-900 dark:text-white"
+                                                    className="w-full pl-12 pr-5 py-4 bg-[#fdfbf7]/50 dark:bg-white/5 border border-[#d2b48c]/20 dark:border-white/10 rounded-[1.5rem] focus:ring-4 focus:ring-[#d2b48c]/10 focus:border-[#7c4a32]/50 focus:bg-white dark:focus:bg-[#1a110e] outline-none transition-all text-slate-900 dark:text-white"
                                                     placeholder={t('login.displayNamePlaceholder')}
                                                 />
                                             </div>

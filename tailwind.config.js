@@ -13,9 +13,9 @@ export default {
       colors: {
         // Overriding Slate with Warm Espresso / Parchment Theme
         slate: {
-          50: '#e8e8e5', // Stone Gray
-          100: '#dcdcd8', // Soft Pebble
-          200: '#cfcfca', // Light Slate Gray
+          50: '#fdfbf7', // light cream/parchment
+          100: '#f5f1e8',
+          200: '#eaddc5',
           300: '#d5bea1',
           400: '#b89972',
           500: '#9b764d', // warm bronze

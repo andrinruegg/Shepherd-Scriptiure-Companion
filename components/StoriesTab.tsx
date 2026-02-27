@@ -195,8 +195,8 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
             )}
 
             {view === 'chat' && activeEncounterId && (
-                <div className="flex flex-col h-full bg-[#e8e8e5] dark:bg-slate-950 animate-fade-in">
-                    <header className="px-6 py-4 border-b border-black/5 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl shrink-0">
+                <div className="flex flex-col h-full bg-[#fdfbf7] dark:bg-slate-950 animate-fade-in">
+                    <header className="px-6 py-4 border-b border-black/5 dark:border-slate-800 flex items-center justify-between bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shrink-0">
                         <div className="flex items-center gap-4">
                             <button onClick={() => setView('hub')} className="p-2 text-slate-500 hover:bg-black/5 rounded-xl transition-all"><ArrowLeft size={20} /></button>
                             <div className="flex items-center gap-3">
@@ -253,7 +253,7 @@ const RoleplayView: React.FC<RoleplayViewProps> = ({ language, onMenuClick, hasA
                         <div ref={messagesEndRef} className="h-4" />
                     </div>
 
-                    <div className="p-4 sm:p-6 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-2xl border-t dark:border-slate-800 flex gap-3 shrink-0">
+                    <div className="p-4 sm:p-6 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-t dark:border-slate-800 flex gap-3 shrink-0">
                         <input value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
                             placeholder={t('stories.inputPlaceholder')}

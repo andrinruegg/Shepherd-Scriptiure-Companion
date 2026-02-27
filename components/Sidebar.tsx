@@ -39,7 +39,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       {isOpen && <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden transition-opacity" onClick={onClose} />}
-      <div className={`fixed md:relative inset-y-0 left-0 z-50 w-72 flex flex-col h-full bg-slate-50 dark:bg-slate-900 border-r-0 md:border-r rounded-r-3xl md:rounded-none shadow-2xl transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} md:flex-shrink-0`}>
+      <div className={`fixed md:relative inset-y-0 left-0 z-50 w-72 flex flex-col h-full bg-white dark:bg-slate-900 border-r-0 md:border-r rounded-r-3xl md:rounded-none shadow-2xl transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} md:flex-shrink-0`}>
         <div className="p-5 border-b border-slate-100 dark:border-white/5 pt-safe flex-shrink-0">
           <div className="flex items-center justify-between mb-6">
             <button onClick={onNavigateHome} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors text-sm font-bold"><ArrowLeft size={18} />{t('sidebar.home')}</button>

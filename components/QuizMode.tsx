@@ -149,7 +149,7 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick, contextNode,
 
     return (
         <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 transition-colors">
-            <header className="bg-slate-50 dark:bg-slate-950 border-b dark:border-slate-800 p-4 shadow-sm z-10 flex items-center justify-between">
+            <header className="bg-white dark:bg-slate-950 border-b dark:border-slate-800 p-4 shadow-sm z-10 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <button onClick={onMenuClick} className="p-2 -ml-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
                         <ArrowLeft size={24} />
@@ -203,7 +203,7 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick, contextNode,
                             ></div>
                         </div>
 
-                        <div className="bg-slate-50 dark:bg-slate-800 p-8 rounded-[2rem] shadow-sm border dark:border-slate-700 relative">
+                        <div className="bg-white dark:bg-slate-800 p-8 rounded-[2rem] shadow-sm border dark:border-slate-700 relative">
                             <h3 className="text-xl font-bold text-slate-900 dark:text-white leading-relaxed">{currentQ.question}</h3>
                         </div>
 
@@ -239,7 +239,7 @@ const QuizMode: React.FC<QuizModeProps> = ({ language, onMenuClick, contextNode,
                         </div>
 
                         {showResult && (
-                            <div className="fixed bottom-0 left-0 right-0 p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 animate-slide-up z-50">
+                            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 animate-slide-up z-50">
                                 <div className="max-w-lg mx-auto space-y-4">
                                     <div className={`flex items-start gap-3 p-4 rounded-xl ${selectedOption === currentQ.correctIndex ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-200' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-800 dark:text-rose-200'}`}>
                                         <div className="flex-1">
