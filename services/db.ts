@@ -1,6 +1,7 @@
 
 import { supabase } from './supabase';
-import { ChatSession, Message, SavedItem, BibleHighlight, UserProfile, FriendRequest, DirectMessage, Achievement } from '../types';
+import { ChatSession, Message, SavedItem, BibleHighlight, UserProfile, FriendRequest, DirectMessage, Achievement, LeaderboardEntry } from '../types';
+import { BIBLE_BOOKS } from './bibleService';
 
 const ensureSupabase = () => {
     if (!supabase) throw new Error("Database not connected.");
@@ -8,6 +9,7 @@ const ensureSupabase = () => {
 }
 
 export const db = {
+  // ... [Existing Chat Methods: getUserChats, createChat, deleteChat, deleteMessage, updateChatTitle, addMessage] ...
   async getUserChats(): Promise<ChatSession[]> {
     const client = ensureSupabase();
     const { data: authData } = await client.auth.getUser();
@@ -125,6 +127,7 @@ export const db = {
     }];
   },
 
+  // ... [Existing Saved Items Methods] ...
   async getSavedItems(): Promise<SavedItem[]> {
       const client = ensureSupabase();
       const { data: authData } = await client.auth.getUser();
@@ -197,6 +200,7 @@ export const db = {
       if (error) throw error;
   },
 
+  // ... [Highlights & Feedback] ...
   async getHighlights(): Promise<BibleHighlight[]> {
       const client = ensureSupabase();
       const { data: authData } = await client.auth.getUser();
@@ -244,6 +248,7 @@ export const db = {
       if (error) throw error;
   },
   
+  // ... [Prayer Section] ...
   prayers: {
       async getCommunityPrayers(): Promise<SavedItem[]> {
           const client = ensureSupabase();
@@ -364,6 +369,104 @@ export const db = {
           return finalIdToSave;
       },
       
+      async updateGamificationStats(xp: number, completedNodes: string[], nodeProgress: Record<string, number>) {
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
+          if (!user) return;
+          
+          const { data: currentProfile } = await client.from('profiles').select('xp, weekly_xp').eq('id', user.id).single();
+          
+          const oldXp = currentProfile?.xp || 0;
+          const currentWeekly = currentProfile?.weekly_xp || 0;
+          
+          const gain = Math.max(0, xp - oldXp);
+          
+          await client.from('profiles').update({ 
+              xp: xp,
+              weekly_xp: currentWeekly + gain,
+              completed_nodes: completedNodes,
+              node_progress: nodeProgress
+          }).eq('id', user.id);
+      },
+
+      async markChapterRead(bookId: string, chapter: number) {
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
+          if (!user) return;
+
+          // 1. Get current read state
+          const { data: profile } = await client.from('profiles').select('read_chapters').eq('id', user.id).single();
+          
+          let readMap: Record<string, number[]> = profile?.read_chapters || {};
+          
+          if (!readMap[bookId]) readMap[bookId] = [];
+          
+          // 2. If chapter already read, skip
+          if (readMap[bookId].includes(chapter)) return;
+
+          // 3. Mark read
+          readMap[bookId].push(chapter);
+          
+          await client.from('profiles').update({ read_chapters: readMap }).eq('id', user.id);
+
+          // 4. Check for Book Completion (Optional: could trigger achievement here or UI logic)
+          const bookInfo = BIBLE_BOOKS.find(b => b.id === bookId);
+          if (bookInfo && readMap[bookId].length >= bookInfo.chapters) {
+              console.log("Book Completed:", bookInfo.name);
+              // In future: Add logic here to award XP or specific achievement in DB
+          }
+      },
+
+      async ensureUserInCohort(): Promise<string | null> {
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
+          if (!user) return null;
+
+          const { data: profile } = await client.from('profiles').select('cohort_id, league').eq('id', user.id).single();
+          const league = profile?.league || 'Bronze';
+
+          const { data: cohortId, error } = await client.rpc('assign_cohort', { 
+              target_user_id: user.id,
+              user_league: league
+          });
+
+          if (error) console.error("Error assigning cohort:", error);
+          return cohortId;
+      },
+
+      async getLeaderboard(): Promise<LeaderboardEntry[]> {
+          const client = ensureSupabase();
+          const { data: authData } = await client.auth.getUser();
+          const user = authData?.user;
+          if (!user) return [];
+
+          await this.ensureUserInCohort();
+
+          const { data: profile } = await client.from('profiles').select('cohort_id').eq('id', user.id).single();
+          
+          if (!profile?.cohort_id) return [];
+
+          const { data, error } = await client
+              .from('profiles')
+              .select('id, display_name, avatar, weekly_xp')
+              .eq('cohort_id', profile.cohort_id)
+              .order('weekly_xp', { ascending: false });
+
+          if (error) throw error;
+
+          return (data || []).map((entry: any, index: number) => ({
+              user_id: entry.id,
+              display_name: entry.display_name || "Unknown Traveler",
+              avatar: entry.avatar,
+              weekly_xp: entry.weekly_xp || 0,
+              is_current_user: entry.id === user.id,
+              rank: index + 1
+          }));
+      },
+
       async updateProfileStats(streak: number, achievements?: Achievement[]) {
           const client = ensureSupabase();
           const { data: authData } = await client.auth.getUser();

@@ -63,7 +63,40 @@ export interface UserProfile {
   
   streak?: number;
   achievements?: Achievement[];
+  
+  // Gamification
+  xp?: number;
+  weekly_xp?: number;
+  hearts?: number;
+  last_heart_refill?: number; // Timestamp
+  league?: string; // 'Bronze', 'Silver', etc.
+  completed_nodes?: string[]; // IDs of completed path nodes
+  node_progress?: Record<string, number>; // Map of NodeID -> Step (0-5)
+  read_chapters?: Record<string, number[]>; // Map of BookID -> Array of read chapter numbers
+  cohort_id?: string;
 }
+
+export interface LeaderboardEntry {
+    user_id: string;
+    display_name: string;
+    avatar?: string;
+    weekly_xp: number;
+    is_current_user: boolean;
+    rank: number;
+}
+
+export interface PathNode {
+  id: string;
+  title: string;
+  icon: string; // Lucide icon name
+  description: string;
+  xp_reward: number;
+  status: 'locked' | 'active' | 'completed';
+  position: 'left' | 'center' | 'right';
+  current_step?: number; // 0 to 5 (0-3 = Practice, 4 = Exam prep, 5 = Done)
+}
+
+export type QuizSessionType = 'practice' | 'exam';
 
 export interface FriendRequest {
   id: string;
@@ -91,7 +124,7 @@ export interface DirectMessage {
 
 export type SocialTab = 'inbox' | 'friends' | 'add' | 'profile';
 
-export type AppView = 'home' | 'chat' | 'bible' | 'saved' | 'prayer' | 'quiz' | 'stories' | 'explorer';
+export type AppView = 'home' | 'chat' | 'bible' | 'saved' | 'prayer' | 'quiz' | 'stories' | 'explorer' | 'learn' | 'leaderboard';
 
 export interface BibleBook {
   id: string;   
@@ -174,15 +207,12 @@ export interface BibleStory {
 }
 
 declare global {
-  // Define AIStudio interface to prevent type clash with pre-defined environment types
   interface AIStudio {
     hasSelectedApiKey: () => Promise<boolean>;
     openSelectKey: () => Promise<void>;
   }
 
   interface Window {
-    // Fix: All declarations of 'aistudio' must have identical modifiers. 
-    // Match the host environment's declaration to avoid TypeScript conflicts by making it optional.
     aistudio?: AIStudio;
   }
 }

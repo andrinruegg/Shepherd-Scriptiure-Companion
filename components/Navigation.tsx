@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { BIBLE_BOOKS } from '../services/bibleService';
-import { ChevronDown, Search, X, Book, ArrowLeft } from 'lucide-react';
+import { ChevronDown, Search, X, Book, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface NavigationProps {
@@ -8,9 +9,10 @@ interface NavigationProps {
   currentChapter: number;
   onNavigate: (bookId: string, chapter: number) => void;
   language: string;
+  readChapters?: Record<string, number[]>;
 }
 
-const Navigation: React.FC<NavigationProps> = ({ currentBookId, currentChapter, onNavigate, language }) => {
+const Navigation: React.FC<NavigationProps> = ({ currentBookId, currentChapter, onNavigate, language, readChapters = {} }) => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -158,20 +160,31 @@ const Navigation: React.FC<NavigationProps> = ({ currentBookId, currentChapter, 
                   </div>
                 </div>
                 <div className="overflow-y-auto flex-1 p-2 space-y-0.5 custom-scrollbar">
-                  {filteredBooks.map((book) => (
-                    <button
-                      key={book.id}
-                      onClick={() => handleBookClick(book)}
-                      className={`w-full text-left px-4 py-4 md:py-3 rounded-xl text-base md:text-sm transition-all font-medium flex justify-between items-center group ${
-                        selectedBookForNav.id === book.id 
-                          ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 font-bold' 
-                          : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
-                      }`}
-                    >
-                      <span className="truncate">{getBookName(book)}</span>
-                      <span className={`md:hidden transition-transform group-hover:translate-x-1 ${selectedBookForNav.id === book.id ? 'text-white' : 'text-slate-300'}`}>›</span>
-                    </button>
-                  ))}
+                  {filteredBooks.map((book) => {
+                    const readCount = readChapters[book.id]?.length || 0;
+                    const isFullyRead = readCount >= book.chapters;
+                    const isStarted = readCount > 0;
+
+                    return (
+                      <button
+                        key={book.id}
+                        onClick={() => handleBookClick(book)}
+                        className={`w-full text-left px-4 py-4 md:py-3 rounded-xl text-base md:text-sm transition-all font-medium flex justify-between items-center group ${
+                          selectedBookForNav.id === book.id 
+                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 font-bold' 
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                            {isStarted && selectedBookForNav.id !== book.id && (
+                                <div className={`w-2 h-2 rounded-full ${isFullyRead ? 'bg-emerald-500' : 'bg-amber-400'}`}></div>
+                            )}
+                            <span className="truncate">{getBookName(book)}</span>
+                        </div>
+                        <span className={`md:hidden transition-transform group-hover:translate-x-1 ${selectedBookForNav.id === book.id ? 'text-white' : 'text-slate-300'}`}>›</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -200,19 +213,29 @@ const Navigation: React.FC<NavigationProps> = ({ currentBookId, currentChapter, 
 
                 <div className="overflow-y-auto flex-1 p-5 md:p-6 custom-scrollbar pb-32 md:pb-6">
                   <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                    {Array.from({ length: selectedBookForNav.chapters }, (_, i) => i + 1).map((chapter) => (
-                      <button
-                        key={chapter}
-                        onClick={() => handleChapterClick(chapter)}
-                        className={`aspect-square flex items-center justify-center rounded-2xl text-base md:text-sm font-bold transition-all shadow-sm active:scale-90 transform hover:-translate-y-0.5 ${
-                          selectedBookForNav.id === currentBookId && chapter === currentChapter
-                            ? 'bg-indigo-600 text-white shadow-indigo-500/30 ring-2 ring-indigo-200 dark:ring-indigo-900 scale-105'
-                            : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-indigo-400 hover:text-indigo-600 hover:shadow-md'
-                        }`}
-                      >
-                        {chapter}
-                      </button>
-                    ))}
+                    {Array.from({ length: selectedBookForNav.chapters }, (_, i) => i + 1).map((chapter) => {
+                      const isRead = readChapters[selectedBookForNav.id]?.includes(chapter);
+                      const isCurrent = selectedBookForNav.id === currentBookId && chapter === currentChapter;
+                      
+                      return (
+                        <button
+                          key={chapter}
+                          onClick={() => handleChapterClick(chapter)}
+                          className={`aspect-square flex items-center justify-center rounded-2xl text-base md:text-sm font-bold transition-all shadow-sm active:scale-90 transform hover:-translate-y-0.5 relative overflow-hidden ${
+                            isCurrent
+                              ? 'bg-indigo-600 text-white shadow-indigo-500/30 ring-2 ring-indigo-200 dark:ring-indigo-900 scale-105 z-10'
+                              : isRead 
+                                ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/40' 
+                                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-indigo-400 hover:text-indigo-600 hover:shadow-md'
+                          }`}
+                        >
+                          {chapter}
+                          {isRead && !isCurrent && (
+                              <div className="absolute bottom-1 right-1 w-1.5 h-1.5 bg-emerald-500 rounded-full opacity-50"></div>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

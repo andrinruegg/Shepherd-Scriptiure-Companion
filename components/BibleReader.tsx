@@ -6,6 +6,7 @@ import { BibleChapter, SavedItem, BibleHighlight } from '../types';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import Navigation from './Navigation';
+import { db } from '../services/db';
 
 interface BibleReaderProps {
     language: string;
@@ -17,10 +18,13 @@ interface BibleReaderProps {
     onOpenComposer: (t: string, r: string) => void;
     hasApiKey: boolean;
     onTriggerKeyWarning?: () => void;
+    readChapters?: Record<string, number[]>;
+    onChapterRead?: (bookId: string, chapter: number) => void;
 }
 
 const BibleReader: React.FC<BibleReaderProps> = ({ 
-    language, onSaveItem, onMenuClick, highlights, onAddHighlight, onRemoveHighlight, onOpenComposer
+    language, onSaveItem, onMenuClick, highlights, onAddHighlight, onRemoveHighlight, onOpenComposer,
+    readChapters, onChapterRead
 }) => {
   const { t } = useTranslation();
   const [selectedBookId, setSelectedBookId] = useState('JHN');
@@ -61,6 +65,11 @@ const BibleReader: React.FC<BibleReaderProps> = ({
         const res = await fetchChapter(selectedBook.name, safeChapter, language);
         setData(res);
         if (contentRef.current) contentRef.current.scrollTop = 0;
+        
+        // Track Chapter Read locally and in DB
+        if (onChapterRead) onChapterRead(selectedBook.id, safeChapter);
+        db.social.markChapterRead(selectedBook.id, safeChapter).catch(err => console.error("Tracking error", err));
+
       } catch (e) {
         console.error(e);
       } finally {
@@ -124,12 +133,18 @@ const BibleReader: React.FC<BibleReaderProps> = ({
            <div className="flex items-center gap-3">
                <button onClick={onMenuClick} className="p-2 -ml-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"><ArrowLeft size={20} /></button>
                <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
-               <Navigation currentBookId={selectedBookId} currentChapter={chapter} onNavigate={handleNavigate} language={language} />
+               <Navigation 
+                  currentBookId={selectedBookId} 
+                  currentChapter={chapter} 
+                  onNavigate={handleNavigate} 
+                  language={language}
+                  readChapters={readChapters}
+               />
            </div>
        </header>
 
        <main ref={contentRef} className="flex-1 overflow-y-auto scroll-smooth">
-           <div className="max-w-3xl mx-auto px-6 py-12 md:py-16 min-h-[80vh] relative">
+           <div className="max-w-5xl mx-auto px-6 py-12 md:py-16 min-h-[80vh] relative">
                {loading ? (
                    <div className="flex flex-col items-center justify-center h-64 text-slate-400 animate-pulse">
                        <BookOpen size={48} className="mb-4 text-slate-200 dark:text-slate-800"/>
@@ -202,7 +217,7 @@ const BibleReader: React.FC<BibleReaderProps> = ({
        </main>
 
        <footer className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 p-4 pb-safe z-10 shrink-0">
-           <div className="max-w-3xl mx-auto flex items-center justify-between">
+           <div className="max-w-5xl mx-auto flex items-center justify-between">
                <button onClick={() => setChapter(Math.max(1, chapter - 1))} disabled={chapter <= 1} className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-30 disabled:hover:bg-slate-100 transition-all text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-300"><ChevronLeft size={16} /> {t('bible.prev')}</button>
                <div className="flex gap-2">
                    <button onClick={() => setFontSize(Math.max(14, fontSize - 2))} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 text-xs font-bold">A-</button>

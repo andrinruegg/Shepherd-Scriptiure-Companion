@@ -48,7 +48,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     <div className="flex flex-col h-full relative overflow-hidden bg-transparent">
       <header className="glass-header p-4 flex items-center justify-between bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl border-b dark:border-white/5 z-40">
         <div className="flex items-center gap-1">
-          <button onClick={onMenuClick} className="p-2 -ml-2 text-slate-600 dark:text-slate-400 md:hidden"><Menu size={24} /></button>
+          <button onClick={onMenuClick} className="p-2 -ml-2 text-slate-600 dark:text-slate-400 md:hidden hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all"><Menu size={24} /></button>
           <div className="flex items-center gap-3 select-none ml-1 md:ml-2">
               <div className="bg-gradient-to-br from-[#7c4a32] to-[#54362d] p-2 rounded-xl text-white shadow-lg"><ShepherdLogo size={24} /></div>
               <div className="hidden md:block"><h1 className="text-xl font-bold text-slate-800 dark:text-white font-serif-text leading-tight">{t('common.shepherd')}</h1><p className="text-[10px] text-slate-500 dark:text-slate-400 font-black uppercase tracking-[0.2em]">{t('chat.subtitle')}</p></div>
@@ -56,8 +56,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           </div>
         </div>
         <div className="flex items-center gap-2">
-            <button onClick={onNewChat} className="p-2 md:p-2.5 text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl transition-all flex items-center gap-2 border border-indigo-100 shadow-sm"><Plus size={20} strokeWidth={2.5} /><span className="text-sm font-bold hidden md:inline">{t('common.newChat')}</span></button>
-            {onDeleteCurrentChat && <button onClick={onDeleteCurrentChat} className="p-2 text-slate-400 hover:text-red-500 rounded-xl transition-colors"><Trash2 size={20} /></button>}
+            <button onClick={onNewChat} className="p-2 md:p-2.5 text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl transition-all flex items-center gap-2 border border-indigo-100 shadow-sm hover:scale-105 active:scale-95"><Plus size={20} strokeWidth={2.5} /><span className="text-sm font-bold hidden md:inline">{t('common.newChat')}</span></button>
+            {onDeleteCurrentChat && (
+                <button 
+                    onClick={onDeleteCurrentChat} 
+                    className="p-2 md:p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all hover:scale-105 active:scale-95"
+                    title={t('common.delete')}
+                >
+                    <Trash2 size={20} />
+                </button>
+            )}
         </div>
       </header>
 
@@ -104,7 +112,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               {messages.map((msg, index) => (
                 <ChatMessage key={msg.id} message={msg} isLast={index === messages.length - 1} onRegenerate={onRegenerate} isRegenerating={isLoading} userAvatar={userAvatar} onSave={() => onSaveMessage(msg)} language={language} onOpenComposer={onOpenComposer} onOpenSettings={onOpenSettings} />
               ))}
-              {messages.length === 1 && !isLoading && <div className="flex-1 flex flex-col justify-center"><TopicSelector onSelectTopic={onSendMessage} language={language} /></div>}
+              {/* Updated condition to show TopicSelector if chat is empty OR only has a model (welcome) message */}
+              { (messages.length === 0 || (messages.length === 1 && messages[0].role === 'model')) && !isLoading && <div className="flex-1 flex flex-col justify-center"><TopicSelector onSelectTopic={onSendMessage} language={language} /></div> }
             </>
           )}
           <div ref={messagesEndRef} className="h-4" /> 

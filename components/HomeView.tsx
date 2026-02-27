@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { MessageCircle, Book, Feather, Brain, ArrowRight, Flame, Settings, Bell, Headphones, Heart, User, Users, Sparkles, MessageSquare, Scroll } from 'lucide-react';
+import { MessageCircle, Book, Feather, ArrowRight, Flame, Settings, Bell, Headphones, Heart, User, Users, Sparkles, MessageSquare, Scroll, Map } from 'lucide-react';
 import { AppView } from '../types';
 import { getDailyVerse } from '../services/dailyVerseService';
 import ShepherdLogo from './ShepherdLogo';
@@ -52,7 +52,6 @@ const HomeView: React.FC<HomeViewProps> = ({
     const TOOLS_GRID = [
         { id: 'bible', label: t('home.bibleTitle'), sub: t('home.bibleDesc'), icon: Book, bg: 'from-emerald-500 to-emerald-700', iconColor: 'text-white', delay: '0.2s' },
         { id: 'prayer', label: t('home.prayerTitle'), sub: t('home.prayerDesc'), icon: Feather, bg: 'from-[#1e1b4b] to-[#312e81]', iconColor: 'text-white', delay: '0.25s' },
-        { id: 'quiz', label: t('home.quizTitle'), sub: t('home.quizDesc'), icon: Brain, bg: 'from-amber-500 to-amber-600', iconColor: 'text-white', delay: '0.3s' },
         { id: 'friends', label: t('home.friendsTitle'), sub: t('home.friendsDesc'), icon: Users, bg: 'from-[#7c4a32] to-[#54362d]', iconColor: 'text-white', delay: '0.35s', action: onOpenFriends },
         { id: 'saved', label: t('home.favoritesTitle'), sub: t('home.favoritesDesc'), icon: Heart, bg: 'from-rose-500 to-rose-600', iconColor: 'text-white', delay: '0.4s' }
     ];
@@ -109,7 +108,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                 {/* FEATURED: VERSE OF THE DAY */}
                 <div 
                     onClick={onOpenDailyVerse}
-                    className="relative overflow-hidden rounded-[2rem] md:rounded-[3rem] bg-white dark:bg-slate-900 text-slate-800 dark:text-white shadow-[0_30px_70px_-20px_rgba(0,0,0,0.06)] dark:shadow-none mb-12 md:mb-16 group cursor-pointer animate-scale-in transform transition-all hover:scale-[1.01] hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] border border-white dark:border-white/10"
+                    className="relative overflow-hidden rounded-[2rem] md:rounded-[3rem] bg-white dark:bg-slate-900 text-slate-800 dark:text-white shadow-[0_30px_70px_-20px_rgba(0,0,0,0.06)] dark:shadow-none mb-8 md:mb-10 group cursor-pointer animate-scale-in transform transition-all hover:scale-[1.01] hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] border border-white dark:border-white/10"
                 >
                     <div className="absolute inset-0 bg-gradient-to-br from-[#fdfbf7] via-white to-[#d2b48c]/10 dark:from-[#1a110e] dark:via-slate-900 dark:to-slate-900 opacity-100"></div>
                     <div className="relative p-8 md:p-14 z-10">
@@ -127,6 +126,27 @@ const HomeView: React.FC<HomeViewProps> = ({
                             <div className="bg-amber-600 dark:bg-[#d2b48c] text-white dark:text-slate-900 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
                                 <ArrowRight size={24} strokeWidth={3} />
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* NEW: LEARNING PATH BANNER */}
+                <div 
+                    onClick={() => onNavigate('learn')}
+                    className="mb-12 p-1 rounded-[2.5rem] bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 shadow-xl shadow-amber-500/20 group hover:shadow-2xl transition-all animate-slide-up cursor-pointer"
+                >
+                    <div className="bg-white/95 dark:bg-slate-900/95 rounded-[2.1rem] p-6 md:p-8 flex items-center justify-between backdrop-blur-2xl transition-all group-hover:bg-white/80 dark:group-hover:bg-slate-800">
+                        <div className="flex items-center gap-6">
+                            <div className="w-16 h-16 rounded-3xl bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
+                                <Map size={32} />
+                            </div>
+                            <div className="text-left">
+                                <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-1">{t('home.learnTitle')}</h4>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{t('home.learnDesc')}</p>
+                            </div>
+                        </div>
+                        <div className="w-12 h-12 rounded-full border-2 border-amber-200 dark:border-slate-700 flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-all">
+                            <ArrowRight size={24} />
                         </div>
                     </div>
                 </div>
@@ -181,7 +201,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                 </div>
 
                 {/* LIBRARY TOOLS GRID */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                     {TOOLS_GRID.map((feature: any) => (
                         <button 
                             key={feature.id}

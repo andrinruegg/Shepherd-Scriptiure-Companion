@@ -228,7 +228,7 @@ const PrayerList: React.FC<PrayerListProps> = ({
     return (
         <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900">
             <header className="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 p-4 shadow-sm sticky top-0 z-20 flex flex-col items-center">
-                <div className="w-full max-w-3xl flex flex-col gap-4">
+                <div className="w-full max-w-7xl mx-auto flex flex-col gap-4">
                     <div className="flex items-center gap-3 w-full">
                         <button 
                             onClick={onMenuClick} 
@@ -262,7 +262,7 @@ const PrayerList: React.FC<PrayerListProps> = ({
             </header>
 
             <main className="flex-1 overflow-y-auto p-4 md:p-8">
-                <div className="max-w-3xl mx-auto space-y-8">
+                <div className="max-w-7xl mx-auto space-y-8">
                     
                     {activeTab === 'journal' && (
                         <>

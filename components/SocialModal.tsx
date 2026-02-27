@@ -1,10 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, UserPlus, Users, Bell, Search, Check, AlertCircle, Copy, User, MessageCircle, ArrowLeft, Trash2, Circle, Flame, Award, Book, Scroll, Trophy, Info } from 'lucide-react';
-import { UserProfile, FriendRequest, Achievement, SocialTab } from '../types';
+import { X, UserPlus, Users, Bell, Search, Check, AlertCircle, Copy, User, MessageCircle, ArrowLeft, Trash2, Circle, Flame, Book, Trophy, Info, Lock, Grid, Award, Footprints, BookOpen } from 'lucide-react';
+import { UserProfile, FriendRequest, SocialTab } from '../types';
 import { db } from '../services/db';
 import FriendChat from './FriendChat';
 import { useTranslation } from 'react-i18next';
+import { NODES } from '../data/nodes';
+import { MILESTONES, Milestone } from '../data/milestones';
+import { BIBLE_BOOKS } from '../services/bibleService';
 
 interface SocialModalProps {
   isOpen: boolean;
@@ -16,15 +19,12 @@ interface SocialModalProps {
   language: string;
 }
 
-const ACHIEVEMENT_STRUCTURE = [
-    { id: 'perfect-easy', icon: 'Book' },
-    { id: 'perfect-medium', icon: 'Scroll' },
-    { id: 'perfect-hard', icon: 'Trophy' }
-];
-
 const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab = 'inbox', currentUserShareId, onUpdateNotifications }) => {
   const { t } = useTranslation();
   const [currentView, setCurrentView] = useState<SocialTab>(initialTab);
+  
+  // Achievement Categories State
+  const [achievementCategory, setAchievementCategory] = useState<'journey' | 'reading' | 'social' | 'consistency'>('journey');
   
   const [activeChatFriend, setActiveChatFriend] = useState<UserProfile | null>(null);
   const [viewingProfile, setViewingProfile] = useState<UserProfile | null>(null);
@@ -48,7 +48,6 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
   useEffect(() => {
       if (isOpen) {
           setCurrentView(initialTab);
-          // FIX: Reset deep-link states when opening or switching tabs from external triggers
           setActiveChatFriend(null);
           setViewingProfile(null);
       }
@@ -195,48 +194,94 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
       loadSocialData();
   };
 
-  const renderAchievementGrid = (userAchievements: Achievement[] = []) => {
-      const unlockedIds = new Set(userAchievements.map(a => a.id));
-      const unlockedList = ACHIEVEMENT_STRUCTURE.filter(a => unlockedIds.has(a.id));
-      const lockedList = ACHIEVEMENT_STRUCTURE.filter(a => !unlockedIds.has(a.id));
+  // --- Render Helpers ---
 
-      const renderItem = (achStruct: typeof ACHIEVEMENT_STRUCTURE[0], isUnlocked: boolean) => {
-          const title = t(`social.achievementList.${achStruct.id}.title`) || achStruct.id;
-          const description = t(`social.achievementList.${achStruct.id}.description`) || "...";
-          
-          return (
-              <div key={achStruct.id} className={`flex flex-col items-center gap-1 text-center group relative cursor-help ${isUnlocked ? '' : 'opacity-50 grayscale'}`}>
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center border transition-transform group-hover:scale-110 ${isUnlocked ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800' : 'bg-slate-200 dark:bg-slate-800 text-slate-400 border-slate-300 dark:border-slate-700'}`}>
-                      {achStruct.icon === 'Book' && <Book size={18} />}
-                      {achStruct.icon === 'Scroll' && <Scroll size={18} />}
-                      {achStruct.icon === 'Trophy' && <Trophy size={18} />}
-                      {achStruct.icon === 'Award' && <Award size={18} />}
-                  </div>
-                  <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400 leading-tight">{title}</span>
-                  <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30 w-32 shadow-xl border border-slate-700">
-                      {description}
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
-                  </div>
-              </div>
-          );
+  const renderBadge = (m: Milestone, isUnlocked: boolean) => {
+      const tierStyles = {
+          bronze: 'bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800',
+          silver: 'bg-slate-50 border-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700',
+          gold: 'bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800',
+          diamond: 'bg-cyan-50 border-cyan-200 text-cyan-800 dark:bg-cyan-900/20 dark:text-cyan-400 dark:border-cyan-800'
+      };
+
+      const iconBg = {
+          bronze: 'bg-amber-200 dark:bg-amber-800 text-amber-700 dark:text-amber-100',
+          silver: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-100',
+          gold: 'bg-yellow-200 dark:bg-yellow-800 text-yellow-700 dark:text-yellow-100',
+          diamond: 'bg-cyan-200 dark:bg-cyan-800 text-cyan-700 dark:text-cyan-100'
       };
 
       return (
-          <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-100 dark:border-slate-800 text-left shadow-sm">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1">
-                  <Trophy size={12} /> {t('social.profile.achievements')}
-              </h4>
-              {unlockedList.length > 0 && <div className="grid grid-cols-4 gap-2 mb-4">{unlockedList.map(ach => renderItem(ach, true))}</div>}
-              {lockedList.length > 0 && (
-                  <>
-                    <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 opacity-70">{t('social.profile.locked')}</h5>
-                    <div className="grid grid-cols-4 gap-2">{lockedList.map(ach => renderItem(ach, false))}</div>
-                  </>
+          <div key={m.id} className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${isUnlocked ? tierStyles[m.tier] : 'bg-slate-50/50 border-slate-100 dark:bg-slate-900/50 dark:border-slate-800 opacity-50 grayscale'}`}>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${isUnlocked ? iconBg[m.tier] : 'bg-slate-200 dark:bg-slate-800 text-slate-400'}`}>
+                  <m.icon size={24} />
+              </div>
+              <div className="flex-1 min-w-0">
+                  <h4 className="font-bold text-sm leading-tight mb-0.5 truncate">{m.title}</h4>
+                  <p className="text-[10px] uppercase font-bold opacity-70 tracking-wide">{m.description}</p>
+              </div>
+              {isUnlocked ? (
+                  <div className="w-8 h-8 rounded-full bg-white dark:bg-black/20 flex items-center justify-center">
+                      <Check className="text-green-500" size={16} strokeWidth={3} />
+                  </div>
+              ) : (
+                  <Lock size={16} className="opacity-30" />
               )}
-              {unlockedList.length === 0 && lockedList.length === 0 && <div className="text-center py-4 text-slate-400 italic text-xs">No achievements available.</div>}
           </div>
       );
   };
+
+  const renderMilestones = (user: UserProfile, friendCount: number) => {
+      // Logic for calculating progress - Fixed to check FULL completion
+      const readChaptersMap = user.read_chapters || {};
+      const booksRead = Object.keys(readChaptersMap).filter(bookId => {
+          const bookData = BIBLE_BOOKS.find(b => b.id === bookId);
+          if (!bookData) return false;
+          // Count unique chapters read for this book
+          const uniqueReadCount = new Set(readChaptersMap[bookId] || []).size;
+          return uniqueReadCount >= bookData.chapters;
+      }).length;
+
+      const streak = user.streak || 0;
+      const journeyLevel = (user.completed_nodes || []).length;
+
+      const filteredMilestones = MILESTONES.filter(m => m.category === achievementCategory);
+
+      return (
+          <div className="space-y-4 w-full animate-fade-in">
+              <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-x-auto no-scrollbar mb-2">
+                  {[
+                      { id: 'journey', label: 'Journey', icon: Footprints, color: 'text-amber-500' },
+                      { id: 'reading', label: 'Reading', icon: BookOpen, color: 'text-blue-500' },
+                      { id: 'social', label: 'Social', icon: Users, color: 'text-indigo-500' },
+                      { id: 'consistency', label: 'Streak', icon: Flame, color: 'text-rose-500' }
+                  ].map(cat => (
+                      <button
+                          key={cat.id}
+                          onClick={() => setAchievementCategory(cat.id as any)}
+                          className={`flex-1 py-2 px-3 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all whitespace-nowrap ${achievementCategory === cat.id ? 'bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-400 hover:text-slate-600'}`}
+                      >
+                          <cat.icon size={12} className={achievementCategory === cat.id ? cat.color : ''} />
+                          {cat.label}
+                      </button>
+                  ))}
+              </div>
+
+              <div className="grid gap-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                  {filteredMilestones.map(m => {
+                      let unlocked = false;
+                      if (m.category === 'social') unlocked = friendCount >= m.threshold;
+                      if (m.category === 'reading') unlocked = booksRead >= m.threshold;
+                      if (m.category === 'consistency') unlocked = streak >= m.threshold;
+                      if (m.category === 'journey') unlocked = journeyLevel >= m.threshold;
+                      return renderBadge(m, unlocked);
+                  })}
+              </div>
+          </div>
+      );
+  };
+
+  // --- Main Render ---
 
   if (!isOpen) return null;
 
@@ -256,45 +301,64 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
       );
   }
 
-  if (viewingProfile) {
-      const isFriend = friends.some(f => f.id === viewingProfile.id);
+  // Viewing Profile Render (Either mine or friend's)
+  const profileToRender = viewingProfile || currentUserProfile;
+  
+  if (currentView === 'profile' || viewingProfile) {
+      const isFriend = viewingProfile ? friends.some(f => f.id === viewingProfile.id) : false;
+      const isMe = !viewingProfile;
+      const friendCount = isMe ? friends.length : 0; 
+
       return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={() => setViewingProfile(null)} />
-             <div className="relative w-full max-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden animate-scale-in border border-slate-200 dark:border-slate-800 flex flex-col max-h-[85vh] h-[85vh]">
-                 <button onClick={() => setViewingProfile(null)} className="absolute top-4 left-4 p-2 bg-black/20 text-white rounded-full hover:bg-black/30 backdrop-blur-sm z-20 shadow-lg" title={t('common.cancel')}>
-                     <ArrowLeft size={20} />
-                 </button>
+             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={viewingProfile ? () => setViewingProfile(null) : onClose} />
+             <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden animate-scale-in border border-slate-200 dark:border-slate-800 flex flex-col max-h-[85vh] h-[85vh]">
+                 
+                 {/* Header */}
+                 <div className="absolute top-4 left-4 z-20">
+                     <button 
+                        onClick={viewingProfile ? () => setViewingProfile(null) : onClose} 
+                        className="p-2 bg-black/20 text-white rounded-full hover:bg-black/30 backdrop-blur-sm shadow-lg transition-transform hover:scale-105"
+                     >
+                         {viewingProfile ? <ArrowLeft size={20} /> : <X size={20} />}
+                     </button>
+                 </div>
+
                  <div className="flex-1 overflow-y-auto w-full no-scrollbar">
                      <div className="h-32 bg-gradient-to-r from-[#7c4a32] to-[#54362d] relative shrink-0">
                          <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
                      </div>
+                     
                      <div className="px-6 pb-6 flex flex-col items-center text-center">
                          <div className="-mt-12 w-28 h-28 rounded-full border-4 border-white dark:border-slate-900 bg-white dark:bg-slate-800 overflow-hidden shadow-lg mb-2 relative z-10 animate-pop-in">
-                             {viewingProfile.avatar ? <img src={viewingProfile.avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-400"><User size={48} /></div>}
+                             {profileToRender?.avatar ? <img src={profileToRender.avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-400"><User size={48} /></div>}
                          </div>
+                         
                          <div className="flex items-center gap-2 mb-1">
-                             <h2 className="text-2xl font-bold text-slate-800 dark:text-white font-serif-text">{viewingProfile.display_name || "Unknown"}</h2>
-                             {(viewingProfile.streak || 0) > 0 && <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800"><Flame size={12} className="text-amber-500 fill-amber-500 animate-pulse" /><span className="text-xs font-bold text-amber-700 dark:text-amber-400">{viewingProfile.streak}</span></div>}
+                             <h2 className="text-2xl font-bold text-slate-800 dark:text-white font-serif-text">{profileToRender?.display_name || "Unknown"}</h2>
+                             {(profileToRender?.streak || 0) > 0 && <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800"><Flame size={12} className="text-amber-500 fill-amber-500 animate-pulse" /><span className="text-xs font-bold text-amber-700 dark:text-amber-400">{profileToRender?.streak}</span></div>}
                          </div>
+                         
                          <div className="inline-block px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 rounded-full mb-6">
-                            <p className="text-sm text-indigo-600 dark:text-indigo-400 font-mono font-semibold tracking-wide">{viewingProfile.share_id || "ID-ERROR"}</p>
+                            <p className="text-sm text-indigo-600 dark:text-indigo-400 font-mono font-semibold tracking-wide">{profileToRender?.share_id || "..."}</p>
                          </div>
-                         <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 mb-4 border border-slate-100 dark:border-slate-800 text-left shadow-sm">
-                             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t('social.profile.about')}</h4>
-                             {viewingProfile.bio ? <p className="text-sm text-slate-600 dark:text-slate-300 italic leading-relaxed whitespace-pre-wrap">{viewingProfile.bio}</p> : <p className="text-xs text-slate-400 italic text-center py-2">{t('settings.noBio') || "No bio available."}</p>}
-                         </div>
-                         {renderAchievementGrid(viewingProfile.achievements || [])}
-                         <div className="flex gap-3 w-full mt-auto">
-                             {isFriend ? (
-                                 <>
-                                     <button onClick={() => { handleOpenChat(viewingProfile); setViewingProfile(null); }} className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95 hover:scale-105" title={t('social.profile.message')}><MessageCircle size={18} /> {t('social.profile.message')}</button>
-                                     <button onClick={() => handleUnfriend(viewingProfile.id)} className="px-4 py-3.5 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-300 rounded-xl font-medium hover:bg-red-200 dark:hover:bg-red-900/60 border border-red-200 dark:border-red-800 transition-colors shadow-sm" title={t('social.profile.unfriend')}><Trash2 size={20} /></button>
-                                 </>
-                             ) : (
-                                 <button onClick={() => sendRequest(viewingProfile.id)} className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95 hover:scale-105" title={t('social.profile.addFriend')}><UserPlus size={18} /> {t('social.profile.addFriend')}</button>
-                             )}
-                         </div>
+
+                         {/* Dynamic Content */}
+                         {profileToRender && renderMilestones(profileToRender, friendCount)}
+
+                         {/* Action Buttons (Only if viewing someone else) */}
+                         {viewingProfile && (
+                             <div className="flex gap-3 w-full mt-8">
+                                 {isFriend ? (
+                                     <>
+                                         <button onClick={() => { handleOpenChat(viewingProfile); setViewingProfile(null); }} className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95 hover:scale-105"><MessageCircle size={18} /> {t('social.profile.message')}</button>
+                                         <button onClick={() => handleUnfriend(viewingProfile.id)} className="px-4 py-3.5 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-300 rounded-xl font-medium hover:bg-red-200 dark:hover:bg-red-900/60 border border-red-200 dark:border-red-800 transition-colors shadow-sm"><Trash2 size={20} /></button>
+                                     </>
+                                 ) : (
+                                     <button onClick={() => sendRequest(viewingProfile.id)} className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95 hover:scale-105"><UserPlus size={18} /> {t('social.profile.addFriend')}</button>
+                                 )}
+                             </div>
+                         )}
                      </div>
                  </div>
              </div>
@@ -302,12 +366,13 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
       );
   }
 
+  // --- Normal Tabs (Inbox, Friends, Add) ---
+
   const getHeaderConfig = () => {
       switch(currentView) {
           case 'inbox': return { title: t('social.inbox.title'), icon: Bell, showAdd: false, showBack: false };
           case 'friends': return { title: t('social.friends.title'), icon: Users, showAdd: true, showBack: false };
           case 'add': return { title: t('social.add.title'), icon: UserPlus, showAdd: false, showBack: true };
-          case 'profile': return { title: t('social.profile.title'), icon: User, showAdd: false, showBack: false };
           default: return { title: "Social", icon: Circle, showAdd: false, showBack: false };
       }
   };
@@ -325,7 +390,6 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
                     <button 
                         onClick={() => setCurrentView('friends')}
                         className="p-1.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 transition-colors"
-                        title={t('stories.back')}
                     >
                         <ArrowLeft size={20} />
                     </button>
@@ -341,12 +405,11 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
                     <button 
                         onClick={() => setCurrentView('add')} 
                         className="p-2 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors shadow-sm"
-                        title={t('social.profile.addFriend')}
                     >
                         <UserPlus size={18} />
                     </button>
                 )}
-                <button onClick={onClose} className="p-2 rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 hover:rotate-90 transition-transform" title={t('common.cancel')}>
+                <button onClick={onClose} className="p-2 rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 hover:rotate-90 transition-transform">
                     <X size={20} />
                 </button>
             </div>
@@ -522,46 +585,6 @@ const SocialModal: React.FC<SocialModalProps> = ({ isOpen, onClose, initialTab =
                         </div>
                         {searchError && <div className="mt-2 text-xs text-red-500 flex items-center gap-1 animate-fade-in"><AlertCircle size={12}/> {searchError}</div>}
                     </div>
-                </div>
-            )}
-
-            {currentView === 'profile' && (
-                <div className="animate-slide-up flex flex-col items-center pt-6">
-                     <div className="w-28 h-28 rounded-full border-4 border-white dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden shadow-xl mb-4 relative ring-2 ring-amber-100 dark:ring-slate-800">
-                         {currentUserProfile?.avatar ? (
-                             <img src={currentUserProfile.avatar} className="w-full h-full object-cover" />
-                         ) : (
-                             <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-400">
-                                 <User size={48} />
-                             </div>
-                         )}
-                     </div>
-
-                     <h2 className="text-3xl font-bold text-slate-800 dark:text-white font-serif-text mb-1">
-                         {currentUserProfile?.display_name || "Loading..."}
-                     </h2>
-                     <div className="inline-block px-4 py-1.5 bg-[#fdfbf7] dark:bg-slate-800 rounded-full mb-8 border border-[#d2b48c] dark:border-slate-700">
-                        <p className="text-xs text-[#7c4a32] dark:text-[#d2b48c] font-mono font-semibold tracking-wide">
-                            {currentUserProfile?.share_id || "..."}
-                        </p>
-                     </div>
-
-                     <div className="w-full grid grid-cols-2 gap-4 mb-8">
-                         <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 text-center shadow-sm">
-                             <div className="text-xs text-slate-400 font-bold uppercase mb-2 tracking-wider">{t('social.profile.streak')}</div>
-                             <div className="flex items-center justify-center gap-1.5 text-2xl font-bold text-amber-500">
-                                 <Flame size={24} fill="currentColor" /> {currentUserProfile?.streak || 0}
-                             </div>
-                         </div>
-                         <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 text-center shadow-sm">
-                             <div className="text-xs text-slate-400 font-bold uppercase mb-2 tracking-wider">{t('social.profile.achievements')}</div>
-                             <div className="flex items-center justify-center gap-1.5 text-2xl font-bold text-amber-600">
-                                 <Trophy size={24} /> {(currentUserProfile?.achievements || []).length}
-                             </div>
-                         </div>
-                     </div>
-
-                     {renderAchievementGrid(currentUserProfile?.achievements || [])}
                 </div>
             )}
 

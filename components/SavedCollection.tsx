@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Trash2, Heart, BookOpen, Feather, Image, ArrowLeft, MessageSquare } from 'lucide-react';
 import { SavedItem } from '../types';
@@ -30,7 +31,7 @@ const SavedCollection: React.FC<SavedCollectionProps> = ({ savedItems, onRemoveI
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 transition-colors">
       <header className="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 p-6 shadow-sm z-10">
-         <div className="max-w-3xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
              <div className="flex items-center gap-3">
                  <button 
                     onClick={onMenuClick}
@@ -64,7 +65,7 @@ const SavedCollection: React.FC<SavedCollectionProps> = ({ savedItems, onRemoveI
       </header>
 
       <main className="flex-1 overflow-y-auto p-4 md:p-8">
-         <div className="max-w-3xl mx-auto space-y-6">
+         <div className="max-w-7xl mx-auto space-y-6">
             {filteredItems.length === 0 ? (
                 <div className="text-center py-20 opacity-50 animate-fade-in">
                     <Heart size={48} className="mx-auto mb-4 text-slate-300" />
