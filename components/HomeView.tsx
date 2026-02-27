@@ -17,29 +17,27 @@ interface HomeViewProps {
     onOpenProfile: () => void;
     onOpenFriends: () => void;
     onOpenSanctuary: () => void;
-    onOpenFeedback: () => void; 
     notificationCount: number;
     onOpenDailyVerse: () => void;
 }
 
-const HomeView: React.FC<HomeViewProps> = ({ 
-    language, 
+const HomeView: React.FC<HomeViewProps> = ({
+    language,
     displayName,
     userAvatar,
-    dailyStreak, 
+    dailyStreak,
     onNavigate,
     onOpenSettings,
     onOpenNotifications,
     onOpenProfile,
     onOpenFriends,
     onOpenSanctuary,
-    onOpenFeedback,
     notificationCount,
     onOpenDailyVerse
 }) => {
     const { t } = useTranslation();
     const dailyVerse = getDailyVerse(language);
-    
+
     const [greeting, setGreeting] = useState('');
 
     useEffect(() => {
@@ -106,7 +104,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                 </div>
 
                 {/* FEATURED: VERSE OF THE DAY */}
-                <div 
+                <div
                     onClick={onOpenDailyVerse}
                     className="relative overflow-hidden rounded-[2rem] md:rounded-[3rem] bg-white dark:bg-slate-900 text-slate-800 dark:text-white shadow-[0_30px_70px_-20px_rgba(0,0,0,0.06)] dark:shadow-none mb-8 md:mb-10 group cursor-pointer animate-scale-in transform transition-all hover:scale-[1.01] hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] border border-white dark:border-white/10"
                 >
@@ -131,7 +129,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                 </div>
 
                 {/* NEW: LEARNING PATH BANNER */}
-                <div 
+                <div
                     onClick={() => onNavigate('learn')}
                     className="mb-12 p-1 rounded-[2.5rem] bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 shadow-xl shadow-amber-500/20 group hover:shadow-2xl transition-all animate-slide-up cursor-pointer"
                 >
@@ -159,7 +157,7 @@ const HomeView: React.FC<HomeViewProps> = ({
 
                 {/* AI TOOLS - Brand Indigo & Gold */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-8 md:mb-10">
-                    <button 
+                    <button
                         onClick={() => onNavigate('chat')}
                         className="p-1 rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-[#1e1b4b] via-[#3730a3] to-[#4f46e5] shadow-xl shadow-indigo-500/10 group hover:shadow-2xl transition-all animate-slide-up"
                     >
@@ -179,7 +177,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                         </div>
                     </button>
 
-                    <button 
+                    <button
                         onClick={() => onNavigate('stories')}
                         className="p-1 rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 shadow-xl shadow-amber-500/10 group hover:shadow-2xl transition-all animate-slide-up"
                     >
@@ -203,7 +201,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                 {/* LIBRARY TOOLS GRID */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                     {TOOLS_GRID.map((feature: any) => (
-                        <button 
+                        <button
                             key={feature.id}
                             onClick={() => feature.action ? feature.action() : onNavigate(feature.id as AppView)}
                             className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] hover:-translate-y-2 transition-all group text-left flex flex-col justify-between h-44 md:h-52 animate-slide-up border border-white dark:border-slate-800 hover:border-[#d2b48c] dark:hover:border-indigo-500/30 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.04)] hover:shadow-2xl"
@@ -220,15 +218,6 @@ const HomeView: React.FC<HomeViewProps> = ({
                     ))}
                 </div>
 
-                <div className="mt-16 md:mt-24 mb-12 flex justify-center">
-                    <button 
-                        onClick={onOpenFeedback}
-                        className="flex items-center gap-3 px-8 md:px-10 py-3 md:py-4 bg-white/50 dark:bg-slate-900 border border-white dark:border-slate-800 rounded-full text-slate-400 dark:text-slate-500 hover:text-[#7c4a32] dark:hover:text-[#d2b48c] hover:bg-white dark:hover:bg-slate-800 transition-all text-[10px] md:text-xs font-black uppercase tracking-[0.4em] shadow-sm hover:shadow-xl backdrop-blur-xl"
-                    >
-                        <MessageSquare size={16} strokeWidth={3} />
-                        {t('home.feedback')}
-                    </button>
-                </div>
             </div>
         </div>
     );

@@ -246,21 +246,6 @@
     "dark": "Întunecat",
     "nameMinLength": "Numele trebuie să aibă cel puțin 4 litere.",
     "nameInvalid": "Numele 'Oaspete' este rezervat.",
-    "winter": {
-      "title": "Mod Iarnă",
-      "desc": "Animații festive",
-      "snow": "Ninsoare",
-      "lights": "Luminițe",
-      "icicles": "Țurțuri"
-    },
-    "princess": {
-      "title": "Mod Prințesă",
-      "desc": "Inimi & magie",
-      "hearts": "Inimi",
-      "aurora": "Auroră",
-      "lightOnly": "Doar în Modul Luminos",
-      "activateHint": "Va trece la Modul Luminos"
-    },
     "account": "Cont",
     "signOut": "Deconectare",
     "about": "Despre Păstorul",
@@ -356,19 +341,100 @@
       "paintMode": "Paint Mode"
     },
     "achievementList": {
-      "perfect-easy": { "title": "Savant Biblic", "description": "Scor 100% la Quiz Ușor" },
-      "perfect-medium": { "title": "Ucenic", "description": "Scor 100% la Quiz Mediu" },
-      "perfect-hard": { "title": "Teolog", "description": "Scor 100% la Quiz Greu" }
+      "perfect-easy": {
+        "title": "Savant Biblic",
+        "description": "Scor 100% la Quiz Ușor"
+      },
+      "perfect-medium": {
+        "title": "Ucenic",
+        "description": "Scor 100% la Quiz Mediu"
+      },
+      "perfect-hard": {
+        "title": "Teolog",
+        "description": "Scor 100% la Quiz Greu"
+      }
     },
     "updatesList": [
-      { "version": "1.7.0", "date": "14.12.2025", "title": "Panou de bord nou", "changes": ["Vizualizare Acasă adăugată", "Navigație îmbunătățită"] },
-      { "version": "1.6.0", "date": "12.12.2025", "title": "Upgrade Cititor Biblie", "changes": ["Reparat încărcarea Bibliei Cornilescu", "Schimbare instantanee a capitolelor", "Text biblic disponibil offline"] },
-      { "version": "1.5.0", "date": "11.12.2025", "title": "Quiz și Realizări", "changes": ["Adăugat modul Trivia Biblică", "Câștigă realizări pentru scoruri perfecte", "Vizualizează seriile și insignele prietenilor", "Urmărire progres globală"] },
-      { "version": "1.4.0", "date": "10.12.2025", "title": "Perfecțiune Graffiti", "changes": ["Reparat probleme de salvare în modul Graffiti", "Experiență de desenat mai fluidă", "Fiabilitate îmbunătățită a încărcării"] },
-      { "version": "1.3.0", "date": "09.12.2025", "title": "Chat Social", "changes": ["Mesagerie în timp real cu prietenii", "Partajare fotografii", "Mesaje vocale", "Status Online și Confirmări de citire"] },
-      { "version": "1.2.0", "date": "09.12.2025", "title": "Actualizare de Iarnă", "changes": ["Adăugat modul festiv de Iarnă", "Vizualuri îmbunătățite la ecranul de pornire", "Remedieri de erori pentru conectivitatea API"] },
-      { "version": "1.1.0", "date": "08.12.2025", "title": "Cititor Biblie", "changes": ["Adăugat cititorul complet al Bibliei", "Suport pentru evidențiere", "Salvează versete în colecție"] },
-      { "version": "1.0.0", "date": "08.12.2025", "title": "Lansare Inițială", "changes": ["Chat Shepherd AI", "Integrare Supabase"] }
+      {
+        "version": "1.7.0",
+        "date": "14.12.2025",
+        "title": "Panou de bord nou",
+        "changes": [
+          "Vizualizare Acasă adăugată",
+          "Navigație îmbunătățită"
+        ]
+      },
+      {
+        "version": "1.6.0",
+        "date": "12.12.2025",
+        "title": "Upgrade Cititor Biblie",
+        "changes": [
+          "Reparat încărcarea Bibliei Cornilescu",
+          "Schimbare instantanee a capitolelor",
+          "Text biblic disponibil offline"
+        ]
+      },
+      {
+        "version": "1.5.0",
+        "date": "11.12.2025",
+        "title": "Quiz și Realizări",
+        "changes": [
+          "Adăugat modul Trivia Biblică",
+          "Câștigă realizări pentru scoruri perfecte",
+          "Vizualizează seriile și insignele prietenilor",
+          "Urmărire progres globală"
+        ]
+      },
+      {
+        "version": "1.4.0",
+        "date": "10.12.2025",
+        "title": "Perfecțiune Graffiti",
+        "changes": [
+          "Reparat probleme de salvare în modul Graffiti",
+          "Experiență de desenat mai fluidă",
+          "Fiabilitate îmbunătățită a încărcării"
+        ]
+      },
+      {
+        "version": "1.3.0",
+        "date": "09.12.2025",
+        "title": "Chat Social",
+        "changes": [
+          "Mesagerie în timp real cu prietenii",
+          "Partajare fotografii",
+          "Mesaje vocale",
+          "Status Online și Confirmări de citire"
+        ]
+      },
+      {
+        "version": "1.2.0",
+        "date": "09.12.2025",
+        "title": "Actualizare de Iarnă",
+        "changes": [
+          "Adăugat modul festiv de Iarnă",
+          "Vizualuri îmbunătățite la ecranul de pornire",
+          "Remedieri de erori pentru conectivitatea API"
+        ]
+      },
+      {
+        "version": "1.1.0",
+        "date": "08.12.2025",
+        "title": "Cititor Biblie",
+        "changes": [
+          "Adăugat cititorul complet al Bibliei",
+          "Suport pentru evidențiere",
+          "Salvează versete în colecție"
+        ]
+      },
+      {
+        "version": "1.0.0",
+        "date": "08.12.2025",
+        "title": "Lansare Inițială",
+        "changes": [
+          "Chat Shepherd AI",
+          "Integrare Supabase"
+        ]
+      }
     ]
   },
   "saved": {
@@ -418,11 +484,26 @@
     "processing": "Se procesează...",
     "securityWarning": "Eroare de securitate",
     "presets": [
-      { "ref": "Psalmul 23:1", "text": "Domnul este Păstorul meu: nu voi duce lipsă de nimic." },
-      { "ref": "Ieremia 29:11", "text": "Căci Eu ştiu gândurile pe care le am cu privire la voi, zice Domnul, gânduri de pace şi nu de nenorocire, ca să vă dau un viitor şi o nădejde." },
-      { "ref": "Filipeni 4:13", "text": "Pot totul în Hristos, care mă întăreşte." },
-      { "ref": "Ioan 3:16", "text": "Fiindcă atât de mult a iubit Dumnezeu lumea, că a dat pe singurul Lui Fiu, pentru ca oricine crede în El să nu piară, ci să aibă viaţa veşnică." },
-      { "ref": "Romani 8:28", "text": "De altă parte, ştim că toate lucrurile lucrează împreună spre binele celor ce iubesc pe Dumnezeu, şi anume spre binele celor ce sunt chemaţi după planul Său." }
+      {
+        "ref": "Psalmul 23:1",
+        "text": "Domnul este Păstorul meu: nu voi duce lipsă de nimic."
+      },
+      {
+        "ref": "Ieremia 29:11",
+        "text": "Căci Eu ştiu gândurile pe care le am cu privire la voi, zice Domnul, gânduri de pace şi nu de nenorocire, ca să vă dau un viitor şi o nădejde."
+      },
+      {
+        "ref": "Filipeni 4:13",
+        "text": "Pot totul în Hristos, care mă întăreşte."
+      },
+      {
+        "ref": "Ioan 3:16",
+        "text": "Fiindcă atât de mult a iubit Dumnezeu lumea, că a dat pe singurul Lui Fiu, pentru ca oricine crede în El să nu piară, ci să aibă viaţa veşnică."
+      },
+      {
+        "ref": "Romani 8:28",
+        "text": "De altă parte, ştim că toate lucrurile lucrează împreună spre binele celor ce iubesc pe Dumnezeu, şi anume spre binele celor ce sunt chemaţi după planul Său."
+      }
     ],
     "themes": {
       "midnight": "Miezul Nopții",
@@ -446,7 +527,6 @@
       "nebula": "Nebuloasă",
       "bloom": "Flori",
       "lavender": "Levănțică",
-      "winter": "Iarnă",
       "autumn": "Toamnă",
       "leaves": "Frunze",
       "palm": "Palmier",
@@ -455,14 +535,38 @@
   },
   "topics": {
     "title": "Explorează un subiect",
-    "anxiety": { "label": "Anxietate", "query": "Mă simt anxios. Ajută-mă." },
-    "love": { "label": "Dragoste", "query": "Spune-mi despre dragoste." },
-    "hope": { "label": "Speranță", "query": "Am nevoie de speranță." },
-    "sadness": { "label": "Tristețe", "query": "Sunt triste." },
-    "gratitude": { "label": "Recunoștință", "query": "Vreau să mulțumesc." },
-    "strength": { "label": "Putere", "query": "Mă simt slab." },
-    "joy": { "label": "Bucurie", "query": "Vreau să mă bucur." },
-    "forgiveness": { "label": "Iertare", "query": "Spune-mi despre iertare." }
+    "anxiety": {
+      "label": "Anxietate",
+      "query": "Mă simt anxios. Ajută-mă."
+    },
+    "love": {
+      "label": "Dragoste",
+      "query": "Spune-mi despre dragoste."
+    },
+    "hope": {
+      "label": "Speranță",
+      "query": "Am nevoie de speranță."
+    },
+    "sadness": {
+      "label": "Tristețe",
+      "query": "Sunt triste."
+    },
+    "gratitude": {
+      "label": "Recunoștință",
+      "query": "Vreau să mulțumesc."
+    },
+    "strength": {
+      "label": "Putere",
+      "query": "Mă simt slab."
+    },
+    "joy": {
+      "label": "Bucurie",
+      "query": "Vreau să mă bucur."
+    },
+    "forgiveness": {
+      "label": "Iertare",
+      "query": "Spune-mi despre iertare."
+    }
   },
   "bible": {
     "selectBook": "Selectează Cartea",
@@ -477,7 +581,10 @@
     "prev": "Înapoi",
     "next": "Înainte",
     "removeHighlight": "Șterge Evidențierea",
-    "audio": { "play": "Ascultă", "pause": "Pauză" },
+    "audio": {
+      "play": "Ascultă",
+      "pause": "Pauză"
+    },
     "needKey": "Cheie API necesară."
   },
   "dailyVerse": {

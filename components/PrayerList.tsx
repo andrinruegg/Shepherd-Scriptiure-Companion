@@ -19,13 +19,13 @@ interface PrayerListProps {
     userAvatar?: string;
 }
 
-const PrayerList: React.FC<PrayerListProps> = ({ 
-    savedItems, 
-    onSaveItem, 
-    onUpdateItem, 
-    onRemoveItem, 
-    language, 
-    onMenuClick, 
+const PrayerList: React.FC<PrayerListProps> = ({
+    savedItems,
+    onSaveItem,
+    onUpdateItem,
+    onRemoveItem,
+    language,
+    onMenuClick,
     currentUserId,
     userName,
     userAvatar
@@ -33,17 +33,17 @@ const PrayerList: React.FC<PrayerListProps> = ({
     const { t } = useTranslation();
     const [newPrayer, setNewPrayer] = useState('');
     const [activeTab, setActiveTab] = useState<'journal' | 'community'>('journal');
-    
+
     const [visibility, setVisibility] = useState<PrayerVisibility>('private');
     const [showVisibilityMenu, setShowVisibilityMenu] = useState(false);
     const [selectedFriends, setSelectedFriends] = useState<string[]>([]);
     const [showFriendSelector, setShowFriendSelector] = useState(false);
     const [isAnonymous, setIsAnonymous] = useState(false);
-    
+
     const [friendsList, setFriendsList] = useState<UserProfile[]>([]);
     const [communityPrayers, setCommunityPrayers] = useState<SavedItem[]>([]);
     const [loadingCommunity, setLoadingCommunity] = useState(false);
-    
+
     const [translationsMap, setTranslationsMap] = useState<Record<string, string>>({});
     const [translatingIds, setTranslatingIds] = useState<Set<string>>(new Set());
 
@@ -82,7 +82,7 @@ const PrayerList: React.FC<PrayerListProps> = ({
         try {
             const data = await db.prayers.getCommunityPrayers();
             setCommunityPrayers(data);
-        } catch(e) { console.error(e); } 
+        } catch (e) { console.error(e); }
         finally { setLoadingCommunity(false); }
     };
 
@@ -98,7 +98,7 @@ const PrayerList: React.FC<PrayerListProps> = ({
             type: 'prayer',
             content: newPrayer.trim(),
             date: Date.now(),
-            metadata: { 
+            metadata: {
                 answered: false,
                 visibility: visibility,
                 allowed_users: visibility === 'specific' ? selectedFriends : [],
@@ -115,7 +115,7 @@ const PrayerList: React.FC<PrayerListProps> = ({
         setSelectedFriends([]);
         setIsAnonymous(false);
         setShowVisibilityMenu(false);
-        
+
         if (activeTab === 'community' && visibility !== 'private') {
             setTimeout(loadCommunityPrayers, 500);
         }
@@ -126,8 +126,8 @@ const PrayerList: React.FC<PrayerListProps> = ({
             ...prayer,
             metadata: { ...prayer.metadata, answered: !prayer.metadata?.answered }
         };
-        onUpdateItem(updated); 
-        
+        onUpdateItem(updated);
+
         if (activeTab === 'community') {
             setCommunityPrayers(prev => prev.map(p => p.id === updated.id ? updated : p));
         }
@@ -139,7 +139,7 @@ const PrayerList: React.FC<PrayerListProps> = ({
     };
 
     const handleToggleFriend = (friendId: string) => {
-        setSelectedFriends(prev => 
+        setSelectedFriends(prev =>
             prev.includes(friendId) ? prev.filter(id => id !== friendId) : [...prev, friendId]
         );
     };
@@ -147,33 +147,33 @@ const PrayerList: React.FC<PrayerListProps> = ({
     const handleAmen = async (prayer: SavedItem) => {
         setCommunityPrayers(prev => prev.map(p => {
             if (p.id === prayer.id) {
-                 const interactions = p.metadata?.interactions || { type: 'amen', count: 0, user_ids: [] };
-                 const currentUserIdLocal = currentUserId || "";
-                 const hasAmened = interactions.user_ids.includes(currentUserIdLocal);
-                 
-                 let newCount = interactions.count;
-                 let newIds = interactions.user_ids;
+                const interactions = p.metadata?.interactions || { type: 'amen', count: 0, user_ids: [] };
+                const currentUserIdLocal = currentUserId || "";
+                const hasAmened = interactions.user_ids.includes(currentUserIdLocal);
 
-                 if (hasAmened) {
-                     newCount = Math.max(0, newCount - 1);
-                     newIds = newIds.filter((id: string) => id !== currentUserIdLocal);
-                 } else {
-                     newCount = newCount + 1;
-                     newIds = [...newIds, currentUserIdLocal];
-                 }
+                let newCount = interactions.count;
+                let newIds = interactions.user_ids;
 
-                 return { 
-                     ...p, 
-                     metadata: { 
-                         ...p.metadata, 
-                         interactions: { 
-                             ...interactions,
-                             type: 'amen',
-                             count: newCount,
-                             user_ids: newIds
-                         } 
-                     } 
-                 };
+                if (hasAmened) {
+                    newCount = Math.max(0, newCount - 1);
+                    newIds = newIds.filter((id: string) => id !== currentUserIdLocal);
+                } else {
+                    newCount = newCount + 1;
+                    newIds = [...newIds, currentUserIdLocal];
+                }
+
+                return {
+                    ...p,
+                    metadata: {
+                        ...p.metadata,
+                        interactions: {
+                            ...interactions,
+                            type: 'amen',
+                            count: newCount,
+                            user_ids: newIds
+                        }
+                    }
+                };
             }
             return p;
         }));
@@ -208,7 +208,7 @@ const PrayerList: React.FC<PrayerListProps> = ({
     };
 
     const VisibilityIcon = ({ vis }: { vis: PrayerVisibility }) => {
-        switch(vis) {
+        switch (vis) {
             case 'public': return <Globe size={14} className="text-emerald-500" />;
             case 'friends': return <Users size={14} className="text-blue-500" />;
             case 'specific': return <User size={14} className="text-purple-500" />;
@@ -217,7 +217,7 @@ const PrayerList: React.FC<PrayerListProps> = ({
     };
 
     const VisibilityLabel = ({ vis }: { vis: PrayerVisibility }) => {
-        switch(vis) {
+        switch (vis) {
             case 'public': return t('prayer.privacy.public');
             case 'friends': return t('prayer.privacy.friends');
             case 'specific': return t('prayer.privacy.specific');
@@ -228,10 +228,10 @@ const PrayerList: React.FC<PrayerListProps> = ({
     return (
         <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900">
             <header className="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 p-4 shadow-sm sticky top-0 z-20 flex flex-col items-center">
-                <div className="w-full max-w-7xl mx-auto flex flex-col gap-4">
+                <div className="w-full flex flex-col gap-4">
                     <div className="flex items-center gap-3 w-full">
-                        <button 
-                            onClick={onMenuClick} 
+                        <button
+                            onClick={onMenuClick}
                             className="p-2 -ml-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
                         >
                             <ArrowLeft size={24} />
@@ -245,13 +245,13 @@ const PrayerList: React.FC<PrayerListProps> = ({
                     </div>
 
                     <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-lg w-full">
-                        <button 
+                        <button
                             onClick={() => setActiveTab('journal')}
                             className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'journal' ? 'bg-white dark:bg-slate-700 shadow-sm text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}
                         >
                             {t('prayer.tabs.journal')}
                         </button>
-                        <button 
+                        <button
                             onClick={() => setActiveTab('community')}
                             className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'community' ? 'bg-white dark:bg-slate-700 shadow-sm text-slate-800 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}
                         >
@@ -262,50 +262,50 @@ const PrayerList: React.FC<PrayerListProps> = ({
             </header>
 
             <main className="flex-1 overflow-y-auto p-4 md:p-8">
-                <div className="max-w-7xl mx-auto space-y-8">
-                    
+                <div className="w-full space-y-8">
+
                     {activeTab === 'journal' && (
                         <>
                             <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-700">
-                                <textarea 
+                                <textarea
                                     value={newPrayer}
                                     onChange={(e) => setNewPrayer(e.target.value)}
                                     placeholder={t('prayer.placeholder')}
                                     rows={2}
                                     className="w-full bg-transparent outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 resize-none mb-3"
                                 />
-                                
+
                                 <div className="flex items-center justify-between">
                                     <div className="flex gap-2">
                                         <div className="relative" ref={menuRef}>
-                                            <button 
+                                            <button
                                                 onClick={() => setShowVisibilityMenu(!showVisibilityMenu)}
                                                 className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-900 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
                                             >
                                                 <VisibilityIcon vis={visibility} />
-                                                <span>{VisibilityLabel({vis: visibility})}</span>
+                                                <span>{VisibilityLabel({ vis: visibility })}</span>
                                                 <ChevronDown size={12} />
                                             </button>
 
                                             {showVisibilityMenu && (
                                                 <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 z-30 overflow-hidden animate-scale-in">
                                                     <button onClick={() => { setVisibility('private'); setShowVisibilityMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2">
-                                                        <Lock size={14} className="text-slate-400"/> {t('prayer.privacy.private')}
+                                                        <Lock size={14} className="text-slate-400" /> {t('prayer.privacy.private')}
                                                     </button>
                                                     <button onClick={() => { setVisibility('friends'); setShowVisibilityMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2">
-                                                        <Users size={14} className="text-blue-500"/> {t('prayer.privacy.friends')}
+                                                        <Users size={14} className="text-blue-500" /> {t('prayer.privacy.friends')}
                                                     </button>
                                                     <button onClick={() => { setVisibility('specific'); setShowVisibilityMenu(false); setShowFriendSelector(true); }} className="w-full text-left px-4 py-3 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2">
-                                                        <User size={14} className="text-purple-500"/> {t('prayer.privacy.specific')}
+                                                        <User size={14} className="text-purple-500" /> {t('prayer.privacy.specific')}
                                                     </button>
                                                     <button onClick={() => { setVisibility('public'); setShowVisibilityMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 border-t border-slate-100 dark:border-slate-800">
-                                                        <Globe size={14} className="text-emerald-500"/> {t('prayer.privacy.public')}
+                                                        <Globe size={14} className="text-emerald-500" /> {t('prayer.privacy.public')}
                                                     </button>
                                                 </div>
                                             )}
                                         </div>
 
-                                        <button 
+                                        <button
                                             onClick={() => setIsAnonymous(!isAnonymous)}
                                             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${isAnonymous ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-900 dark:text-slate-400'}`}
                                             title="Post Anonymously"
@@ -315,9 +315,9 @@ const PrayerList: React.FC<PrayerListProps> = ({
                                         </button>
                                     </div>
 
-                                    <button 
-                                        onClick={handleAddPrayer} 
-                                        disabled={!newPrayer.trim()} 
+                                    <button
+                                        onClick={handleAddPrayer}
+                                        disabled={!newPrayer.trim()}
                                         className="p-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-50 transition-colors shadow-sm"
                                     >
                                         <Plus size={20} />
@@ -332,7 +332,7 @@ const PrayerList: React.FC<PrayerListProps> = ({
                                         </div>
                                         <div className="max-h-32 overflow-y-auto space-y-1">
                                             {friendsList.map(friend => (
-                                                <button 
+                                                <button
                                                     key={friend.id}
                                                     onClick={() => handleToggleFriend(friend.id)}
                                                     className={`w-full flex items-center gap-2 p-2 rounded-md text-xs transition-colors ${selectedFriends.includes(friend.id) ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' : 'hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'}`}
@@ -349,7 +349,7 @@ const PrayerList: React.FC<PrayerListProps> = ({
 
                             <section>
                                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                                    <Circle size={10} className="fill-indigo-500 text-indigo-500"/> {t('prayer.active')}
+                                    <Circle size={10} className="fill-indigo-500 text-indigo-500" /> {t('prayer.active')}
                                 </h3>
                                 {activePrayers.length === 0 ? (
                                     <div className="text-center py-8 text-slate-400 italic text-sm border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
@@ -371,7 +371,7 @@ const PrayerList: React.FC<PrayerListProps> = ({
                                                             </span>
                                                             <span className="text-xs text-slate-400 flex items-center gap-1 bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded">
                                                                 <VisibilityIcon vis={p.metadata?.visibility || 'private'} />
-                                                                {VisibilityLabel({vis: p.metadata?.visibility || 'private'})}
+                                                                {VisibilityLabel({ vis: p.metadata?.visibility || 'private' })}
                                                             </span>
                                                             {p.metadata?.visibility !== 'private' && (
                                                                 <span className="text-xs text-slate-400 flex items-center gap-1">
@@ -420,97 +420,97 @@ const PrayerList: React.FC<PrayerListProps> = ({
 
                     {activeTab === 'community' && (
                         <div className="space-y-4">
-                             <div className="bg-indigo-600 rounded-xl p-6 text-white text-center shadow-lg mb-6">
-                                 <h3 className="text-lg font-bold font-serif-text mb-1">{t('prayer.communityTitle')}</h3>
-                                 <p className="text-indigo-100 text-sm opacity-90">{t('prayer.communitySubtitle')}</p>
-                             </div>
+                            <div className="bg-indigo-600 rounded-xl p-6 text-white text-center shadow-lg mb-6">
+                                <h3 className="text-lg font-bold font-serif-text mb-1">{t('prayer.communityTitle')}</h3>
+                                <p className="text-indigo-100 text-sm opacity-90">{t('prayer.communitySubtitle')}</p>
+                            </div>
 
-                             {loadingCommunity ? (
-                                 <div className="text-center py-10 text-slate-400 animate-pulse">{t('common.loading')}</div>
-                             ) : communityPrayers.length === 0 ? (
-                                 <div className="text-center py-10 text-slate-400 italic">{t('prayer.communityEmpty')}</div>
-                             ) : (
-                                 communityPrayers.map((prayer, i) => {
-                                     const isOwner = currentUserId && prayer.user_id === currentUserId;
-                                     const isAnon = prayer.metadata?.is_anonymous;
-                                     const isAnswered = prayer.metadata?.answered;
-                                     const isAmened = prayer.metadata?.interactions?.user_ids?.includes(currentUserId || "");
-                                     const translatedText = translationsMap[prayer.id];
-                                     const isTranslating = translatingIds.has(prayer.id);
+                            {loadingCommunity ? (
+                                <div className="text-center py-10 text-slate-400 animate-pulse">{t('common.loading')}</div>
+                            ) : communityPrayers.length === 0 ? (
+                                <div className="text-center py-10 text-slate-400 italic">{t('prayer.communityEmpty')}</div>
+                            ) : (
+                                communityPrayers.map((prayer, i) => {
+                                    const isOwner = currentUserId && prayer.user_id === currentUserId;
+                                    const isAnon = prayer.metadata?.is_anonymous;
+                                    const isAnswered = prayer.metadata?.answered;
+                                    const isAmened = prayer.metadata?.interactions?.user_ids?.includes(currentUserId || "");
+                                    const translatedText = translationsMap[prayer.id];
+                                    const isTranslating = translatingIds.has(prayer.id);
 
-                                     return (
-                                         <div key={prayer.id} className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm animate-slide-up" style={{ animationDelay: `${i * 0.1}s` }}>
-                                              <div className="flex items-center gap-3 mb-3">
-                                                  <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-500 overflow-hidden">
-                                                      {isAnon ? <User size={16}/> : (prayer.metadata?.author_avatar ? <img src={prayer.metadata.author_avatar} className="w-full h-full object-cover"/> : (prayer.metadata?.author_name?.charAt(0) || '?'))}
-                                                  </div>
-                                                  <div>
-                                                      <div className="text-sm font-bold text-slate-800 dark:text-white">
-                                                          {isAnon ? t('prayer.privacy.anonymous') : (prayer.metadata?.author_name || t('common.guest'))}
-                                                          {isAnswered && <span className="ml-2 text-[10px] text-emerald-500 bg-emerald-100 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded">{t('prayer.answered')}</span>}
-                                                      </div>
-                                                      <div className="text-[10px] text-slate-400">{new Date(prayer.date).toLocaleDateString()}</div>
-                                                  </div>
-                                                  
-                                                  <div className="ml-auto flex items-center gap-2">
-                                                      <VisibilityIcon vis={prayer.metadata?.visibility || 'public'} />
-                                                      {isOwner && (
-                                                          <>
-                                                              <button 
-                                                                onClick={() => toggleAnswered(prayer)} 
+                                    return (
+                                        <div key={prayer.id} className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm animate-slide-up" style={{ animationDelay: `${i * 0.1}s` }}>
+                                            <div className="flex items-center gap-3 mb-3">
+                                                <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-500 overflow-hidden">
+                                                    {isAnon ? <User size={16} /> : (prayer.metadata?.author_avatar ? <img src={prayer.metadata.author_avatar} className="w-full h-full object-cover" /> : (prayer.metadata?.author_name?.charAt(0) || '?'))}
+                                                </div>
+                                                <div>
+                                                    <div className="text-sm font-bold text-slate-800 dark:text-white">
+                                                        {isAnon ? t('prayer.privacy.anonymous') : (prayer.metadata?.author_name || t('common.guest'))}
+                                                        {isAnswered && <span className="ml-2 text-[10px] text-emerald-500 bg-emerald-100 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded">{t('prayer.answered')}</span>}
+                                                    </div>
+                                                    <div className="text-[10px] text-slate-400">{new Date(prayer.date).toLocaleDateString()}</div>
+                                                </div>
+
+                                                <div className="ml-auto flex items-center gap-2">
+                                                    <VisibilityIcon vis={prayer.metadata?.visibility || 'public'} />
+                                                    {isOwner && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => toggleAnswered(prayer)}
                                                                 className={`p-1.5 rounded-full transition-colors ${isAnswered ? 'text-emerald-500 bg-emerald-50' : 'text-slate-300 hover:text-emerald-500'}`}
                                                                 title="Mark Answered"
-                                                              >
-                                                                  <CheckCircle2 size={16} />
-                                                              </button>
-                                                              <button 
-                                                                onClick={() => handleCommunityDelete(prayer.id)} 
+                                                            >
+                                                                <CheckCircle2 size={16} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleCommunityDelete(prayer.id)}
                                                                 className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
                                                                 title="Delete"
-                                                              >
-                                                                  <Trash2 size={16} />
-                                                              </button>
-                                                          </>
-                                                      )}
-                                                  </div>
-                                              </div>
-                                              
-                                              <p className={`text-slate-800 dark:text-slate-200 text-lg leading-relaxed mb-4 ${isAnswered ? 'line-through opacity-70' : ''}`}>
-                                                  "{prayer.content}"
-                                              </p>
-                                              
-                                              {translatedText && (
-                                                  <div className="mb-4 pt-3 border-t border-slate-100 dark:border-slate-700">
-                                                      <div className="text-[10px] uppercase font-bold text-slate-400 mb-1">{t('common.translated')}:</div>
-                                                      <p className="text-slate-600 dark:text-slate-300 text-sm italic">"{translatedText}"</p>
-                                                  </div>
-                                              )}
+                                                            >
+                                                                <Trash2 size={16} />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
 
-                                              <div className="flex items-center justify-between border-t border-slate-50 dark:border-slate-700 pt-3">
-                                                  <button 
+                                            <p className={`text-slate-800 dark:text-slate-200 text-lg leading-relaxed mb-4 ${isAnswered ? 'line-through opacity-70' : ''}`}>
+                                                "{prayer.content}"
+                                            </p>
+
+                                            {translatedText && (
+                                                <div className="mb-4 pt-3 border-t border-slate-100 dark:border-slate-700">
+                                                    <div className="text-[10px] uppercase font-bold text-slate-400 mb-1">{t('common.translated')}:</div>
+                                                    <p className="text-slate-600 dark:text-slate-300 text-sm italic">"{translatedText}"</p>
+                                                </div>
+                                            )}
+
+                                            <div className="flex items-center justify-between border-t border-slate-50 dark:border-slate-700 pt-3">
+                                                <button
                                                     onClick={() => handleAmen(prayer)}
                                                     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors active:scale-95 ${isAmened ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20'}`}
-                                                  >
-                                                      <span>🙏</span>
-                                                      <span className="text-sm font-bold">{t('prayer.amen')}</span>
-                                                      {prayer.metadata?.interactions?.count ? (
-                                                          <span className={`px-1.5 rounded text-xs ml-1 ${isAmened ? 'bg-indigo-200 dark:bg-indigo-800' : 'bg-slate-200 dark:bg-slate-700'}`}>{prayer.metadata.interactions.count}</span>
-                                                      ) : null}
-                                                  </button>
-                                                  
-                                                  <button
-                                                      onClick={() => handleTranslate(prayer.id, prayer.content)}
-                                                      disabled={isTranslating}
-                                                      className="p-2 text-slate-400 hover:text-indigo-500 transition-colors"
-                                                      title={t('common.translate')}
-                                                  >
-                                                      {isTranslating ? <Loader2 size={16} className="animate-spin" /> : <Languages size={16} />}
-                                                  </button>
-                                              </div>
-                                         </div>
-                                     );
-                                 })
-                             )}
+                                                >
+                                                    <span>🙏</span>
+                                                    <span className="text-sm font-bold">{t('prayer.amen')}</span>
+                                                    {prayer.metadata?.interactions?.count ? (
+                                                        <span className={`px-1.5 rounded text-xs ml-1 ${isAmened ? 'bg-indigo-200 dark:bg-indigo-800' : 'bg-slate-200 dark:bg-slate-700'}`}>{prayer.metadata.interactions.count}</span>
+                                                    ) : null}
+                                                </button>
+
+                                                <button
+                                                    onClick={() => handleTranslate(prayer.id, prayer.content)}
+                                                    disabled={isTranslating}
+                                                    className="p-2 text-slate-400 hover:text-indigo-500 transition-colors"
+                                                    title={t('common.translate')}
+                                                >
+                                                    {isTranslating ? <Loader2 size={16} className="animate-spin" /> : <Languages size={16} />}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
                         </div>
                     )}
 

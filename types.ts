@@ -25,15 +25,7 @@ export interface ChatState {
 export interface UserPreferences {
   bibleTranslation: string; 
   theme: 'light' | 'dark';
-  
-  winterTheme?: boolean; 
-  winterSnow?: boolean;    
-  winterLights?: boolean;  
-  winterIcicles?: boolean; 
 
-  princessTheme?: boolean;
-  princessHearts?: boolean;   
-  princessSparkles?: boolean; 
 
   language: string;
   displayName?: string;
